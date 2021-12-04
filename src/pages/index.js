@@ -2,10 +2,6 @@ import { motion } from 'framer-motion'
 import Head from 'next/head'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoTwitter from '~/components/icons/twitter'
-import background from '@root/public/img/background.png'
-import logoBlackSuperRough from '@root/public/img/logo-black--super-rough.png'
-import distress from '@root/public/img/distress.png'
-import logoWhiteClean from '@root/public/img/logo-white--clean.png'
 
 export default function Home() {
   return (
@@ -13,23 +9,31 @@ export default function Home() {
       <Head>
         <title>Love Is Noise</title>
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preload" href="/img/background.png" as="image" />
+        <link
+          rel="preload"
+          href="/img/logo-black--super-rough.png"
+          as="image"
+        />
+        <link rel="preload" href="/img/distress.png" as="image" />
+        <link rel="preload" href="/img/logo-white--clean.png" as="image" />
       </Head>
       <motion.img
-        src={background.src}
+        src="/img/background.png"
         className="h-screen w-full fixed inset-0 object-cover"
         initial={{ scale: 2 }}
         animate={{ scale: 1.2 }}
         transition={{ duration: 2 }}
       />
       <motion.img
-        src={logoBlackSuperRough.src}
+        src="/img/logo-black--super-rough.png"
         className="h-screen w-full fixed inset-0 object-contain mix-blend-soft-light"
         initial={{ scale: 2.1, opacity: 0, rotate: 4 }}
         animate={{ scale: 2, opacity: 1, rotate: 0 }}
         transition={{ duration: 3 }}
       />
       <motion.img
-        src={distress.src}
+        src="/img/distress.png"
         className="h-screen w-full fixed inset-0 object-cover mix-blend-overlay"
         initial={{ opacity: 0.5 }}
         animate={{ opacity: 1 }}
@@ -54,7 +58,10 @@ export default function Home() {
             whileHover={{ scale: 1.05, rotate: 1 }}
             whileTap={{ scale: 0.95 }}
           >
-            <img src={logoWhiteClean.src} className="w-56 lg:w-72 h-auto" />
+            <img
+              src="/img/logo-white--clean.png"
+              className="w-56 lg:w-72 h-auto"
+            />
           </motion.a>
           <motion.a
             href="https://twitter.com"
