@@ -120,7 +120,7 @@ export default function Home() {
                 initial={{ y: 10 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, delay: 2.75 }}
-                className="text-center font-black uppercase text-primary mt-8 sm:mt-10 lg:mt-16 drop-shadow leading"
+                className="text-center font-black uppercase text-primary my-8 sm:my-10 lg:my-16 drop-shadow leading"
               >
                 <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
                 <span className="block text-3xl sm:text-4xl m-0">
