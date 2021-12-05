@@ -41,14 +41,14 @@ export default function Home() {
           <link key={href} rel="preload" href={href} as="image" />
         ))}
         <title>Love Is Noise - Pillowcase</title>
-        <link rel="canonical" href="https://staticdress.com" />
+        <link rel="canonical" href="https://loveisnoise.world" />
 
         <meta property="og:title" content="Love Is Noise - Pillowcase" />
         <meta
           property="og:description"
           content="Stream Pillowcase from Dec 10th"
         />
-        <meta property="og:url" content="https://staticdress.com" />
+        <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
