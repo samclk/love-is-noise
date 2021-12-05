@@ -88,11 +88,7 @@ export default function Home() {
                 >
                   <MemoFacebook width={44} height={44} />
                 </motion.a>
-                <motion.a
-                  href="/"
-                  whileHover={{ scale: 1.05, rotate: 1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.a href="/" whileTap={{ scale: 0.95 }}>
                   <img
                     src="/img/logo-white--clean.png"
                     className="w-56 lg:w-72 h-auto"
