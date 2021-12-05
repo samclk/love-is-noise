@@ -23,10 +23,13 @@ export default function Home() {
   const [imagesLoaded, setImagesLoaded] = useState(false)
 
   useEffect(() => {
-    Promise.all(coreImages.map((src) => loadImage(src))).then(() => {
-      setTimeout(() => {
-        setImagesLoaded(true)
-      }, 200)
+    const promiseTimer = new Promise((resolve) => {
+      setTimeout(resolve, 750)
+    })
+    const promiseImages = Promise.all(coreImages.map((src) => loadImage(src)))
+
+    Promise.all([promiseImages, promiseTimer]).then(() => {
+      setImagesLoaded(true)
     })
   }, [])
 
@@ -40,17 +43,11 @@ export default function Home() {
         ))}
       </Head>
       <AnimatePresence>
-        {!imagesLoaded && (
-          <img
-            src="/img/logo-white--clean.png"
-            className="w-56 lg:w-72 h-auto fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
-          />
-        )}
-        {imagesLoaded && (
+        {imagesLoaded ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.5 }}
             className="flex flex-col min-h-screen py-2"
           >
             <motion.img
@@ -126,6 +123,11 @@ export default function Home() {
               </motion.div>
             </motion.div>
           </motion.div>
+        ) : (
+          <img
+            src="/img/logo-white--clean.png"
+            className="w-56 lg:w-72 h-auto fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
         )}
       </AnimatePresence>
     </>
