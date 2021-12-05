@@ -40,6 +40,12 @@ export default function Home() {
         ))}
       </Head>
       <AnimatePresence>
+        {!imagesLoaded && (
+          <img
+            src="/img/logo-white--clean.png"
+            className="w-56 lg:w-72 h-auto fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
+        )}
         {imagesLoaded && (
           <motion.div
             initial={{ opacity: 0 }}
