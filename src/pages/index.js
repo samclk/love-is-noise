@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
-import MemoTwitter from '~/components/icons/twitter'
+import MemoInstagram from '~/components/icons/instagram'
+import MemoSpotify from '~/components/icons/spotify'
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -36,11 +37,37 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Love Is Noise</title>
-        <link rel="icon" href="/favicon.ico" />
         {coreImages.map((href) => (
           <link key={href} rel="preload" href={href} as="image" />
         ))}
+        <title>Love Is Noise - Pillowcase</title>
+        <link rel="canonical" href="https://staticdress.com" />
+
+        <meta property="og:title" content="Love Is Noise - Pillowcase" />
+        <meta
+          property="og:description"
+          content="Stream Pillowcase from Dec 10th"
+        />
+        <meta property="og:url" content="https://staticdress.com" />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:image"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-pre-release.jpg?alt=media&token=7763324e-5144-4431-8e20-3f0d11282ce2"
+        />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:creator" content="@whatsamtweets" />
+        <meta name="twitter:title" content="Love Is Noise - Pillowcase" />
+        <meta
+          name="twitter:description"
+          content="Stream Pillowcase from Dec 10th"
+        />
+        <meta
+          name="twitter:image"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-pre-release.jpg?alt=media&token=7763324e-5144-4431-8e20-3f0d11282ce2"
+        />
+
+        <link rel="dns-prefetch" href="https://www.youtube.com"></link>
       </Head>
       <AnimatePresence>
         {imagesLoaded ? (
@@ -79,7 +106,7 @@ export default function Home() {
             >
               <div className="flex justify-center items-center w-full lg:mb-10">
                 <motion.a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/loveisnoiselr"
                   whileHover={{ scale: 1.1, rotate: -2 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -88,15 +115,15 @@ export default function Home() {
                 <motion.a href="/" whileTap={{ scale: 0.95 }}>
                   <img
                     src="/img/logo-white--clean.png"
-                    className="w-56 lg:w-72 h-auto"
+                    className="w-52 md:w-64 lg:w-72 h-auto"
                   />
                 </motion.a>
                 <motion.a
-                  href="https://twitter.com"
+                  href="https://www.instagram.com/loveisnoiselr/"
                   whileHover={{ scale: 1.1, rotate: -2 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <MemoTwitter width={44} height={44} />
+                  <MemoInstagram width={44} height={44} />
                 </motion.a>
               </div>
               <div className="max-w-5xl mx-auto">
@@ -120,6 +147,18 @@ export default function Home() {
                   Pillowcase
                 </span>
                 <span className="block text-2xl sm:text-3xl m-0">Out Now</span>
+
+                <motion.a
+                  whileHover={{ backgroundColor: '#fff052' }}
+                  whileTap={{ backgroundColor: '#bdaf21', scale: 0.95 }}
+                  className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-primary text-black leading-none lg:text-lg italic shadow"
+                  href="https://open.spotify.com/artist/4qY6XGFQwZubu0oKBJeVki?si=9x80Bzn9QRK8vqaSy9llRA"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <MemoSpotify />
+                  <span className="mt-1">Stream now</span>
+                </motion.a>
               </motion.div>
             </motion.div>
           </motion.div>
