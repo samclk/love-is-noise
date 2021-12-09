@@ -123,7 +123,7 @@ export default function Home() {
               <div className="max-w-5xl mx-auto">
                 <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                   <iframe
-                    src="https://www.youtube.com/embed/M8RxCsmHo74"
+                    src="https://www.youtube.com/embed/L6OzHI5kxd4"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
