@@ -44,27 +44,21 @@ export default function Home() {
         <link rel="canonical" href="https://loveisnoise.world" />
 
         <meta property="og:title" content="Love Is Noise - Pillowcase" />
-        <meta
-          property="og:description"
-          content="Stream Pillowcase from Dec 10th"
-        />
+        <meta property="og:description" content="Stream Pillowcase now" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-pre-release.jpg?alt=media&token=7763324e-5144-4431-8e20-3f0d11282ce2"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
         <meta name="twitter:title" content="Love Is Noise - Pillowcase" />
-        <meta
-          name="twitter:description"
-          content="Stream Pillowcase from Dec 10th"
-        />
+        <meta name="twitter:description" content="Stream Pillowcase now" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-pre-release.jpg?alt=media&token=7763324e-5144-4431-8e20-3f0d11282ce2"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
         />
 
         <link rel="dns-prefetch" href="https://www.youtube.com"></link>
@@ -102,12 +96,6 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 2.75 }}
-              className="bg-black fixed inset-0 bg-opacity-75"
-            />
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 2.75 }}
               className="container mx-auto relative z-10"
             >
               <div className="flex justify-center items-center w-full lg:mb-10">
@@ -132,34 +120,29 @@ export default function Home() {
                   <MemoInstagram width={44} height={44} />
                 </motion.a>
               </div>
-              <img
-                src="/img/cover-pillowcase.jpg"
-                className="w-60 h-60 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-black block mx-auto shadow-lg"
-              />
-              {/* <div className="max-w-5xl mx-auto">
+              <div className="max-w-5xl mx-auto">
                 <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                   <iframe
-                    src="https://www.youtube.com/embed/M8RxCsmHo74"
+                    src="https://www.youtube.com/embed/L6OzHI5kxd4"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   ></iframe>
                 </div>
-              </div> */}
+              </div>
               <motion.div
                 initial={{ y: 10 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, delay: 2.75 }}
-                className="text-center font-black uppercase text-primary my-8 sm:my-10 lg:my-16 drop-shadow leading"
+                className="text-center font-black uppercase text-primary my-6 mb-8 sm:my-10 lg:my-16 drop-shadow leading"
               >
                 <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
                 <span className="block text-3xl sm:text-4xl m-0">
                   Pillowcase
                 </span>
-                {/* <span className="block text-2xl sm:text-3xl m-0">Out Now</span> */}
-                <span className="block text-2xl sm:text-3xl m-0">Dec 10th</span>
+                <span className="block text-2xl sm:text-3xl m-0">Out Now</span>
 
-                {/* <motion.a
+                <motion.a
                   whileHover={{ backgroundColor: '#fff052' }}
                   whileTap={{ backgroundColor: '#bdaf21', scale: 0.95 }}
                   className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-primary text-black leading-none lg:text-lg italic shadow"
@@ -169,7 +152,7 @@ export default function Home() {
                 >
                   <MemoSpotify />
                   <span className="mt-1">Stream now</span>
-                </motion.a> */}
+                </motion.a>
               </motion.div>
             </motion.div>
           </motion.div>
