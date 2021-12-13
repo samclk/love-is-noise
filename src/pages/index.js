@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoSpotify from '~/components/icons/spotify'
+import Link from 'next/link'
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -96,7 +97,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 2.75 }}
-              className="container mx-auto relative z-10"
+              className="container mx-auto relative z-10 flex-grow flex flex-col justify-between"
             >
               <div className="flex justify-center items-center w-full lg:mb-10">
                 <motion.a
@@ -120,7 +121,7 @@ export default function Home() {
                   <MemoInstagram width={44} height={44} />
                 </motion.a>
               </div>
-              <div className="max-w-5xl mx-auto">
+              <div className="max-w-5xl mx-auto w-full">
                 <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                   <iframe
                     src="https://www.youtube.com/embed/L6OzHI5kxd4"
@@ -153,6 +154,11 @@ export default function Home() {
                   <MemoSpotify />
                   <span className="mt-1">Stream now</span>
                 </motion.a>
+                <Link href="/contact">
+                  <a className="block mt-4 underline hover:text-white transition">
+                    Contact
+                  </a>
+                </Link>
               </motion.div>
             </motion.div>
           </motion.div>
