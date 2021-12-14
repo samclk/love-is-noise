@@ -5,6 +5,8 @@ import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoSpotify from '~/components/icons/spotify'
 import Link from 'next/link'
+import MemoReddit from '~/components/icons/reddit'
+import MemoPatreon from '~/components/icons/patreon'
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -99,13 +101,20 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 2.75 }}
               className="container mx-auto relative z-10 flex-grow flex flex-col justify-between"
             >
-              <div className="flex justify-center items-center w-full lg:mb-10">
+              <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
                 <motion.a
                   href="https://www.facebook.com/loveisnoiselr"
                   whileHover={{ scale: 1.1, rotate: -2 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <MemoFacebook width={44} height={44} />
+                  <MemoFacebook className="w-8 md:w-10 h-auto" />
+                </motion.a>
+                <motion.a
+                  href="https://www.instagram.com/loveisnoiselr/"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <MemoInstagram className="w-8 md:w-10 h-auto" />
                 </motion.a>
                 <motion.a href="/" whileTap={{ scale: 0.95 }}>
                   <img
@@ -114,11 +123,18 @@ export default function Home() {
                   />
                 </motion.a>
                 <motion.a
-                  href="https://www.instagram.com/loveisnoiselr/"
+                  href="https://www.reddit.com/r/loveisnoise/"
                   whileHover={{ scale: 1.1, rotate: -2 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <MemoInstagram width={44} height={44} />
+                  <MemoReddit className="w-8 md:w-10 h-auto" />
+                </motion.a>
+                <motion.a
+                  href="http://www.patreon.com/loveisnoise"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <MemoPatreon className="w-8 md:w-10 h-auto" />
                 </motion.a>
               </div>
               <div className="max-w-5xl mx-auto w-full">

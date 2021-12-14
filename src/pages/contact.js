@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
-import MemoSpotify from '~/components/icons/spotify'
-import Link from 'next/link'
+import MemoPatreon from '~/components/icons/patreon'
+import MemoReddit from '~/components/icons/reddit'
 
 const container = {
   show: {
@@ -73,76 +73,60 @@ export default function Contact() {
               <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
               <h2 className="block text-3xl sm:text-4xl m-0">Get In touch</h2>
             </div>
-            <motion.dl
-              variants={container}
-              initial="hidden"
-              animate="show"
-              className="grid lg:grid-cols-2 lg:grid-rows-4 lg:gap-2 w-full max-w-xl text-sm mt-12 mb-10"
-            >
-              <motion.dt
-                variants={item}
-                className="text-center lg:text-left text-base lg:text-sm"
+            <div>
+              <motion.div
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4"
               >
-                Agent
-              </motion.dt>
-              <motion.dd
-                variants={item}
-                className="text-center lg:text-right mb-4 lg:mb-0"
-              >
-                <a
-                  href="mailto:paul.ryan@unitedtalent.com"
-                  className="underline hover:text-white transition"
+                <motion.a
+                  href="https://www.facebook.com/loveisnoiselr"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  variants={item}
                 >
-                  paul.ryan@unitedtalent.com
-                </a>
-              </motion.dd>
-              <motion.dt
-                variants={item}
-                className="text-center lg:text-left text-base lg:text-sm"
-              >
-                Agent Assistant
-              </motion.dt>
-              <motion.dd
-                variants={item}
-                className="text-center lg:text-right mb-4 lg:mb-0"
-              >
-                <a
-                  href="mailto:zoe.swindells@unitedtalent.com"
-                  className="underline hover:text-white transition"
+                  <MemoFacebook className="w-8 md:w-10 h-auto" />
+                </motion.a>
+                <motion.a
+                  href="https://www.instagram.com/loveisnoiselr/"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  variants={item}
                 >
-                  zoe.swindells@unitedtalent.com
-                </a>
-              </motion.dd>
-              <motion.dt
-                variants={item}
-                className="text-center lg:text-left text-base lg:text-sm"
-              >
-                Management
-              </motion.dt>
-              <motion.dd
-                variants={item}
-                className="text-center lg:text-right mb-4 lg:mb-0"
-              >
-                N/A
-              </motion.dd>
-              <motion.dt
-                variants={item}
-                className="text-center lg:text-left text-base lg:text-sm"
-              >
-                Direct Contact
-              </motion.dt>
-              <motion.dd
-                variants={item}
-                className="text-center lg:text-right mb-4 lg:mb-0"
-              >
-                <a
-                  href="mailto:loveisnoirlr@gmail.com"
-                  className="underline hover:text-white transition"
+                  <MemoInstagram className="w-8 md:w-10 h-auto" />
+                </motion.a>
+                <motion.a
+                  href="https://www.reddit.com/r/loveisnoise/"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  variants={item}
                 >
-                  loveisnoirlr@gmail.com
-                </a>
-              </motion.dd>
-            </motion.dl>
+                  <MemoReddit className="w-8 md:w-10 h-auto" />
+                </motion.a>
+                <motion.a
+                  href="http://www.patreon.com/loveisnoise"
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  variants={item}
+                >
+                  <MemoPatreon className="w-8 md:w-10 h-auto" />
+                </motion.a>
+              </motion.div>
+              <dl className="grid lg:grid-cols-2 lg:grid-rows-4 lg:gap-2 w-full max-w-xl text-sm mt-12 mb-10">
+                <dt className="text-center lg:text-left text-base lg:text-sm">
+                  Press / General Enquiries
+                </dt>
+                <dd className="text-center lg:text-right mb-4 lg:mb-0">
+                  <a
+                    href="mailto:loveisnoiselr@gmail.com"
+                    className="underline hover:text-white transition"
+                  >
+                    loveisnoiselr@gmail.com
+                  </a>
+                </dd>
+              </dl>
+            </div>
             <Link href="/">
               <a className="block mt-4 underline hover:text-white transition">
                 Back to site
