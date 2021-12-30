@@ -43,25 +43,25 @@ export default function Home() {
         {coreImages.map((href) => (
           <link key={href} rel="preload" href={href} as="image" />
         ))}
-        <title>Love Is Noise - Pillowcase</title>
+        <title>Love Is Noise</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
-        <meta property="og:title" content="Love Is Noise - Pillowcase" />
-        <meta property="og:description" content="Stream Pillowcase now" />
+        <meta property="og:title" content="Love Is Noise" />
+        <meta property="og:description" content="WILL WE FIND A WAY?" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-will-we-find-a-way.jpg?alt=media&token=cc081997-4005-4d21-9627-100bc9c6aa78"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
-        <meta name="twitter:title" content="Love Is Noise - Pillowcase" />
-        <meta name="twitter:description" content="Stream Pillowcase now" />
+        <meta name="twitter:title" content="Love Is Noise" />
+        <meta name="twitter:description" content="WILL WE FIND A WAY?" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-will-we-find-a-way.jpg?alt=media&token=cc081997-4005-4d21-9627-100bc9c6aa78"
         />
 
         <link rel="dns-prefetch" href="https://www.youtube.com"></link>
