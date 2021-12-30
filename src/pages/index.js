@@ -17,7 +17,7 @@ const loadImage = (src) =>
   })
 
 const coreImages = [
-  '/img/background.png',
+  '/img/crazy-bg.png',
   '/img/logo-black--super-rough.png',
   '/img/distress.png',
   '/img/logo-white--clean.png'
@@ -71,15 +71,15 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.25 }}
             className="flex flex-col min-h-screen py-2"
           >
             <motion.img
-              src="/img/background.png"
+              src="/img/crazy-bg.png"
               className="h-screen w-full fixed inset-0 object-cover"
-              initial={{ scale: 2 }}
-              animate={{ scale: 1.2 }}
-              transition={{ duration: 2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
             />
             <motion.img
               src="/img/logo-black--super-rough.png"
@@ -91,17 +91,17 @@ export default function Home() {
             <motion.img
               src="/img/distress.png"
               className="h-screen w-full fixed inset-0 object-cover mix-blend-overlay"
-              initial={{ opacity: 0.5 }}
+              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 2 }}
+              transition={{ duration: 1 }}
             />
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 2.75 }}
-              className="container mx-auto relative z-10 flex-grow flex flex-col justify-between"
+              transition={{ duration: 0.5, delay: 1.375 }}
+              className="container mx-auto relative z-10 flex-grow flex flex-col mix-blend-difference"
             >
-              <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
+              {/* <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
                 <motion.a
                   href="https://www.facebook.com/loveisnoiselr"
                   whileHover={{ scale: 1.1, rotate: -2 }}
@@ -136,46 +136,24 @@ export default function Home() {
                 >
                   <MemoPatreon className="w-8 md:w-10 h-auto" />
                 </motion.a>
-              </div>
-              <div className="max-w-5xl mx-auto w-full">
-                <div className="aspect-w-16 aspect-h-9 bg-black shadow">
-                  <iframe
-                    src="https://www.youtube.com/embed/L6OzHI5kxd4"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-              <motion.div
-                initial={{ y: 10 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.6, delay: 2.75 }}
-                className="text-center font-black uppercase text-primary my-6 mb-8 sm:my-10 lg:my-16 drop-shadow leading"
-              >
-                <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
-                <span className="block text-3xl sm:text-4xl m-0">
-                  Pillowcase
-                </span>
-                <span className="block text-2xl sm:text-3xl m-0">Out Now</span>
-
+              </div> */}
+              <div className="text-center flex-grow flex justify-center flex-col">
                 <motion.a
-                  whileHover={{ backgroundColor: '#fff052' }}
-                  whileTap={{ backgroundColor: '#bdaf21', scale: 0.95 }}
-                  className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-primary text-black leading-none lg:text-lg italic shadow"
-                  href="https://open.spotify.com/artist/4qY6XGFQwZubu0oKBJeVki?si=9x80Bzn9QRK8vqaSy9llRA"
+                  href="https://youtu.be/CRRlbK5w8AE"
                   target="_blank"
                   rel="noopener"
+                  className="text-[7.5vw] sm:text-[6vw] font-black uppercase text-[#db50f8] hover:invert cursor-pointer transition hover:scale-105"
+                  animate={{ filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    repeatType: 'reverse',
+                    repeatDelay: 8
+                  }}
                 >
-                  <MemoSpotify />
-                  <span className="mt-1">Stream now</span>
+                  Will we find a way?
                 </motion.a>
-                <Link href="/contact">
-                  <a className="block mt-4 underline hover:text-white transition">
-                    Contact
-                  </a>
-                </Link>
-              </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         ) : (
