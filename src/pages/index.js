@@ -17,7 +17,7 @@ const loadImage = (src) =>
   })
 
 const coreImages = [
-  '/img/crazy-bg.png',
+  '/img/homepage-bg.jpg',
   '/img/logo-black--super-rough.png',
   '/img/distress.png',
   '/img/logo-white--clean.png'
@@ -47,7 +47,7 @@ export default function Home() {
         <link rel="canonical" href="https://loveisnoise.world" />
 
         <meta property="og:title" content="Love Is Noise" />
-        <meta property="og:description" content="WILL WE FIND A WAY?" />
+        <meta property="og:description" content="WILL WE MEET SOMEDAY?" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
@@ -58,7 +58,7 @@ export default function Home() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
         <meta name="twitter:title" content="Love Is Noise" />
-        <meta name="twitter:description" content="WILL WE FIND A WAY?" />
+        <meta name="twitter:description" content="WILL WE MEET SOMEDAY?" />
         <meta
           name="twitter:image"
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-will-we-find-a-way.jpg?alt=media&token=cc081997-4005-4d21-9627-100bc9c6aa78"
@@ -75,7 +75,7 @@ export default function Home() {
             className="flex flex-col min-h-screen py-2"
           >
             <motion.img
-              src="/img/crazy-bg.png"
+              src="/img/homepage-bg.jpg"
               className="h-screen w-full fixed inset-0 object-cover"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -99,7 +99,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 1.375 }}
-              className="container mx-auto relative z-10 flex-grow flex flex-col mix-blend-difference"
+              className="container mx-auto relative z-10 flex-grow flex flex-col"
             >
               {/* <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
                 <motion.a
@@ -139,10 +139,10 @@ export default function Home() {
               </div> */}
               <div className="text-center flex-grow flex justify-center flex-col">
                 <motion.a
-                  href="https://youtu.be/CRRlbK5w8AE"
+                  href="https://youtu.be/B1E7h3SeMDk"
                   target="_blank"
                   rel="noopener"
-                  className="text-[7.5vw] sm:text-[6vw] font-black uppercase text-[#db50f8] hover:invert cursor-pointer transition hover:scale-105"
+                  className="text-[6vw] sm:text-[5.5vw] font-black uppercase text-[#bf3a1c] hover:invert cursor-pointer transition hover:scale-105 whitespace-nowrap text-opacity-90"
                   animate={{ filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] }}
                   transition={{
                     duration: 1,
@@ -151,7 +151,7 @@ export default function Home() {
                     repeatDelay: 8
                   }}
                 >
-                  Will we find a way?
+                  Will we meet someday?
                 </motion.a>
               </div>
             </motion.div>
