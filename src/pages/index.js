@@ -77,28 +77,31 @@ export default function Home() {
             <motion.img
               src="/img/homepage-bg.jpg"
               className="h-screen w-full fixed inset-0 object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, filter: 'blur(15px)' }}
+              animate={{ opacity: 0.5, filter: 'blur(0px)' }}
               transition={{ duration: 1 }}
+              alt=""
             />
-            <motion.img
+            {/* <motion.img
               src="/img/logo-black--super-rough.png"
               className="h-screen w-full fixed inset-0 object-contain mix-blend-soft-light"
               initial={{ scale: 2.1, opacity: 0, rotate: 4 }}
               animate={{ scale: 2, opacity: 1, rotate: 0 }}
               transition={{ duration: 3 }}
-            />
+              alt=""
+            /> */}
             <motion.img
               src="/img/distress.png"
               className="h-screen w-full fixed inset-0 object-cover mix-blend-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
+              alt=""
             />
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.375 }}
+              transition={{ duration: 0.5, delay: 0.75 }}
               className="container mx-auto relative z-10 flex-grow flex flex-col"
             >
               {/* <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
@@ -137,12 +140,12 @@ export default function Home() {
                   <MemoPatreon className="w-8 md:w-10 h-auto" />
                 </motion.a>
               </div> */}
-              <div className="text-center flex-grow flex justify-center flex-col">
+              <div className="text-center flex-grow flex justify-center flex-col drop-shadow-md">
                 <motion.a
-                  href="https://youtu.be/B1E7h3SeMDk"
+                  href="https://youtu.be/nzF3yoF7N_E"
                   target="_blank"
                   rel="noopener"
-                  className="text-[6vw] sm:text-[5.5vw] font-black uppercase text-[#bf3a1c] hover:invert cursor-pointer transition hover:scale-105 whitespace-nowrap text-opacity-90"
+                  className="text-[3vw] sm:text-[2.5vw] font-black uppercase text-white hover:invert cursor-pointer transition hover:scale-105 text-opacity-90"
                   animate={{ filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] }}
                   transition={{
                     duration: 1,
@@ -151,7 +154,15 @@ export default function Home() {
                     repeatDelay: 8
                   }}
                 >
-                  Will we meet someday?
+                  <span className="whitespace-nowrap block">
+                    It surrounds your mind, through space and time.
+                  </span>
+                  <span className="whitespace-nowrap block">
+                    A plethora of wisdom, misguided by greed.
+                  </span>
+                  <span className="whitespace-nowrap block">
+                    They need to feed, on those who believe.
+                  </span>
                 </motion.a>
               </div>
             </motion.div>
