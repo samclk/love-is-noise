@@ -7,6 +7,7 @@ import MemoSpotify from '~/components/icons/spotify'
 import Link from 'next/link'
 import MemoReddit from '~/components/icons/reddit'
 import MemoPatreon from '~/components/icons/patreon'
+import Countdown from 'react-countdown'
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -78,7 +79,7 @@ export default function Home() {
               src="/img/homepage-bg.jpg"
               className="h-screen w-full fixed inset-0 object-cover"
               initial={{ opacity: 0, filter: 'blur(15px)' }}
-              animate={{ opacity: 0.5, filter: 'blur(0px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
               transition={{ duration: 1 }}
               alt=""
             />
@@ -141,29 +142,10 @@ export default function Home() {
                 </motion.a>
               </div> */}
               <div className="text-center flex-grow flex justify-center flex-col drop-shadow-md">
-                <motion.a
-                  href="https://youtu.be/nzF3yoF7N_E"
-                  target="_blank"
-                  rel="noopener"
-                  className="text-[3vw] sm:text-[2.5vw] font-black uppercase text-white hover:invert cursor-pointer transition hover:scale-105 text-opacity-90"
-                  animate={{ filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    repeatDelay: 8
-                  }}
-                >
-                  <span className="whitespace-nowrap block">
-                    It surrounds your mind, through space and time.
-                  </span>
-                  <span className="whitespace-nowrap block">
-                    A plethora of wisdom, misguided by greed.
-                  </span>
-                  <span className="whitespace-nowrap block">
-                    They need to feed, on those who believe.
-                  </span>
-                </motion.a>
+                <Countdown
+                  date={new Date('2022-01-23T00:00:00+0000')}
+                  className="text-[10vw] sm:text-[7.5vw] font-black uppercase text-white text-opacity-90"
+                />
               </div>
             </motion.div>
           </motion.div>
