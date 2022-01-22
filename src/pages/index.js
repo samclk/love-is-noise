@@ -67,21 +67,21 @@ export default function Home() {
         <link rel="canonical" href="https://loveisnoise.world" />
 
         <meta property="og:title" content="Love Is Noise" />
-        <meta property="og:description" content="WILL WE MEET SOMEDAY?" />
+        <meta property="og:description" content="JAN 28TH" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-will-we-find-a-way.jpg?alt=media&token=cc081997-4005-4d21-9627-100bc9c6aa78"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-jan-22.jpg?alt=media&token=ee312d5b-958c-48ff-9294-a2878b5e0912"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
         <meta name="twitter:title" content="Love Is Noise" />
-        <meta name="twitter:description" content="WILL WE MEET SOMEDAY?" />
+        <meta name="twitter:description" content="JAN 28TH" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-will-we-find-a-way.jpg?alt=media&token=cc081997-4005-4d21-9627-100bc9c6aa78"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-jan-22.jpg?alt=media&token=ee312d5b-958c-48ff-9294-a2878b5e0912"
         />
 
         <link rel="dns-prefetch" href="https://www.youtube.com"></link>
