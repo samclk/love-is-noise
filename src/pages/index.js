@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoSpotify from '~/components/icons/spotify'
@@ -36,6 +36,25 @@ export default function Home() {
     Promise.all([promiseImages, promiseTimer]).then(() => {
       setImagesLoaded(true)
     })
+  }, [])
+
+  const headerRef = useRef(null)
+  const [headerHeight, setHeaderHeight] = useState(0)
+
+  const updateHeaderHeight = () => {
+    if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight)
+  }
+
+  useLayoutEffect(updateHeaderHeight, [headerRef.current])
+
+  useEffect(() => {
+    if (process.browser) {
+      window.addEventListener('resize', updateHeaderHeight)
+
+      return () => {
+        window.removeEventListener('resize', updateHeaderHeight)
+      }
+    }
   }, [])
 
   return (
@@ -74,6 +93,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.25 }}
             className="flex flex-col min-h-screen py-2"
+            onAnimationComplete={updateHeaderHeight}
           >
             <motion.img
               src="/img/homepage-bg.jpg"
@@ -105,7 +125,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.75 }}
               className="container mx-auto relative z-10 flex-grow flex flex-col"
             >
-              {/* <div className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4">
+              <div
+                className="flex justify-center items-center w-full lg:mb-10 space-x-2 md:space-x-4"
+                ref={headerRef}
+              >
                 <motion.a
                   href="https://www.facebook.com/loveisnoiselr"
                   whileHover={{ scale: 1.1, rotate: -2 }}
@@ -140,12 +163,42 @@ export default function Home() {
                 >
                   <MemoPatreon className="w-8 md:w-10 h-auto" />
                 </motion.a>
-              </div> */}
-              <div className="text-center flex-grow flex justify-center flex-col drop-shadow-md">
+              </div>
+              <div
+                className="text-center flex-grow flex justify-center flex-col drop-shadow-md"
+                style={{ paddingBottom: headerHeight }}
+              >
                 <Countdown
-                  date={new Date('2022-01-23T00:00:00+0000')}
+                  date={new Date('2022-01-23T12:00:00+0000')}
                   className="text-[10vw] sm:text-[7.5vw] font-black uppercase text-white text-opacity-90"
-                />
+                >
+                  <motion.div
+                    initial={{ y: 10 }}
+                    animate={{ y: 0 }}
+                    transition={{ duration: 0.6, delay: 2.75 }}
+                    className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
+                  >
+                    <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
+                    <span className="block text-7xl sm:text-8xl tracking-wider m-0">
+                      Azure
+                    </span>
+                    {/* <span className="block text-2xl sm:text-3xl m-0">Out Now</span> */}
+                    <span className="block text-2xl sm:text-3xl tracking-widest m-0">
+                      28th Jan
+                    </span>
+
+                    <motion.a
+                      whileHover={{ backgroundColor: '#ff8383' }}
+                      whileTap={{ backgroundColor: '#ff4f4f', scale: 0.95 }}
+                      className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-400 text-black leading-none lg:text-lg italic shadow"
+                      href="https://distrokid.com/hyperfollow/loveisnoise/azure"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <span className="mt-1">Pre-save now</span>
+                    </motion.a>
+                  </motion.div>
+                </Countdown>
               </div>
             </motion.div>
           </motion.div>
