@@ -63,11 +63,11 @@ export default function Home() {
         {coreImages.map((href) => (
           <link key={href} rel="preload" href={href} as="image" />
         ))}
-        <title>Love Is Noise</title>
+        <title>Love Is Noise - Azure</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
-        <meta property="og:title" content="Love Is Noise" />
-        <meta property="og:description" content="JAN 28TH" />
+        <meta property="og:title" content="Love Is Noise - Azure" />
+        <meta property="og:description" content="Stream Azure Now" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
@@ -77,8 +77,8 @@ export default function Home() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
-        <meta name="twitter:title" content="Love Is Noise" />
-        <meta name="twitter:description" content="JAN 28TH" />
+        <meta name="twitter:title" content="Love Is Noise - Azure" />
+        <meta name="twitter:description" content="Stream Azure Now" />
         <meta
           name="twitter:image"
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-jan-22.jpg?alt=media&token=ee312d5b-958c-48ff-9294-a2878b5e0912"
@@ -178,24 +178,32 @@ export default function Home() {
                     transition={{ duration: 0.6, delay: 2.75 }}
                     className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
                   >
-                    <h1 className="text-4xl sm:text-5xl m-0">Love is Noise</h1>
-                    <span className="block text-7xl sm:text-8xl tracking-wider m-0">
+                    <div className="max-w-2xl mx-auto mb-8">
+                      <div className="aspect-w-16 aspect-h-9 bg-black shadow">
+                        <iframe
+                          src="https://www.youtube.com/embed/hC36JimuVYk"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl m-0">Love is Noise</h1>
+                    <span className="block text-6xl sm:text-7xl tracking-wider m-0">
                       Azure
                     </span>
-                    {/* <span className="block text-2xl sm:text-3xl m-0">Out Now</span> */}
-                    <span className="block text-2xl sm:text-3xl tracking-widest m-0">
-                      28th Jan
+                    <span className="block text-2xl sm:text-3xl m-0">
+                      Out Now
                     </span>
-
                     <motion.a
                       whileHover={{ backgroundColor: '#ff8383' }}
                       whileTap={{ backgroundColor: '#ff4f4f', scale: 0.95 }}
                       className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-400 text-black leading-none lg:text-lg italic shadow"
-                      href="https://distrokid.com/hyperfollow/loveisnoise/azure"
+                      href="https://www.livenation.co.uk/artist-love-is-noise-1359424"
                       target="_blank"
                       rel="noopener"
                     >
-                      <span className="mt-1">Pre-save now</span>
+                      <span className="mt-1">Upcoming shows</span>
                     </motion.a>
                   </motion.div>
                 </Countdown>
