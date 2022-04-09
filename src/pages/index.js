@@ -199,12 +199,13 @@ export default function Home() {
                       whileHover={{ backgroundColor: '#ff8383' }}
                       whileTap={{ backgroundColor: '#ff4f4f', scale: 0.95 }}
                       className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-400 text-black leading-none lg:text-lg italic shadow"
-                      href="https://www.livenation.co.uk/artist-love-is-noise-1359424"
+                      href="https://www.instagram.com/p/CcFZJEPtxqS/?igshid=MDJmNzVkMjY%3D"
                       target="_blank"
                       rel="noopener"
                     >
-                      <span className="mt-1">Upcoming shows</span>
+                      <span className="mt-1">Upcoming show</span>
                     </motion.a>
+                    <p></p>
                   </motion.div>
                 </Countdown>
               </div>
