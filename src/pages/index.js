@@ -1,13 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import Countdown from 'react-countdown'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
-import MemoSpotify from '~/components/icons/spotify'
-import Link from 'next/link'
-import MemoReddit from '~/components/icons/reddit'
 import MemoPatreon from '~/components/icons/patreon'
-import Countdown from 'react-countdown'
+import MemoReddit from '~/components/icons/reddit'
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -103,14 +101,6 @@ export default function Home() {
               transition={{ duration: 1 }}
               alt=""
             />
-            {/* <motion.img
-              src="/img/logo-black--super-rough.png"
-              className="h-screen w-full fixed inset-0 object-contain mix-blend-soft-light"
-              initial={{ scale: 2.1, opacity: 0, rotate: 4 }}
-              animate={{ scale: 2, opacity: 1, rotate: 0 }}
-              transition={{ duration: 3 }}
-              alt=""
-            /> */}
             <motion.img
               src="/img/distress.png"
               className="h-screen w-full fixed inset-0 object-cover mix-blend-overlay"
@@ -165,7 +155,7 @@ export default function Home() {
                 </motion.a>
               </div>
               <div
-                className="text-center flex-grow flex justify-center flex-col drop-shadow-md"
+                className="text-center flex-grow flex justify-center flex-col drop-shadow-md font-sans font-bold"
                 // style={{ paddingBottom: headerHeight }}
               >
                 <Countdown
@@ -188,20 +178,20 @@ export default function Home() {
                         ></iframe>
                       </div>
                     </div> */}
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl m-0">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl m-0">
                       Love is Noise
                     </h1>
-                    <span className="block text-4xl sm:text-5xl md:text-6xl tracking-wider m-0">
+                    <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-wider m-0">
                       Movement
                     </span>
-                    <span className="block text-xl sm:text-2xl md:text-3xl m-0">
+                    <span className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl m-0">
                       30/08/22
                     </span>
                     <motion.a
                       whileHover={{ backgroundColor: '#e22d2d' }}
                       whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
                       className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-                      href="https://www.instagram.com/p/CcFZJEPtxqS/?igshid=MDJmNzVkMjY%3D"
+                      href="https://altersongs.lnk.to/Movement"
                       target="_blank"
                       rel="noopener"
                     >
