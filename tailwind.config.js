@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['apparat', 'sans-serif']
+        sans: ['modesto-condensed', 'sans-serif']
       },
       colors: {
         primary: '#FEEA14'
