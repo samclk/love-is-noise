@@ -61,11 +61,11 @@ export default function Home() {
         {coreImages.map((href) => (
           <link key={href} rel="preload" href={href} as="image" />
         ))}
-        <title>Love Is Noise - Azure</title>
+        <title>Love Is Noise - Movement</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
-        <meta property="og:title" content="Love Is Noise - Azure" />
-        <meta property="og:description" content="Stream Azure Now" />
+        <meta property="og:title" content="Love Is Noise - Movement" />
+        <meta property="og:description" content="30/08/22" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
@@ -75,8 +75,8 @@ export default function Home() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
-        <meta name="twitter:title" content="Love Is Noise - Azure" />
-        <meta name="twitter:description" content="Stream Azure Now" />
+        <meta name="twitter:title" content="Love Is Noise - Movement" />
+        <meta name="twitter:description" content="30/08/22" />
         <meta
           name="twitter:image"
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-jan-22.jpg?alt=media&token=ee312d5b-958c-48ff-9294-a2878b5e0912"
