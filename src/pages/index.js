@@ -7,6 +7,9 @@ import MemoInstagram from '~/components/icons/instagram'
 import MemoPatreon from '~/components/icons/patreon'
 import MemoReddit from '~/components/icons/reddit'
 
+const date = '2022-09-23T12:00:00+0100'
+const inThePast = (date) => new Date(Date.now()) > new Date(date)
+
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
     let img = new Image()
@@ -76,9 +79,11 @@ export default function Home() {
         />
 
         <link rel="dns-prefetch" href="https://www.youtube.com"></link>
+        <link rel="dns-prefetch" href="https://widgetv3.bandsintown.com"></link>
         <script
           charSet="utf-8"
           src="https://widgetv3.bandsintown.com/main.min.js"
+          async
           defer
         ></script>
       </Head>
@@ -154,209 +159,214 @@ export default function Home() {
             className="text-center flex-grow flex justify-center flex-col drop-shadow-md font-sans font-bold sm:!pb-0"
             style={{ paddingBottom: headerHeight }}
           >
-            <Countdown
-              date={new Date('2022-08-30T11:00:00+0100')}
-              className="text-[15vw] sm:text-[10vw] md:sm:text-[7.5vw] font-black uppercase text-white text-opacity-90"
+            <motion.div
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.6, delay: 2.75 }}
+              className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
             >
-              <motion.div
-                initial={{ y: 10 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.6, delay: 2.75 }}
-                className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
-              >
-                <div className="max-w-2xl mx-auto mb-8">
+              <div className="max-w-2xl mx-auto mb-8">
+                <Countdown
+                  date={new Date(date)}
+                  className="text-[15vw] sm:text-[10vw] md:sm:text-[7.5vw] font-black uppercase text-white text-opacity-90"
+                >
                   <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                     <iframe
-                      src="https://www.youtube.com/embed/qZ4EGw2o2Tw"
+                      src="https://www.youtube.com/embed/tfHnROfCpKQ"
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     ></iframe>
                   </div>
-                </div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl m-0">
-                  Love is Noise
-                </h1>
-                <span className="block text-5xl sm:text-6xl md:text-7xl tracking-wider m-0">
-                  Movement
-                </span>
-                <span className="block text-xl sm:text-2xl md:text-3xl m-0">
-                  (feat. Jason Aalon Butler)
-                </span>
-                <motion.a
-                  whileHover={{ backgroundColor: '#e22d2d' }}
-                  whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
-                  className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-                  href="https://loveisnoise.bigcartel.com/"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Preorder "Euphoria, Where Were You?"
-                </motion.a>
-                <div className="my-16 uppercase">
-                  <a
-                    className="bit-widget-initializer"
-                    data-artist-name="id_15509657"
-                    data-background-color="rgba(0, 0, 0, .3)"
-                    data-separator-color="rgba(255, 255, 255, .5)"
-                    data-text-color="#FFFFFF"
-                    data-font="modesto-condensed"
-                    data-auto-style="true"
-                    data-button-label-capitalization="uppercase"
-                    data-header-capitalization="uppercase"
-                    data-location-capitalization="uppercase"
-                    data-venue-capitalization="uppercase"
-                    data-display-local-dates="true"
-                    data-local-dates-position="tab"
-                    data-display-past-dates="true"
-                    data-display-details="true"
-                    data-display-lineup="true"
-                    data-display-start-time=""
-                    data-social-share-icon="true"
-                    data-display-limit="all"
-                    data-date-format="DD/MM/YY"
-                    data-date-orientation="horizontal"
-                    data-date-border-color="rgba(255, 255, 255, .5)"
-                    data-date-border-width="1px"
-                    data-date-capitalization="undefined"
-                    data-date-border-radius="0px"
-                    data-event-ticket-cta-size="medium"
-                    data-event-custom-ticket-text="undefined"
-                    data-event-ticket-text="TICKETS"
-                    data-event-ticket-icon=""
-                    data-event-ticket-cta-text-color="#FFFFFF"
-                    data-event-ticket-cta-bg-color="#dc2626"
-                    data-event-ticket-cta-border-color="#dc2626"
-                    data-event-ticket-cta-border-width="0px"
-                    data-event-ticket-cta-border-radius="0px"
-                    data-sold-out-button-text-color="#000000"
-                    data-sold-out-button-background-color="rgba(255, 255, 255, .5)"
-                    data-sold-out-button-border-color="rgba(255, 255, 255, .5)"
-                    data-sold-out-button-clickable="true"
-                    data-event-rsvp-position="left"
-                    data-event-rsvp-cta-size="medium"
-                    data-event-rsvp-only-show-icon="undefined"
-                    data-event-rsvp-text="REMIND ME"
-                    data-event-rsvp-icon=""
-                    data-event-rsvp-cta-text-color="#FFFFFF"
-                    data-event-rsvp-cta-bg-color="#000000"
-                    data-event-rsvp-cta-border-color="#FFFFFF"
-                    data-event-rsvp-cta-border-width="1px"
-                    data-event-rsvp-cta-border-radius="0px"
-                    data-follow-section-position="top"
-                    data-follow-section-alignment="center"
-                    data-follow-section-header-text="UPCOMING SHOWS"
-                    data-follow-section-cta-size="medium"
-                    data-follow-section-cta-text="FOLLOW"
-                    data-follow-section-cta-icon="true"
-                    data-follow-section-cta-text-color="#000000"
-                    data-follow-section-cta-bg-color="#FFFFFF"
-                    data-follow-section-cta-border-color="#FFFFFF"
-                    data-follow-section-cta-border-width="0px"
-                    data-follow-section-cta-border-radius="0px"
-                    data-play-my-city-position="bottom"
-                    data-play-my-city-alignment="Center"
-                    data-play-my-city-header-text="Don’t see a show near you?"
-                    data-play-my-city-cta-size="medium"
-                    data-play-my-city-cta-text="REQUEST A SHOW"
-                    data-play-my-city-cta-icon="true"
-                    data-play-my-city-cta-text-color="#000000"
-                    data-play-my-city-cta-bg-color="#FFFFFF"
-                    data-play-my-city-cta-border-color="#FFFFFF"
-                    data-play-my-city-cta-border-width="0px"
-                    data-play-my-city-cta-border-radius="0px"
-                    data-language="en"
-                    data-layout-breakpoint="900"
-                    data-app-id=""
-                    data-affil-code=""
-                    data-bit-logo-position="bottomRight"
-                    data-bit-logo-color="rgba(255, 255, 255, .75)"
-                    data-optin-font="undefined"
-                    data-optin-text-color="undefined"
-                    data-optin-bg-color="undefined"
-                    data-optin-cta-text-color="undefined"
-                    data-optin-cta-bg-color="undefined"
-                    data-optin-cta-border-width="undefined"
-                    data-optin-cta-border-radius="0px"
-                    data-optin-cta-border-color="undefined"
-                  ></a>
-                </div>
+                </Countdown>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl m-0">
+                Love is Noise
+              </h1>
+              <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
+                Euphoria (where were you?)
+              </span>
+              <span className="block text-xl sm:text-2xl md:text-3xl m-0">
+                Album title track
+              </span>
+              <motion.a
+                whileHover={{ backgroundColor: '#e22d2d' }}
+                whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
+                className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
+                href={
+                  inThePast(date)
+                    ? 'https://loveisnoise.bigcartel.com/'
+                    : 'https://altersongs.lnk.to/Euphoriawherewereyou'
+                }
+                target="_blank"
+                rel="noopener"
+              >
+                {inThePast(date) ? 'Preorder' : 'Presave'} "Euphoria, Where Were
+                You?"
+              </motion.a>
+              <div className="my-16 uppercase">
+                <a
+                  className="bit-widget-initializer"
+                  data-artist-name="id_245374"
+                  data-background-color="rgba(0, 0, 0, .1)"
+                  data-separator-color="rgba(255, 255, 255, .2)"
+                  data-text-color="#FFFFFF"
+                  data-font="modesto-condensed"
+                  data-auto-style="true"
+                  data-button-label-capitalization="uppercase"
+                  data-header-capitalization="uppercase"
+                  data-location-capitalization="uppercase"
+                  data-venue-capitalization="uppercase"
+                  data-display-local-dates="true"
+                  data-local-dates-position="tab"
+                  data-display-past-dates="true"
+                  data-display-details="true"
+                  data-display-lineup="true"
+                  data-display-start-time=""
+                  data-social-share-icon="false"
+                  data-display-limit="all"
+                  data-date-format="DD/MM/YY"
+                  data-date-orientation="horizontal"
+                  data-date-border-color="rgba(255, 255, 255, .5)"
+                  data-date-border-width="1px"
+                  data-date-capitalization="undefined"
+                  data-date-border-radius="0px"
+                  data-event-ticket-cta-size="medium"
+                  data-event-custom-ticket-text="undefined"
+                  data-event-ticket-text="TICKETS"
+                  data-event-ticket-icon=""
+                  data-event-ticket-cta-text-color="#FFFFFF"
+                  data-event-ticket-cta-bg-color="#dc2626"
+                  data-event-ticket-cta-border-color="#dc2626"
+                  data-event-ticket-cta-border-width="0px"
+                  data-event-ticket-cta-border-radius="0px"
+                  data-sold-out-button-text-color="#000000"
+                  data-sold-out-button-background-color="rgba(255, 255, 255, .5)"
+                  data-sold-out-button-border-color="rgba(255, 255, 255, .5)"
+                  data-sold-out-button-clickable="true"
+                  data-event-rsvp-position="undefined"
+                  data-event-rsvp-cta-size="medium"
+                  data-event-rsvp-only-show-icon="undefined"
+                  data-event-rsvp-text="REMIND ME"
+                  data-event-rsvp-icon=""
+                  data-event-rsvp-cta-text-color="#FFFFFF"
+                  data-event-rsvp-cta-bg-color="transparent"
+                  data-event-rsvp-cta-border-color="#FFFFFF"
+                  data-event-rsvp-cta-border-width="1px"
+                  data-event-rsvp-cta-border-radius="0px"
+                  data-follow-section-position="top"
+                  data-follow-section-alignment="center"
+                  data-follow-section-header-text="UPCOMING SHOWS"
+                  data-follow-section-cta-size="medium"
+                  data-follow-section-cta-text="FOLLOW"
+                  data-follow-section-cta-icon="true"
+                  data-follow-section-cta-text-color="#000000"
+                  data-follow-section-cta-bg-color="#FFFFFF"
+                  data-follow-section-cta-border-color="#FFFFFF"
+                  data-follow-section-cta-border-width="0px"
+                  data-follow-section-cta-border-radius="0px"
+                  data-play-my-city-position="bottom"
+                  data-play-my-city-alignment="Center"
+                  data-play-my-city-header-text="Don’t see a show near you?"
+                  data-play-my-city-cta-size="medium"
+                  data-play-my-city-cta-text="REQUEST A SHOW"
+                  data-play-my-city-cta-icon="true"
+                  data-play-my-city-cta-text-color="#000000"
+                  data-play-my-city-cta-bg-color="#FFFFFF"
+                  data-play-my-city-cta-border-color="#FFFFFF"
+                  data-play-my-city-cta-border-width="0px"
+                  data-play-my-city-cta-border-radius="0px"
+                  data-language="en"
+                  data-layout-breakpoint="900"
+                  data-app-id=""
+                  data-affil-code=""
+                  data-bit-logo-position="bottomRight"
+                  data-bit-logo-color="rgba(255, 255, 255, .75)"
+                  data-optin-font="undefined"
+                  data-optin-text-color="undefined"
+                  data-optin-bg-color="undefined"
+                  data-optin-cta-text-color="undefined"
+                  data-optin-cta-bg-color="undefined"
+                  data-optin-cta-border-width="undefined"
+                  data-optin-cta-border-radius="0px"
+                  data-optin-cta-border-color="undefined"
+                ></a>
+              </div>
 
-                {/* Begin Mailchimp Signup Form */}
-                <div id="mc_embed_signup">
-                  <form
-                    action="https://world.us12.list-manage.com/subscribe/post?u=5381817b945cf1d237f219562&id=9366de9b6a&f_id=003eb7e0f0"
-                    method="post"
-                    id="mc-embedded-subscribe-form"
-                    name="mc-embedded-subscribe-form"
-                    className="validate bg-black bg-opacity-50 p-12 mx-auto max-w-2xl"
-                    target="_self"
-                  >
-                    <div id="mc_embed_signup_scroll">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-2">
-                        Join the mailing list
-                      </h2>
-                      <div className="mc-field-group space-x-2">
-                        <label htmlFor="mce-EMAIL">Email Address</label>
-                        <input
-                          type="email"
-                          defaultValue=""
-                          name="EMAIL"
-                          className="required email bg-transparent border-2 border-white text-white p-2 min-w-[200px]"
-                          id="mce-EMAIL"
-                          required=""
-                        />
-                        <span
-                          id="mce-EMAIL-HELPERTEXT"
-                          className="helper_text"
-                        />
-                      </div>
-                      <div id="mce-responses" className="clear foot">
-                        <div
-                          className="response"
-                          id="mce-error-response"
-                          style={{ display: 'none' }}
-                        />
-                        <div
-                          className="response"
-                          id="mce-success-response"
-                          style={{ display: 'none' }}
-                        />
-                      </div>{' '}
-                      {/* real people should not fill this in and expect good things - do not remove this or risk form bot signups*/}
+              {/* Begin Mailchimp Signup Form */}
+              <div id="mc_embed_signup">
+                <form
+                  action="https://world.us12.list-manage.com/subscribe/post?u=5381817b945cf1d237f219562&id=9366de9b6a&f_id=003eb7e0f0"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  className="validate p-12 mx-auto max-w-lg"
+                  target="_self"
+                >
+                  <div id="mc_embed_signup_scroll">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-2">
+                      Join the mailing list
+                    </h2>
+                    <div className="mc-field-group space-x-2">
+                      <label htmlFor="mce-EMAIL" className="sr-only">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        defaultValue=""
+                        name="EMAIL"
+                        className="required email bg-transparent border-2 border-white text-white p-2 min-w-[200px] text-center w-full"
+                        id="mce-EMAIL"
+                        required=""
+                        placeholder="Email address"
+                      />
+                      <span id="mce-EMAIL-HELPERTEXT" className="helper_text" />
+                    </div>
+                    <div id="mce-responses" className="clear foot">
                       <div
-                        style={{ position: 'absolute', left: '-5000px' }}
-                        aria-hidden="true"
-                      >
-                        <input
-                          type="text"
-                          name="b_5381817b945cf1d237f219562_9366de9b6a"
-                          tabIndex={-1}
-                          defaultValue=""
+                        className="response"
+                        id="mce-error-response"
+                        style={{ display: 'none' }}
+                      />
+                      <div
+                        className="response"
+                        id="mce-success-response"
+                        style={{ display: 'none' }}
+                      />
+                    </div>{' '}
+                    {/* real people should not fill this in and expect good things - do not remove this or risk form bot signups*/}
+                    <div
+                      style={{ position: 'absolute', left: '-5000px' }}
+                      aria-hidden="true"
+                    >
+                      <input
+                        type="text"
+                        name="b_5381817b945cf1d237f219562_9366de9b6a"
+                        tabIndex={-1}
+                        defaultValue=""
+                      />
+                    </div>
+                    <div className="optionalParent">
+                      <div className="clear foot">
+                        <motion.input
+                          whileHover={{ backgroundColor: '#e22d2d' }}
+                          whileTap={{
+                            backgroundColor: '#e63939',
+                            scale: 0.95
+                          }}
+                          className="button mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow uppercase"
+                          type="submit"
+                          defaultValue="Subscribe"
+                          name="subscribe"
+                          id="mc-embedded-subscribe"
                         />
-                      </div>
-                      <div className="optionalParent">
-                        <div className="clear foot">
-                          <motion.input
-                            whileHover={{ backgroundColor: '#e22d2d' }}
-                            whileTap={{
-                              backgroundColor: '#e63939',
-                              scale: 0.95
-                            }}
-                            className="button mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-                            type="submit"
-                            defaultValue="Subscribe"
-                            name="subscribe"
-                            id="mc-embedded-subscribe"
-                          />
-                        </div>
                       </div>
                     </div>
-                  </form>
-                </div>
-                {/*End mc_embed_signup*/}
-              </motion.div>
-            </Countdown>
+                  </div>
+                </form>
+              </div>
+              {/*End mc_embed_signup*/}
+            </motion.div>
           </div>
         </motion.div>
       </motion.div>
