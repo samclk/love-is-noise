@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Head from 'next/head'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Countdown from 'react-countdown'
@@ -8,15 +8,6 @@ import MemoPatreon from '~/components/icons/patreon'
 import MemoReddit from '~/components/icons/reddit'
 
 const date = '2022-09-23T12:00:00+0100'
-const inThePast = (date) => new Date(Date.now()) > new Date(date)
-
-const loadImage = (src) =>
-  new Promise((resolve, reject) => {
-    let img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = src
-  })
 
 const coreImages = [
   '/img/homepage-bg.jpg',
@@ -187,22 +178,17 @@ export default function Home() {
                 Euphoria (where were you?)
               </span>
               <span className="block text-xl sm:text-2xl md:text-3xl m-0">
-                Album title track
+                Out Now
               </span>
               <motion.a
                 whileHover={{ backgroundColor: '#e22d2d' }}
                 whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
                 className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-                href={
-                  inThePast(date)
-                    ? 'https://loveisnoise.bigcartel.com/'
-                    : 'https://altersongs.lnk.to/Euphoriawherewereyou'
-                }
+                href="https://loveisnoise.bigcartel.com/products"
                 target="_blank"
                 rel="noopener"
               >
-                {inThePast(date) ? 'Preorder' : 'Presave'} "Euphoria, Where Were
-                You?"
+                Shop merch
               </motion.a>
               <div className="my-16 uppercase">
                 <a
