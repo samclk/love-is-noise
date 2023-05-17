@@ -7,7 +7,7 @@ import MemoInstagram from '~/components/icons/instagram'
 import MemoPatreon from '~/components/icons/patreon'
 import MemoReddit from '~/components/icons/reddit'
 
-const date = '2022-09-23T12:00:00+0100'
+const date = '2023-05-18T18:00:00+0100'
 
 const coreImages = [
   '/img/homepage-bg.jpg',
@@ -42,14 +42,17 @@ export default function Home() {
         {coreImages.map((href) => (
           <link key={href} rel="preload" href={href} as="image" />
         ))}
-        <title>Love Is Noise - Euphoria (where were you?)</title>
+        <title>Love Is Noise - In the shadow of your former self.</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
         <meta
           property="og:title"
-          content="Love Is Noise - Euphoria (where were you?)"
+          content="Love Is Noise - In the shadow of your former self."
         />
-        <meta property="og:description" content="Euphoria (where were you?)" />
+        <meta
+          property="og:description"
+          content="In the shadow of your former self."
+        />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
         <meta
@@ -61,9 +64,12 @@ export default function Home() {
         <meta name="twitter:creator" content="@whatsamtweets" />
         <meta
           name="twitter:title"
-          content="Love Is Noise - Euphoria (where were you?)"
+          content="Love Is Noise - In the shadow of your former self."
         />
-        <meta name="twitter:description" content="Euphoria (where were you?)" />
+        <meta
+          name="twitter:description"
+          content="In the shadow of your former self."
+        />
         <meta
           name="twitter:image"
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-euphoria.jpg?alt=media&token=fab43e87-b556-44ff-996e-fa780ae5a587"
@@ -163,7 +169,7 @@ export default function Home() {
                 >
                   <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                     <iframe
-                      src="https://www.youtube.com/embed/tfHnROfCpKQ"
+                      src="https://www.youtube.com/embed/JEdKEL771TU"
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
@@ -175,10 +181,7 @@ export default function Home() {
                 Love is Noise
               </h1>
               <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
-                Euphoria (where were you?)
-              </span>
-              <span className="block text-xl sm:text-2xl md:text-3xl m-0">
-                Out Now
+                In the shadow of your former self.
               </span>
               <motion.a
                 whileHover={{ backgroundColor: '#e22d2d' }}
@@ -206,8 +209,8 @@ export default function Home() {
                   data-display-local-dates="true"
                   data-local-dates-position="tab"
                   data-display-past-dates="true"
-                  data-display-details="true"
-                  data-display-lineup="true"
+                  data-display-details="false"
+                  data-display-lineup="false"
                   data-display-start-time=""
                   data-social-share-icon="false"
                   data-display-limit="all"
