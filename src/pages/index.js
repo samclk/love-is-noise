@@ -169,7 +169,7 @@ export default function Home() {
                 >
                   <div className="aspect-w-16 aspect-h-9 bg-black shadow">
                     <iframe
-                      src="https://www.youtube.com/embed/JEdKEL771TU"
+                      src="https://www.youtube.com/embed/y4Lol4E_gk8"
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
