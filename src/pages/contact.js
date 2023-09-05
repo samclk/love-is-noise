@@ -39,14 +39,14 @@ export default function Contact() {
         <div>
           <dl className="grid lg:grid-cols-2 lg:grid-rows-4 lg:gap-2 w-full max-w-xl text-sm mt-12 mb-10">
             <dt className="text-center lg:text-left text-base lg:text-sm">
-              Press / General Enquiries
+              Press
             </dt>
             <dd className="text-center lg:text-right mb-4 lg:mb-0">
               <a
-                href="mailto:loveisnoiselr@gmail.com"
+                href="mailto:evd@publiccitypr.com"
                 className="underline hover:text-white transition"
               >
-                loveisnoiselr@gmail.com
+                evd@publiccitypr.com
               </a>
             </dd>
             <dt className="text-center lg:text-left text-base lg:text-sm">
@@ -80,17 +80,6 @@ export default function Contact() {
                 className="underline hover:text-white transition"
               >
                 reddit.com/r/loveisnoise/
-              </a>
-            </dd>
-            <dt className="text-center lg:text-left text-base lg:text-sm">
-              Patreon
-            </dt>
-            <dd className="text-center lg:text-right mb-4 lg:mb-0">
-              <a
-                href="http://www.patreon.com/loveisnoise"
-                className="underline hover:text-white transition"
-              >
-                patreon.com/loveisnoise
               </a>
             </dd>
           </dl>

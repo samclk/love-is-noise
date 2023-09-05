@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 import { forwardRef } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
-import MemoPatreon from '~/components/icons/patreon'
 import MemoReddit from '~/components/icons/reddit'
 import Link from 'next/link'
 import Head from 'next/head'
@@ -75,13 +74,6 @@ function Page({ children, background, ...rest }, ref) {
                 whileTap={{ scale: 0.9 }}
               >
                 <MemoReddit className="w-6 sm:w-8 h-auto" />
-              </motion.a>
-              <motion.a
-                href="http://www.patreon.com/loveisnoise"
-                whileHover={{ scale: 1.1, rotate: -2 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <MemoPatreon className="w-6 sm:w-8 h-auto" />
               </motion.a>
             </div>
           </nav>

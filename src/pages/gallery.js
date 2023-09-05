@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
-import Link from 'next/link'
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useKey } from 'react-use'
@@ -9,7 +8,6 @@ import Page from '~/components/Page'
 const galleryLength = 57
 
 export default function Gallery() {
-  const MotionLink = motion(Link)
   const [fullscreenImage, setFullscreenImage] = useState(null)
 
   useKey('ArrowLeft', () => {
@@ -31,10 +29,10 @@ export default function Gallery() {
   return (
     <Page className="flex flex-col min-h-screen bg-[#121003]">
       <Head>
-        <title>Love Is Noise - Memento</title>
+        <title>Gallery | Love Is Noise</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
-        <meta property="og:title" content="Love Is Noise - Memento" />
+        <meta property="og:title" content="Gallery | Love Is Noise" />
         <meta property="og:description" content="Memento" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
@@ -45,7 +43,7 @@ export default function Gallery() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
-        <meta name="twitter:title" content="Love Is Noise - Memento" />
+        <meta name="twitter:title" content="Gallery | Love Is Noise" />
         <meta name="twitter:description" content="Memento" />
         <meta
           name="twitter:image"
@@ -60,12 +58,17 @@ export default function Gallery() {
           transition={{ duration: 0.6 }}
           className="text-center font-black uppercase text-white mb-8 sm:mb-10 lg:mb-12 drop-shadow leading"
         >
-          <h1
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-8 lg:mb-16"
-            style={{ textWrap: 'balance' }}
-          >
-            Memento Behind The Scenes
-          </h1>
+          <div className="mb-8 lg:mb-16">
+            <h1
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 lg:mb-4"
+              style={{ textWrap: 'balance' }}
+            >
+              Memento Behind The Scenes
+            </h1>
+            <p className="text-sm sm:text-base lg:text-lg">
+              Captured by Carl Battams
+            </p>
+          </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 group">
             {Array.from({ length: galleryLength }, (_, i) => i + 1).map((i) => (
               <React.Fragment key={i}>
