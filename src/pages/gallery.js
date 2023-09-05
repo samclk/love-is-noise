@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion'
-import dynamic from 'next/dynamic'
+import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
@@ -8,6 +7,8 @@ import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoPatreon from '~/components/icons/patreon'
 import MemoReddit from '~/components/icons/reddit'
+import { createPortal } from 'react-dom'
+import { useKey } from 'react-use'
 
 const coreImages = [
   '/img/homepage-bg.jpg',
@@ -16,20 +17,7 @@ const coreImages = [
   '/img/logo-new.png'
 ]
 
-const YouTubeCountdown = dynamic(
-  () => import('~/components/YouTubeCountdown'),
-  {
-    ssr: false
-  }
-)
-
-const BandsInTown = dynamic(() => import('~/components/BandsInTown'), {
-  ssr: false
-})
-
-// const MailChimpSignUp = dynamic(() => import('~/components/MailChimpSignUp'), {
-//   ssr: false
-// })
+const galleryLength = 57
 
 export default function Home() {
   const headerRef = useRef(null)
@@ -50,6 +38,24 @@ export default function Home() {
       }
     }
   }, [])
+
+  const [fullscreenImage, setFullscreenImage] = useState(null)
+
+  useKey('ArrowLeft', () => {
+    if (fullscreenImage !== null)
+      setFullscreenImage((index) => (index > 1 ? index - 1 : 1))
+  })
+
+  useKey('ArrowRight', () => {
+    if (fullscreenImage !== null)
+      setFullscreenImage((index) =>
+        index < galleryLength ? index + 1 : galleryLength
+      )
+  })
+
+  useKey('Escape', () => {
+    setFullscreenImage(null)
+  })
 
   return (
     <>
@@ -80,27 +86,9 @@ export default function Home() {
       </Head>
       <PageTransition>
         <div
-          className="flex flex-col min-h-screen py-2"
+          className="flex flex-col min-h-screen py-2 bg-[#121003]"
           onAnimationComplete={updateHeaderHeight}
         >
-          <motion.img
-            src="/img/homepage-bg.jpg"
-            className="h-screen w-full fixed inset-0 object-cover"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            alt=""
-          />
-          <motion.img
-            src="/img/distress.png"
-            className="h-screen w-full fixed inset-0 object-cover mix-blend-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            alt=""
-          />
           <div className="container mx-auto relative z-10 flex-grow flex flex-col">
             <div
               className="flex justify-center items-center w-full space-x-2 md:space-x-4 drop-shadow"
@@ -149,42 +137,52 @@ export default function Home() {
                 initial={{ y: 10 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, delay: 2.75 }}
-                className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
+                className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-12 drop-shadow leading"
               >
-                <YouTubeCountdown />
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl m-0">
-                  Love is Noise
-                </h1>
-                <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
-                  Memento
-                </span>
-                <div className="flex justify-center gap-4">
-                  <motion.a
-                    whileHover={{ backgroundColor: '#e22d2d' }}
-                    whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
-                    className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-                    href="https://loveisnoise.bigcartel.com/products"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    Shop merch
-                  </motion.a>
-                  <Link
-                    href="/gallery"
-                    as={motion.a}
-                    whileHover={{ borderColor: '#e22d2d' }}
-                    whileTap={{
-                      borderColor: '#e63939',
-                      scale: 0.95,
-                      color: '#e63939'
-                    }}
-                    className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 border-2 text-white leading-none lg:text-lg italic shadow"
-                  >
-                    View Gallery
-                  </Link>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                  {Array.from({ length: galleryLength }, (_, i) => i + 1).map(
+                    (i) => (
+                      <>
+                        <div className="aspect-w-1 aspect-h-1 bg-black shadow relative">
+                          <img
+                            src={`/img/gallery/lin-momento-bts-${i}.jpg`}
+                            key={i}
+                            className="object-cover absolute w-full h-full"
+                            loading="lazy"
+                            onClick={() => {
+                              setFullscreenImage(i)
+                            }}
+                          />
+                        </div>
+                        {createPortal(
+                          // Fullscreen image
+                          <AnimatePresence>
+                            {fullscreenImage === i && (
+                              <motion.div
+                                key={i}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.6 }}
+                                className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-90"
+                                onClick={() => {
+                                  setFullscreenImage(null)
+                                }}
+                              >
+                                <img
+                                  src={`/img/gallery/lin-momento-bts-${i}.jpg`}
+                                  className="object-contain max-h-full max-w-full"
+                                  loading="lazy"
+                                />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>,
+                          document.body
+                        )}
+                      </>
+                    )
+                  )}
                 </div>
-                <BandsInTown />
-                {/* <MailChimpSignUp /> */}
               </motion.div>
             </div>
           </div>
