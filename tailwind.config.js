@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['modesto-condensed', 'sans-serif']
+        sans: ['neue-haas-grotesk-display', 'sans-serif']
       },
       colors: {
         primary: '#FEEA14'

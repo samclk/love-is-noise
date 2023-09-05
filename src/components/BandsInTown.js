@@ -18,7 +18,7 @@ const BandsInTown = () => {
           data-background-color="rgba(0, 0, 0, .1)"
           data-separator-color="rgba(255, 255, 255, .2)"
           data-text-color="#FFFFFF"
-          data-font="modesto-condensed"
+          data-font="neue-haas-grotesk-display"
           data-auto-style="true"
           data-button-label-capitalization="uppercase"
           data-header-capitalization="uppercase"
