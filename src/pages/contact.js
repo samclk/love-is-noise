@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Head from 'next/head'
 import Link from 'next/link'
+import PageTransition from '~/components/PageTransition'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoPatreon from '~/components/icons/patreon'
@@ -44,13 +45,8 @@ export default function Contact() {
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
         />
       </Head>
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col min-h-screen py-8 justify-center"
-        >
+      <PageTransition>
+        <div className="flex flex-col min-h-screen py-8 justify-center">
           <motion.img
             src="/img/background.png"
             className="h-screen w-full fixed inset-0 object-cover"
@@ -133,8 +129,8 @@ export default function Contact() {
               </a>
             </Link>
           </motion.div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </PageTransition>
     </>
   )
 }

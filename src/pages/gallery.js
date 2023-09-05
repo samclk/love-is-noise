@@ -19,7 +19,7 @@ const coreImages = [
 
 const galleryLength = 57
 
-export default function Home() {
+export default function Gallery() {
   const headerRef = useRef(null)
   const [headerHeight, setHeaderHeight] = useState(0)
 
@@ -154,31 +154,33 @@ export default function Home() {
                             }}
                           />
                         </div>
-                        {createPortal(
-                          // Fullscreen image
-                          <AnimatePresence>
-                            {fullscreenImage === i && (
-                              <motion.div
-                                key={i}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.6 }}
-                                className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-90"
-                                onClick={() => {
-                                  setFullscreenImage(null)
-                                }}
-                              >
-                                <img
-                                  src={`/img/gallery/lin-momento-bts-${i}.jpg`}
-                                  className="object-contain max-h-full max-w-full"
-                                  loading="lazy"
-                                />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>,
-                          document.body
-                        )}
+                        {typeof document !== 'undefined'
+                          ? createPortal(
+                              // Fullscreen image
+                              <AnimatePresence>
+                                {fullscreenImage === i && (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.6 }}
+                                    className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-90"
+                                    onClick={() => {
+                                      setFullscreenImage(null)
+                                    }}
+                                  >
+                                    <img
+                                      src={`/img/gallery/lin-momento-bts-${i}.jpg`}
+                                      className="object-contain max-h-full max-w-full"
+                                      loading="lazy"
+                                    />
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>,
+                              document.body
+                            )
+                          : null}
                       </>
                     )
                   )}
