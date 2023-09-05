@@ -38,7 +38,7 @@ export default function Gallery() {
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-euphoria.jpg?alt=media&token=fab43e87-b556-44ff-996e-fa780ae5a587"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
@@ -47,7 +47,7 @@ export default function Gallery() {
         <meta name="twitter:description" content="Memento" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-euphoria.jpg?alt=media&token=fab43e87-b556-44ff-996e-fa780ae5a587"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
         />
       </Head>
       <div className="text-center flex-grow flex justify-center flex-col drop-shadow-md font-sans font-bold sm:!pb-0">

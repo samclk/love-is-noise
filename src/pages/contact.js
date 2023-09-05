@@ -9,25 +9,25 @@ export default function Contact() {
       className="flex flex-col min-h-screen py-8 justify-center"
     >
       <Head>
-        <title>Contact - Love Is Noise</title>
+        <title>Contact | Love Is Noise</title>
         <link rel="canonical" href="https://loveisnoise.world/contact" />
 
-        <meta property="og:title" content="Contact - Love Is Noise" />
+        <meta property="og:title" content="Contact | Love Is Noise" />
         <meta property="og:description" content="Get in touch" />
         <meta property="og:url" content="https://loveisnoise.world/contact" />
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@whatsamtweets" />
-        <meta name="twitter:title" content="Contact - Love Is Noise" />
+        <meta name="twitter:title" content="Contact | Love Is Noise" />
         <meta name="twitter:description" content="Get in touch" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-pillowcase-post-release.jpg?alt=media&token=474e829a-a668-4ef8-8948-4f6a5f12387a"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
         />
       </Head>
       <motion.div
