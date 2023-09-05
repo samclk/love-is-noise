@@ -17,19 +17,19 @@
     "singleQuote": true
   },
   "dependencies": {
-    "@tailwindcss/aspect-ratio": "^0.3.0",
-    "next": "latest",
-    "react": "^17.0.2",
-    "react-countdown": "^2.3.2",
-    "react-dom": "^17.0.2"
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "next": "^13.4.19",
+    "react": "18",
+    "react-countdown": "^2.3.5",
+    "react-dom": "18"
   },
   "devDependencies": {
     "@blunck/next-alias": "^1.0.0",
-    "autoprefixer": "^10.2.6",
-    "framer-motion": "^5.3.3",
-    "postcss": "^8.3.5",
-    "react-use": "^17.3.1",
-    "tailwindcss": "^2.2.4",
-    "yaml-loader": "^0.6.0"
+    "autoprefixer": "^10.4.15",
+    "framer-motion": "^10.16.4",
+    "postcss": "^8.4.29",
+    "react-use": "^17.4.0",
+    "tailwindcss": "^3.3.3",
+    "yaml-loader": "^0.8.0"
   }
 }
