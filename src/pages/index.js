@@ -11,9 +11,9 @@ const YouTubeCountdown = dynamic(
   }
 )
 
-// const BandsInTown = dynamic(() => import('~/components/BandsInTown'), {
-//   ssr: false
-// })
+const BandsInTown = dynamic(() => import('~/components/BandsInTown'), {
+  ssr: false
+})
 
 // const MailChimpSignUp = dynamic(() => import('~/components/MailChimpSignUp'), {
 //   ssr: false
@@ -75,7 +75,7 @@ export default function Home() {
             >
               Shop merch
             </motion.a>
-            <MotionLink
+            {/* <MotionLink
               href="/gallery"
               whileHover={{ borderColor: '#e22d2d' }}
               whileTap={{
@@ -86,9 +86,9 @@ export default function Home() {
               className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 border-2 text-white leading-none lg:text-lg italic shadow"
             >
               View BTS
-            </MotionLink>
+            </MotionLink> */}
           </div>
-          {/* <BandsInTown /> */}
+          <BandsInTown />
           {/* <MailChimpSignUp /> */}
         </motion.div>
       </div>

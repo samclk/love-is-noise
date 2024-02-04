@@ -46,9 +46,9 @@ function Page({ children, background, ...rest }, ref) {
           </div>
           <nav className="flex justify-center items-center gap-4 sm:gap-8">
             <div className="flex justify-center items-center gap-2 md:gap-4 font-black text-sm sm:text-base uppercase">
-              <MotionLink href="/gallery" whileTap={{ scale: 0.95 }}>
+              {/* <MotionLink href="/gallery" whileTap={{ scale: 0.95 }}>
                 Gallery
-              </MotionLink>
+              </MotionLink> */}
               <MotionLink href="/contact" whileTap={{ scale: 0.95 }}>
                 Contact
               </MotionLink>
