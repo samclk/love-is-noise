@@ -25,15 +25,16 @@ export default function Home() {
   const MotionLink = motion(Link)
 
   return (
-    <Page
-      // background="/img/homepage-bg.jpg"
-      className="flex flex-col min-h-screen"
-    >
+    // <Page
+    //   background="/img/homepage-bg.jpg"
+    //   className="flex flex-col min-h-screen"
+    // >
+    <>
       <Head>
-        <title>Love Is Noise - Memento</title>
+        <title>Love Is Noise</title>
         <link rel="canonical" href="https://loveisnoise.world" />
 
-        <meta property="og:title" content="Love Is Noise - Memento" />
+        <meta property="og:title" content="Love Is Noise" />
         <meta property="og:description" content="Memento" />
         <meta property="og:url" content="https://loveisnoise.world" />
         <meta property="og:type" content="website" />
@@ -51,7 +52,7 @@ export default function Home() {
           content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
         />
       </Head>
-      <div className="text-center flex-grow flex justify-start flex-col drop-shadow-md font-sans font-bold sm:!pb-0">
+      <div className="text-center flex-grow flex justify-center items-center flex-col drop-shadow-md font-sans font-bold sm:!pb-0 min-h-screen">
         <motion.div
           initial={{ y: 10 }}
           animate={{ y: 0 }}
@@ -69,6 +70,7 @@ export default function Home() {
           {/* <MailChimpSignUp /> */}
         </motion.div>
       </div>
-    </Page>
+    </>
+    // </Page>
   )
 }

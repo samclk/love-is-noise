@@ -12,3 +12,7 @@ body {
 html {
   height: -webkit-fill-available;
 }
+
+.min-h-screen {
+  min-height: 100svh;
+}
