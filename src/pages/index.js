@@ -58,36 +58,6 @@ export default function Home() {
           className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading"
         >
           <YouTubeCountdown />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl m-0">
-            Love is Noise
-          </h1>
-          <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
-            Memento
-          </span>
-          <div className="flex justify-center gap-4 mt-6">
-            <motion.a
-              whileHover={{ backgroundColor: '#e22d2d' }}
-              whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
-              className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
-              href="https://loveisnoise.bigcartel.com/products"
-              target="_blank"
-              rel="noopener"
-            >
-              Shop merch
-            </motion.a>
-            {/* <MotionLink
-              href="/gallery"
-              whileHover={{ borderColor: '#e22d2d' }}
-              whileTap={{
-                borderColor: '#e63939',
-                scale: 0.95,
-                color: '#e63939'
-              }}
-              className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 border-2 text-white leading-none lg:text-lg italic shadow"
-            >
-              View BTS
-            </MotionLink> */}
-          </div>
           <BandsInTown />
           {/* <MailChimpSignUp /> */}
         </motion.div>
