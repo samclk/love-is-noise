@@ -2,8 +2,8 @@ import { motion } from 'framer-motion'
 import Head from 'next/head'
 import Countdown from 'react-countdown'
 
-const date = '2024-06-05T10:00:00+0100'
-const youtubeId = 'P4XJlCu6Zm0'
+const date = '2024-06-05T18:00:00+0100'
+const youtubeId = 'CESCHh5g-J0'
 
 const YouTubeCountdown = () => {
   return (
@@ -28,13 +28,13 @@ const YouTubeCountdown = () => {
               Love is Noise
             </h1>
             <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
-              Memento
+              Soft Glow
             </span>
             <div className="flex justify-center gap-4 mt-6">
               <motion.a
-                whileHover={{ backgroundColor: '#e22d2d' }}
-                whileTap={{ backgroundColor: '#e63939', scale: 0.95 }}
-                className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow"
+                whileHover={{ backgroundColor: '#ffbc17' }}
+                whileTap={{ backgroundColor: '#ffca4a', scale: 0.95 }}
+                className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-[#ffc330] text-black leading-none lg:text-lg italic shadow"
                 href="https://loveisnoise.bigcartel.com/products"
                 target="_blank"
                 rel="noopener"
@@ -43,11 +43,11 @@ const YouTubeCountdown = () => {
               </motion.a>
               {/* <MotionLink
               href="/gallery"
-              whileHover={{ borderColor: '#e22d2d' }}
+              whileHover={{ borderColor: '#ffbc17' }}
               whileTap={{
-                borderColor: '#e63939',
+                borderColor: '#ffca4a',
                 scale: 0.95,
-                color: '#e63939'
+                color: '#ffca4a'
               }}
               className="mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 border-2 text-white leading-none lg:text-lg italic shadow"
             >

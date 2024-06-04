@@ -79,6 +79,8 @@ function Page({ children, background, ...rest }, ref) {
           </nav>
         </header>
         {children}
+        {/* SPACER */}
+        <div className="flex-1" />
       </div>
     </motion.div>
   )
