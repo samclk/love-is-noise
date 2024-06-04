@@ -19,7 +19,7 @@ const BandsInTown = dynamic(() => import('~/components/BandsInTown'), {
 // const MailChimpSignUp = dynamic(() => import('~/components/MailChimpSignUp'), {
 //   ssr: false
 // })
-const date = '2024-06-05T10:00:00+0100'
+const date = '2024-06-05T18:00:00+0100'
 
 export default function Home() {
   const MotionLink = motion(Link)
