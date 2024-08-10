@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Countdown from 'react-countdown'
 
 const date = '2024-06-05T18:00:00+0100'
-const youtubeId = 'CESCHh5g-J0'
+const youtubeId = 'Ub8a_tKZbBc'
 
 const YouTubeCountdown = () => {
   return (
@@ -24,11 +24,11 @@ const YouTubeCountdown = () => {
                 allowFullScreen
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-0 mt-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-0 mt-4 drop-shadow">
               Love is Noise
             </h1>
-            <span className="block text-3xl sm:text-4xl md:text-5xl m-0">
-              Soft Glow
+            <span className="block text-3xl sm:text-4xl md:text-5xl m-0 drop-shadow">
+              Jawbreaker
             </span>
             <div className="flex justify-center gap-4 mt-6">
               <motion.a

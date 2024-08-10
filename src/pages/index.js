@@ -34,21 +34,21 @@ export default function Home() {
           <link rel="canonical" href="https://loveisnoise.world" />
 
           <meta property="og:title" content="Love Is Noise" />
-          <meta property="og:description" content="Memento" />
+          <meta property="og:description" content="Jawbreaker" />
           <meta property="og:url" content="https://loveisnoise.world" />
           <meta property="og:type" content="website" />
           <meta
             property="og:image"
-            content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
+            content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-aug-24.jpg?alt=media&token=83622d77-c2b5-4327-9733-3b4af9fcd9eb"
           />
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:creator" content="@whatsamtweets" />
-          <meta name="twitter:title" content="Love Is Noise - Memento" />
-          <meta name="twitter:description" content="Memento" />
+          <meta name="twitter:title" content="Love Is Noise - Jawbreaker" />
+          <meta name="twitter:description" content="Jawbreaker" />
           <meta
             name="twitter:image"
-            content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
+            content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-aug-24.jpg?alt=media&token=83622d77-c2b5-4327-9733-3b4af9fcd9eb"
           />
         </Head>
         <div className="text-center flex-grow flex justify-center items-center flex-col drop-shadow-md font-sans font-bold sm:!pb-0">

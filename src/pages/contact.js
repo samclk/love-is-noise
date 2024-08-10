@@ -5,7 +5,7 @@ import Page from '~/components/Page'
 export default function Contact() {
   return (
     <Page
-      background="/img/contact-bg.jpg"
+      background="/img/homepage-bg.jpg"
       className="flex flex-col min-h-screen py-8 justify-center"
     >
       <Head>
@@ -18,7 +18,7 @@ export default function Contact() {
         <meta property="og:type" content="website" />
         <meta
           property="og:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-aug-24.jpg?alt=media&token=83622d77-c2b5-4327-9733-3b4af9fcd9eb"
         />
 
         <meta name="twitter:card" content="summary_large_image" />
@@ -27,7 +27,7 @@ export default function Contact() {
         <meta name="twitter:description" content="Get in touch" />
         <meta
           name="twitter:image"
-          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-sept-23.jpg?alt=media&token=b61196a7-aa9d-445c-be75-e45e02097442"
+          content="https://firebasestorage.googleapis.com/v0/b/love-is-noise.appspot.com/o/og-aug-24.jpg?alt=media&token=83622d77-c2b5-4327-9733-3b4af9fcd9eb"
         />
       </Head>
       <motion.div
