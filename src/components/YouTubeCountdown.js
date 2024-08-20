@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import Head from 'next/head'
 import Countdown from 'react-countdown'
 
-const date = '2024-06-05T18:00:00+0100'
+const date = '2024-09-05T18:00:00+0100'
 const youtubeId = 'Ub8a_tKZbBc'
 
 const YouTubeCountdown = () => {
