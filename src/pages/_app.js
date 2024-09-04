@@ -34,7 +34,7 @@ function MyApp({ Component, pageProps }) {
         <meta name="theme-color" content="#feea14" />
         <link rel="stylesheet" href="https://use.typekit.net/gdb2xdd.css" />
       </Head>
-      <AnimatePresence initial={false} mode="wait">
+      <AnimatePresence initial={false} mode="popLayout">
         <Component key={pageKey} {...pageProps} />
       </AnimatePresence>
     </>

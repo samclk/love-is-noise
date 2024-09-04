@@ -5,7 +5,7 @@ import Page from '~/components/Page'
 export default function Contact() {
   return (
     <Page
-      background="/img/homepage-bg.jpg"
+      background="/img/contact-bg.jpg"
       className="flex flex-col min-h-screen py-8 justify-center"
     >
       <Head>

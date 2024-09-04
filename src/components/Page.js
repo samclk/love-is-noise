@@ -5,6 +5,8 @@ import MemoInstagram from '~/components/icons/instagram'
 import MemoReddit from '~/components/icons/reddit'
 import Link from 'next/link'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 function Page({ children, background, ...rest }, ref) {
   const MotionLink = motion(Link)
@@ -28,27 +30,33 @@ function Page({ children, background, ...rest }, ref) {
         {background && <link rel="preload" href={background} as="image" />}
       </Head>
       {background && (
-        <img
+        <Image
           src={background}
           className="h-screen w-full fixed inset-0 object-cover opacity-50"
           alt=""
+          width={1920}
+          height={1080}
+          priority
+          loading="eager"
         />
       )}
       <div className="container mx-auto relative z-10 flex-grow flex flex-col">
         <header className="sm:space-y-8 sm:py-16 space-y-6 py-10">
           <div className="flex justify-center items-center w-full">
             <MotionLink href="/" whileTap={{ scale: 0.95 }}>
-              <img
+              <Image
                 src="/img/logo.png"
                 className="w-64 md:w-72 lg:w-96 h-auto"
+                width={1920}
+                height={312}
+                alt="Love Is Noise Logo"
+                priority
+                loading="eager"
               />
             </MotionLink>
           </div>
           <nav className="flex justify-center items-center gap-4 sm:gap-8">
             <div className="flex justify-center items-center gap-2 md:gap-4 font-black text-sm sm:text-base uppercase">
-              {/* <MotionLink href="/gallery" whileTap={{ scale: 0.95 }}>
-                Gallery
-              </MotionLink> */}
               <MotionLink href="/contact" whileTap={{ scale: 0.95 }}>
                 Contact
               </MotionLink>
