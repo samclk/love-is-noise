@@ -4,6 +4,9 @@ const withAlias = require('@blunck/next-alias')({
 })
 
 module.exports = withAlias({
+  images: {
+    unoptimized: true
+  },
   webpack: (cfg) => {
     cfg.module.rules.push({
       test: /\.ya?ml$/,
