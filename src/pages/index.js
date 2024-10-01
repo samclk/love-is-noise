@@ -57,12 +57,12 @@ export default function Home() {
             animate={{ y: 0 }}
             exit={{ y: -10 }}
             transition={{ duration: 0.6 }}
-            className="text-center font-black uppercase text-white my-8 sm:my-10 lg:my-16 drop-shadow leading w-full"
+            className="text-center font-black uppercase text-white mb-8 sm:mb-10 lg:mb-16 drop-shadow leading w-full"
             suppressHydrationWarning
           >
+            <MailChimpSignUp />
             <YouTubeCountdown />
-            {/* <BandsInTown />
-            <MailChimpSignUp /> */}
+            {/* <BandsInTown />*/}
           </motion.div>
         </div>
       </>
