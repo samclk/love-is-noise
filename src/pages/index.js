@@ -61,8 +61,8 @@ export default function Home() {
             suppressHydrationWarning
           >
             <YouTubeCountdown />
-            {/* <BandsInTown />
-            <MailChimpSignUp /> */}
+            {/* <BandsInTown />*/}
+            <MailChimpSignUp />
           </motion.div>
         </div>
       </>
