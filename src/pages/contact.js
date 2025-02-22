@@ -6,7 +6,7 @@ export default function Contact() {
   return (
     <Page
       background="/img/contact-bg.jpg"
-      className="flex flex-col min-h-screen py-8 justify-center"
+      className="flex flex-col min-h-screen"
     >
       <Head>
         <title>Contact | Love Is Noise</title>

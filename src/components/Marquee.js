@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 const Marquee = () => {
   return (
-    <div className="bg-[#faf038] text-black relative z-10">
+    <div className="bg-[#faf038] text-black sticky top-0 z-50">
       <FastMarquee speed={50} gradient={false}>
         <a
           href="https://loveisnoise.lnk.to/toliveinadifferentway"
