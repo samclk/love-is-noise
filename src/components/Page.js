@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion'
+import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
 import { forwardRef } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoReddit from '~/components/icons/reddit'
-import Link from 'next/link'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import Image from 'next/image'
+import Marquee from './Marquee'
 
 function Page({ children, background, ...rest }, ref) {
   const MotionLink = motion(Link)
@@ -40,6 +40,7 @@ function Page({ children, background, ...rest }, ref) {
           loading="eager"
         />
       )}
+      <Marquee />
       <div className="container mx-auto relative z-10 flex-grow flex flex-col">
         <header className="sm:space-y-8 sm:py-16 space-y-6 py-10">
           <div className="flex justify-center items-center w-full">

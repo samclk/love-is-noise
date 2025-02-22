@@ -60,9 +60,8 @@ export default function Home() {
             className="text-center font-black uppercase text-white mb-8 sm:mb-10 lg:mb-16 drop-shadow leading w-full"
             suppressHydrationWarning
           >
-            <MailChimpSignUp />
             <YouTubeCountdown />
-            {/* <BandsInTown />*/}
+            <BandsInTown />
           </motion.div>
         </div>
       </>

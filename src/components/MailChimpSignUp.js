@@ -57,12 +57,12 @@ const MailChimpSignUp = () => {
           <div className="optionalParent">
             <div className="clear foot">
               <motion.input
-                whileHover={{ backgroundColor: '#e22d2d' }}
+                whileHover={{ backgroundColor: '#faf038' }}
                 whileTap={{
-                  backgroundColor: '#e63939',
+                  backgroundColor: '#bdb405',
                   scale: 0.95
                 }}
-                className="button mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-red-600 text-white leading-none lg:text-lg italic shadow uppercase"
+                className="button mt-3 lg:mt-6 inline-flex items-center justify-center space-x-1 px-4 lg:px-6 py-3 bg-[#f9ec0d] text-white leading-none lg:text-lg italic shadow uppercase"
                 type="submit"
                 defaultValue="Subscribe"
                 name="subscribe"
