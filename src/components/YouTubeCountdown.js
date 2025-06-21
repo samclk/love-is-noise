@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Countdown from 'react-countdown'
 
 const date = '2024-09-05T10:00:00+0100'
-const youtubeId = 'b9Ph1u-K27k'
+const youtubeId = 'SgcDGfiFGcM'
 
 const YouTubeCountdown = () => {
   return (
@@ -28,7 +28,10 @@ const YouTubeCountdown = () => {
               Love is Noise
             </h1>
             <span className="block text-xl sm:text-2xl md:text-3xl m-0 drop-shadow">
-              TO LIVE IN A DIFFERENT WAY
+              hole in me
+            </span>
+            <span className="block text-xl sm:text-2xl md:text-3xl mb-4 m-0 drop-shadow">
+              the new single
             </span>
             <p className="text-center text-xl mt-2 text-pretty italic">
               AVAILABLE EVERYWHERE NOW
