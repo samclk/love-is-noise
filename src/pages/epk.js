@@ -19,10 +19,12 @@ const flyers = [
   { src: '/img/epk/flyers/holding-absence.jpg', width: 1080, height: 1350 },
   { src: '/img/epk/flyers/first-show.jpg', width: 1200, height: 1500 },
   { src: '/img/epk/flyers/anitc.jpg', width: 842, height: 1096 },
-  { src: '/img/epk/flyers/anitc-2.jpg', width: 1200, height: 1502 }
+  { src: '/img/epk/flyers/anitc-2.jpg', width: 1200, height: 1502 },
+  { src: '/img/epk/flyers/trees-25.jpg', width: 1000, height: 1414 }
 ]
 
 const upcomingTours = [
+  { src: '/img/epk/flyers/bid.jpg', width: 1071, height: 1331 },
   { src: '/img/epk/flyers/headline.jpg', width: 1080, height: 1351 },
   { src: '/img/epk/flyers/vower.jpg', width: 1448, height: 2048 },
   { src: '/img/epk/flyers/welsh-fest.jpeg', width: 1024, height: 1280 }
@@ -313,7 +315,7 @@ export default function epk() {
                   Memento |{' '}
                   <a
                     className="text-yellow-300 underline"
-                    href="https://open.spotify.com/album/5F3s345rSD0UJe8IWo3imC?si=vnMg7_xJTBWgymIKBwrjlw"
+                    href="https://open.spotify.com/track/2hXILrNult7kzQpMVduV5Y?si=1f166d34a5554362"
                   >
                     Listen
                   </a>
@@ -324,7 +326,7 @@ export default function epk() {
                   Boutique |{' '}
                   <a
                     className="text-yellow-300 underline"
-                    href="https://open.spotify.com/album/5F3s345rSD0UJe8IWo3imC?si=vnMg7_xJTBWgymIKBwrjlw"
+                    href="https://open.spotify.com/track/6USX72HEWvkNi03R4OVNlA?si=0f5c86c5d4444383"
                   >
                     Listen
                   </a>
@@ -335,7 +337,7 @@ export default function epk() {
                   In the shadow of your former self |{' '}
                   <a
                     className="text-yellow-300 underline"
-                    href="https://open.spotify.com/album/5F3s345rSD0UJe8IWo3imC?si=vnMg7_xJTBWgymIKBwrjlw"
+                    href="https://open.spotify.com/track/7icAw1EcEfXRpOxkhB3HZw?si=89142ff65fd646aa"
                   >
                     Listen
                   </a>
@@ -346,7 +348,7 @@ export default function epk() {
                   Azure |{' '}
                   <a
                     className="text-yellow-300 underline"
-                    href="https://open.spotify.com/album/5F3s345rSD0UJe8IWo3imC?si=vnMg7_xJTBWgymIKBwrjlw"
+                    href="https://open.spotify.com/track/0wPkG2Hq0PCnZpQFaPurfl?si=e469d60614374ab0"
                   >
                     Listen
                   </a>
@@ -357,7 +359,7 @@ export default function epk() {
                   Pillowcase |{' '}
                   <a
                     className="text-yellow-300 underline"
-                    href="https://open.spotify.com/album/5F3s345rSD0UJe8IWo3imC?si=vnMg7_xJTBWgymIKBwrjlw"
+                    href="https://open.spotify.com/track/0ctIaveUA2lGjDMJy1Csts?si=b5b867eb47274849"
                   >
                     Listen
                   </a>
