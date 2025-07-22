@@ -3,8 +3,9 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import 'tailwindcss/tailwind.css'
 import '~/css/main.css'
+import { SessionProvider } from 'next-auth/react'
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter()
   const pageKey = router.asPath
 
@@ -34,9 +35,11 @@ function MyApp({ Component, pageProps }) {
         <meta name="theme-color" content="#feea14" />
         <link rel="stylesheet" href="https://use.typekit.net/gdb2xdd.css" />
       </Head>
-      <AnimatePresence initial={false} mode="popLayout">
-        <Component key={pageKey} {...pageProps} />
-      </AnimatePresence>
+      <SessionProvider session={session}>
+        <AnimatePresence initial={false} mode="popLayout">
+          <Component key={pageKey} {...pageProps} />
+        </AnimatePresence>
+      </SessionProvider>
     </>
   )
 }
