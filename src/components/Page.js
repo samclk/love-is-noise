@@ -1,14 +1,13 @@
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { forwardRef } from 'react'
 import MemoFacebook from '~/components/icons/facebook'
 import MemoInstagram from '~/components/icons/instagram'
 import MemoReddit from '~/components/icons/reddit'
 import Marquee from './Marquee'
 
-function Page({ children, background, ...rest }, ref) {
+export default function Page({ children, background, ...rest }) {
   const MotionLink = motion(Link)
   const initial = { opacity: 0 }
   const animate = { opacity: 1 }
@@ -18,7 +17,6 @@ function Page({ children, background, ...rest }, ref) {
 
   return (
     <motion.div
-      ref={ref}
       initial={initial}
       animate={animate}
       exit={exit}
@@ -94,5 +92,3 @@ function Page({ children, background, ...rest }, ref) {
     </motion.div>
   )
 }
-
-export default forwardRef(Page)

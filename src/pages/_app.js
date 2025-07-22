@@ -1,4 +1,4 @@
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'motion/react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import 'tailwindcss/tailwind.css'

@@ -212,6 +212,14 @@ export default function epk() {
             </div>
             <div className="embla__slide flex-[0_0_auto] min-w-0 max-w-full">
               <Image
+                src="/img/epk/swiper/slide-7.jpg"
+                width={1280}
+                height={1024}
+                className="h-[300px] w-auto object-cover object-center"
+              />
+            </div>
+            <div className="embla__slide flex-[0_0_auto] min-w-0 max-w-full">
+              <Image
                 src="/img/epk/swiper/slide-3.jpg"
                 width={1200}
                 height={1800}
@@ -223,6 +231,14 @@ export default function epk() {
                 src="/img/epk/swiper/slide-4.jpg"
                 width={1600}
                 height={1067}
+                className="h-[300px] w-auto object-cover object-center"
+              />
+            </div>
+            <div className="embla__slide flex-[0_0_auto] min-w-0 max-w-full">
+              <Image
+                src="/img/epk/swiper/slide-8.jpg"
+                width={1280}
+                height={1024}
                 className="h-[300px] w-auto object-cover object-center"
               />
             </div>
