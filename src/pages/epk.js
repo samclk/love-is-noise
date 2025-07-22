@@ -34,7 +34,7 @@ export default function epk() {
   return (
     <>
       <Head>
-        <title>EPK | Love Is Noise Test</title>
+        <title>EPK | Love Is Noise</title>
         <link rel="canonical" href="https://loveisnoise.world/epk" />
         <meta property="og:title" content="EPK | Love Is Noise" />
         <meta
