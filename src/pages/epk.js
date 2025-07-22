@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic'
 import CountUp from '../components/Countup'
 import { getSession } from 'next-auth/react'
 import { signOut } from 'next-auth/react'
+import { useState } from 'react'
 
 const Masonry = dynamic(() => import('masonic').then((mod) => mod.Masonry), {
   ssr: false
@@ -32,6 +33,7 @@ const upcomingTours = [
 
 export default function epk() {
   const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()])
+  const [loaded, setLoaded] = useState(false)
 
   return (
     <>
@@ -52,9 +54,16 @@ export default function epk() {
           height={1080}
           width={1920}
           alt="Love Is Noise Promo"
-          className="object-cover h-full w-full object-center"
+          className={`object-cover h-full w-full object-center ${
+            loaded ? 'opacity-100' : 'opacity-0'
+          } transition-opacity duration-1000`}
+          onLoad={() => setLoaded(true)}
         />
-        <div className="absolute top-3/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div
+          className={`absolute top-3/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${
+            loaded ? 'opacity-100' : 'opacity-0'
+          } transition-opacity delay-200 duration-1000`}
+        >
           <Image
             src="/img/logo.png"
             height={200}
