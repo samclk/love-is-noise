@@ -14,7 +14,7 @@ export default function Login({ csrfToken }) {
         <meta property="og:url" content="https://loveisnoise.world/login" />
         <meta property="og:type" content="website" />
       </Head>
-      <div className="grid px-8 place-items-center h-screen ">
+      <div className="grid px-8 place-items-center h-[100svh]">
         <div>
           <Image
             src="/img/logo.png"
