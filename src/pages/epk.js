@@ -27,7 +27,6 @@ const flyers = [
 const upcomingTours = [
   { src: '/img/epk/flyers/bid.jpg', width: 1071, height: 1331 },
   { src: '/img/epk/flyers/headline.jpg', width: 1080, height: 1351 },
-  { src: '/img/epk/flyers/vower.jpg', width: 1448, height: 2048 },
   { src: '/img/epk/flyers/welsh-fest.jpeg', width: 1024, height: 1280 }
 ]
 
