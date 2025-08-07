@@ -431,28 +431,6 @@ export default function epk() {
           <div>
             <p className="mb-2">
               <span className="text-yellow-300 font-bold uppercase">
-                Upcoming headline tour
-              </span>
-            </p>
-            <ul className="mb-4 ml-4">
-              <li>
-                <strong>Nottingham</strong> - 13 tickets sold
-              </li>
-              <li>
-                <strong>Leeds</strong> - 8 tickets sold
-              </li>
-              <li>
-                <strong>Southampton</strong> - 8 tickets sold
-              </li>
-              <li>
-                <strong>Norwich</strong> - 7 tickets sold
-              </li>
-              <li>
-                <strong>Kingston</strong> - 14 tickets sold
-              </li>
-            </ul>
-            <p className="mb-2">
-              <span className="text-yellow-300 font-bold uppercase">
                 London ANITC '24
               </span>{' '}
               - 180 tickets sold without guestlist (sold out with no shows
@@ -543,18 +521,7 @@ export default function epk() {
               <h5 className="text-lg font-bold">Label</h5>
             </div>
             <div>
-              <p>
-                Century Media Records{' '}
-                <a href="/api/download" className="text-yellow-300 block">
-                  📄 Download Contract
-                </a>
-              </p>
-            </div>
-            <div>
-              <h5 className="text-lg font-bold">Manager</h5>
-            </div>
-            <div>
-              <p>Kath @ 5B (plz)</p>
+              <p>Century Media Records </p>
             </div>
             <div>
               <h5 className="text-lg font-bold">Booking Agent</h5>

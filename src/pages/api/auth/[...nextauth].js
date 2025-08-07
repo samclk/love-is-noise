@@ -13,7 +13,7 @@ export const authOptions = {
         // Example: hardcoded user
         if (
           credentials.username === 'loveisnoiselr' &&
-          credentials.password === '5bepk'
+          credentials.password === 'epkenter'
         ) {
           return { id: 1, name: 'Admin', email: 'admin@example.com' }
         }
