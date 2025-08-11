@@ -406,7 +406,96 @@ export default function epk() {
           </h4>
         </div>
         <div className="max-w-6xl mx-auto px-8 mb-16">
-          <p className="mb-2 text-lg">Upcoming / Unannounced</p>
+          <p className="mb-2 max-w-2xl px-8 mx-auto text-lg">
+            Upcoming / Unannounced
+          </p>
+          <hr className="border-gray-600 mb-12" />
+          <div className="max-w-2xl mx-auto mb-16 px-8">
+            <h4 className="text-xl mb-6 uppercase font-sans font-bold text-white">
+              LOATHE UK/IRE/EU TOUR 2025
+            </h4>
+
+            <div>
+              <p className="mb-2">
+                <span className="text-yellow-300 font-bold uppercase">
+                  30 NOVEMBER
+                </span>{' '}
+                - The Garage, Glasgow, UK
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  1 DECEMBER
+                </span>{' '}
+                - Limelight 1, Belfast, N.I
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  2 DECEMBER
+                </span>{' '}
+                - Dublin Academy, Dublin, N.I
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  4 DECEMBER
+                </span>{' '}
+                - Invisible Wind Factory, Liverpool, UK
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  5 DECEMBER
+                </span>{' '}
+                - Electric Brixton, London, UK
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  7 DECEMBER
+                </span>{' '}
+                - Electric Bristol, Bristol, UK
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  9 DECEMBER
+                </span>{' '}
+                - XOYO, Birmingham, UK
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  11 DECEMBER
+                </span>{' '}
+                - Dynamo, Eindhoven, EU
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  12 DECEMBER
+                </span>{' '}
+                - La Machine du Moulin Rouge, Paris, EU
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  14 DECEMBER
+                </span>{' '}
+                - Gebaude 9, Cologne, EU
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  15 DECEMBER
+                </span>{' '}
+                - Rockhal, Luxembourg, EU
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  16 DECEMBER
+                </span>{' '}
+                - Backstage Halle, Munich, EU
+              </p>
+              <p>
+                <span className="text-yellow-300 font-bold uppercase">
+                  17 DECEMBER
+                </span>{' '}
+                - Franz Club, Berlin, EU
+              </p>
+            </div>
+          </div>
           <Masonry
             items={upcomingTours}
             render={({ data, index, style }) => (
