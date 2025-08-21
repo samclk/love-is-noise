@@ -56,6 +56,13 @@ export default function Page({ children, background, ...rest }) {
           </div>
           <nav className="flex justify-center items-center gap-4 sm:gap-8">
             <div className="flex justify-center items-center gap-2 md:gap-4 font-black text-sm sm:text-base uppercase">
+              <MotionLink
+                href="https://loveisnoise.myshopify.com"
+                target="_blank"
+                whileTap={{ scale: 0.95 }}
+              >
+                Merch
+              </MotionLink>
               <MotionLink href="/contact" whileTap={{ scale: 0.95 }}>
                 Contact
               </MotionLink>
