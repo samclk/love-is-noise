@@ -11,7 +11,7 @@ const BandsInTown = () => {
           defer
         />
       </Head>
-      <div className="my-16 uppercase">
+      <div className="mb-16 mt-16 md:mt-0 uppercase">
         <a
           className="bit-widget-initializer"
           data-artist-name="id_245374"
