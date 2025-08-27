@@ -34,6 +34,22 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         <meta name="msapplication-TileColor" content="#feea14" />
         <meta name="theme-color" content="#feea14" />
         <link rel="stylesheet" href="https://use.typekit.net/gdb2xdd.css" />
+
+        <script src="https://cdn.brevo.com/js/sdk-loader.js" async></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Version: 2.0
+              window.Brevo = window.Brevo || [];
+              Brevo.push([
+                "init",
+                {
+                  client_key: "nl39306i9a0e4wmoy3xed9ai"
+                }
+              ]);
+            `
+          }}
+        />
       </Head>
       <SessionProvider session={session}>
         <AnimatePresence initial={false} mode="popLayout">
