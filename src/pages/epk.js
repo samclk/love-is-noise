@@ -517,18 +517,24 @@ export default function epk() {
           </h4>
 
           <div>
-            <p className="mb-2">
+            <p>
               <span className="text-yellow-300 font-bold uppercase">
-                London ANITC '24
+                Headline UK Tour '25
               </span>{' '}
-              - 180 tickets sold without guestlist (sold out with no shows
-              clashing)
+              - 250 tickets sold across the UK
             </p>
             <p>
               <span className="text-yellow-300 font-bold uppercase">
                 London ANITC '25
               </span>{' '}
               - 130 tickets sold without guestlist (with 5 shows clashing)
+            </p>
+            <p className="mb-2">
+              <span className="text-yellow-300 font-bold uppercase">
+                London ANITC '24
+              </span>{' '}
+              - 180 tickets sold without guestlist (sold out with no shows
+              clashing)
             </p>
           </div>
         </div>
