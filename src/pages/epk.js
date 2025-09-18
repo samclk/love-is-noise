@@ -21,12 +21,13 @@ const flyers = [
   { src: '/img/epk/flyers/first-show.jpg', width: 1200, height: 1500 },
   { src: '/img/epk/flyers/anitc.jpg', width: 842, height: 1096 },
   { src: '/img/epk/flyers/anitc-2.jpg', width: 1200, height: 1502 },
-  { src: '/img/epk/flyers/trees-25.jpg', width: 1000, height: 1414 }
+  { src: '/img/epk/flyers/trees-25.jpg', width: 1000, height: 1414 },
+  { src: '/img/epk/flyers/bid.jpg', width: 1071, height: 1331 },
+  { src: '/img/epk/flyers/headline.jpg', width: 1080, height: 1351 }
 ]
 
 const upcomingTours = [
-  { src: '/img/epk/flyers/bid.jpg', width: 1071, height: 1331 },
-  { src: '/img/epk/flyers/headline.jpg', width: 1080, height: 1351 },
+  { src: '/img/epk/flyers/loathe-tour.webp', width: 960, height: 1200 },
   { src: '/img/epk/flyers/welsh-fest.jpeg', width: 1024, height: 1280 }
 ]
 
@@ -266,6 +267,28 @@ export default function epk() {
           <div className="grid gap-8 grid-cols-2 mb-12">
             <div>
               <Image
+                src="/img/epk/everyone-bleeds.jpg"
+                height={200}
+                width={200}
+                alt="everyone bleeds cover"
+              />
+            </div>
+            <div>
+              <h4 className="font-sans font-bold uppercase lg:text-xl">
+                Everyone Bleeds
+              </h4>
+              <p>
+                Single (Latest release) (2025) |{' '}
+                <a
+                  className="text-yellow-300 underline"
+                  href="https://open.spotify.com/track/1FWxIyJmRINVnqkwPk3qCP?si=164d68b443dd4969"
+                >
+                  Listen
+                </a>
+              </p>
+            </div>
+            <div>
+              <Image
                 src="/img/epk/hole-in-me.webp"
                 height={200}
                 width={200}
@@ -277,7 +300,7 @@ export default function epk() {
                 Hole in Me / All Eyes Shut (feat. Erik Bickerstaffe)
               </h4>
               <p>
-                Single (Latest release) (2025) |{' '}
+                Single (2025) |{' '}
                 <a
                   className="text-yellow-300 underline"
                   href="https://open.spotify.com/album/0hzrir5Egz7hPHqamJ4nvk?si=JkrrBPI6QOuGuKn9T6hOSA"
@@ -616,12 +639,6 @@ export default function epk() {
             </div>
             <div>
               <p>Century Media Records </p>
-            </div>
-            <div>
-              <h5 className="text-lg font-bold">Booking Agent</h5>
-            </div>
-            <div>
-              <p>Joe Booley @ Atonal Agency</p>
             </div>
             <div>
               <h5 className="text-lg font-bold">PR Agent</h5>
