@@ -73,7 +73,16 @@ export default function epk() {
           <div className="text-center">
             <h1 className="font-sans font-bold">Electronic Press Kit</h1>
             <p>
-              Contact:&nbsp;
+              Management:&nbsp;
+              <a
+                href="mailto:jari@forgeartists.com"
+                className="text-yellow-300 underline"
+              >
+                jari@forgeartists.com
+              </a>
+            </p>
+            <p>
+              Band:&nbsp;
               <a
                 href="mailto:cam@newbreedartists.com"
                 className="text-yellow-300 underline"
@@ -635,10 +644,16 @@ export default function epk() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h5 className="text-lg font-bold">Label</h5>
+              <h5 className="text-lg font-bold">Management</h5>
             </div>
             <div>
-              <p>Century Media Records </p>
+              <p>Jari @ Forge Artists</p>
+            </div>
+            <div>
+              <h5 className="text-lg font-bold">Booking</h5>
+            </div>
+            <div>
+              <p>Marteen @ Avocado Booking</p>
             </div>
             <div>
               <h5 className="text-lg font-bold">PR Agent</h5>
