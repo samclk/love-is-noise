@@ -2,8 +2,11 @@ import type { Metadata } from 'next'
 import '../css/main.css'
 
 export const metadata: Metadata = {
-  title: 'Love Is Noise | EPK',
-  description: 'Electronic Press Kit for Love Is Noise',
+  title: 'Love Is Noise',
+  description: 'Everyone Bleeds',
+  openGraph: {
+    images: '/img/epk/page-header.jpg'
+  },
   icons: {
     icon: [
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
