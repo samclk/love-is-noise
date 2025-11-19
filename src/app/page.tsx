@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Youtube from '@/components/Youtube'
 import { SocialStrip } from '@/components/SocialStrip'
+import { Button } from '@/components/Button'
 
 const storeLinks = [
   {
@@ -49,29 +50,11 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col lg:flex-row px-4 gap-4 justify-center">
-        {storeLinks.map((link, index) => (
-          <Link
-            href={link.href}
-            target="_blank"
-            className="block text-center border-2 border-white transition-all duration-300 hover:bg-black hover:text-white py-4 px-8 bg-white rounded"
-            key={index}
-          >
-            <span className="block lg:text-5xl text-3xl whitespace-nowrap font-styled">
-              {link.label}
-            </span>
-          </Link>
+        {storeLinks.map((link) => (
+          <Button href={link.href} label={link.label} key={link.label} />
         ))}
-        {otherLinks.map((link, index) => (
-          <Link
-            href={link.href}
-            target="_blank"
-            className="block text-center border-2 border-white transition-all duration-300 hover:bg-black hover:text-white py-4 px-8 bg-white rounded"
-            key={index}
-          >
-            <span className="block lg:text-5xl text-3xl whitespace-nowrap font-styled">
-              {link.label}
-            </span>
-          </Link>
+        {otherLinks.map((link) => (
+          <Button href={link.href} label={link.label} key={link.label} />
         ))}
       </div>
       <div className="my-12 lg:my-28 max-w-6xl flex flex-col gap-6 mx-auto px-4">
