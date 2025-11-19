@@ -1,23 +1,12 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: neue-haas-grotesk-display, sans-serif;
+  --font-styled: 'p22-canterbury-pro', sans-serif;
+}
+
 body {
   background: black;
-  color: white;
-  min-height: 100svh;
-  min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  display: flex;
-  flex-direction: column;
-}
-
-html {
-  height: -webkit-fill-available;
-  height: 100svh;
-}
-
-.h-screen {
-  min-height: 100svh;
-}
-
-.min-h-screen {
-  min-height: 100svh;
 }
