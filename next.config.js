@@ -1,18 +1,4 @@
-const withAlias = require('@blunck/next-alias')({
-  '~': __dirname + '/src',
-  '@root': __dirname + '/'
-})
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
 
-module.exports = withAlias({
-  images: {
-    unoptimized: true
-  },
-  webpack: (cfg) => {
-    cfg.module.rules.push({
-      test: /\.ya?ml$/,
-      type: 'json',
-      use: 'yaml-loader'
-    })
-    return cfg
-  }
-})
+module.exports = nextConfig
