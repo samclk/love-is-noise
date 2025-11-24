@@ -59,10 +59,11 @@ export default function EPK() {
           } transition-opacity delay-200 duration-1000`}
         >
           <Image
-            src="/img/logo.png"
-            height={200}
-            width={400}
+            src="/img/lin-scythe-logo.png"
+            height={774}
+            width={1400}
             alt="Love Is Noise Logo"
+            className="max-w-[360px]"
           />
           <div className="text-center text-white">
             <h1 className="font-sans  font-bold">Electronic Press Kit</h1>
@@ -650,10 +651,10 @@ export default function EPK() {
               <p>Jari @ Forge Artists</p>
             </div>
             <div>
-              <h5 className="text-lg font-bold">Booking</h5>
+              <h5 className="text-lg font-bold">UK / EU Booking</h5>
             </div>
             <div>
-              <p>Marteen @ Avocado Booking</p>
+              <p>Maarten @ Avocado Booking</p>
             </div>
             <div>
               <h5 className="text-lg font-bold">PR Agent</h5>
