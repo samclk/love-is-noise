@@ -66,7 +66,7 @@ export default function EPK() {
             className="max-w-[360px]"
           />
           <div className="text-center text-white">
-            <h1 className="font-sans  font-bold">Electronic Press Kit</h1>
+            <h1 className="font-sans font-bold">Electronic Press Kit</h1>
             <p>
               Management:&nbsp;
               <a
@@ -648,18 +648,44 @@ export default function EPK() {
               <h5 className="text-lg font-bold">Management</h5>
             </div>
             <div>
-              <p>Jari @ Forge Artists</p>
+              <p>
+                <a
+                  href="mailto:jari@forgeartists.com"
+                  target="_blank"
+                  className="text-yellow-300 underline"
+                >
+                  Jari Vancompernolle @ Forge Artists
+                </a>
+              </p>
             </div>
             <div>
               <h5 className="text-lg font-bold">UK / EU Booking</h5>
             </div>
             <div>
-              <p>Maarten @ Avocado Booking</p>
+              <p>
+                <a
+                  href="mailto:maarten@avocado-booking.com"
+                  target="_blank"
+                  className="text-yellow-300 underline"
+                >
+                  Maarten Janssen @ Avocado Booking
+                </a>
+              </p>
             </div>
             <div>
               <h5 className="text-lg font-bold">PR Agent</h5>
             </div>
-            <div>Emma Van Duyts @ Public City PR</div>
+            <div>
+              <p>
+                <a
+                  href="mailto:evd@publiccitypr.com"
+                  target="_blank"
+                  className="text-yellow-300 underline"
+                >
+                  Emma Van Duyts @ Public City PR
+                </a>
+              </p>
+            </div>
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-8 text-2xl flex gap-6">
