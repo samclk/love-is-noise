@@ -7,7 +7,7 @@ import { Button } from '@/components/Button'
 const storeLinks = [
   {
     label: 'uk store',
-    href: 'https://loveisnoise.myshopify.com/'
+    href: 'https://loveisnoise.bigcartel.com'
   },
   {
     label: 'eu store',
