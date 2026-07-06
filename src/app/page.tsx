@@ -29,8 +29,8 @@ const otherLinks = [
     href: 'https://www.bandsintown.com/a/245374-love-is-noise'
   },
   {
-    label: 'mailing list',
-    href: '/sign-up'
+    label: 'discord',
+    href: 'https://discord.gg/skHFhyZKc2'
   }
 ]
 
