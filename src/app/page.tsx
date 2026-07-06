@@ -10,8 +10,16 @@ const storeLinks = [
     href: 'https://shop.loveisnoise.world'
   },
   {
+    label: 'us store',
+    href: 'http://loveisnoise-world.myshopify.com/'
+  },
+  {
     label: 'eu store',
     href: 'https://www.impericon.com/collections/love-is-noise/'
+  },
+  {
+    label: 'aus/sea store',
+    message: '(coming soon)',
   }
 ]
 
@@ -21,8 +29,8 @@ const otherLinks = [
     href: 'https://www.bandsintown.com/a/245374-love-is-noise'
   },
   {
-    label: 'mailing list',
-    href: '/sign-up'
+    label: 'discord',
+    href: 'https://discord.gg/skHFhyZKc2'
   }
 ]
 
@@ -51,7 +59,7 @@ export default function Home() {
 
       <div className="flex flex-col lg:flex-row px-4 gap-4 justify-center">
         {storeLinks.map((link) => (
-          <Button href={link.href} label={link.label} key={link.label} />
+          <Button key={link.label} {...link}  />
         ))}
         {otherLinks.map((link) => (
           <Button href={link.href} label={link.label} key={link.label} />
