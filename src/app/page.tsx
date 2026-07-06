@@ -19,7 +19,7 @@ const storeLinks = [
   },
   {
     label: 'aus/sea store',
-    message: 'coming soon',
+    message: '(coming soon)',
   }
 ]
 

@@ -20,7 +20,7 @@ const sharedStyle: React.CSSProperties = {
 export const Button = ({ href, label, message }: ButtonProps) => {
   const content = (
     <span className="block text-2xl whitespace-nowrap font-styled">
-      {label}
+      {label}{message && <span className='text-xs'>&nbsp;{message}</span>}
     </span>
   )
 
@@ -40,7 +40,7 @@ export const Button = ({ href, label, message }: ButtonProps) => {
           {content}
         </div>
       )}
-      {message && <p className='text-white text-xs leading-none'>{message}</p>}
+      
     </div>
   )
 }
