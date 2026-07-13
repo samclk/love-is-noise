@@ -16,21 +16,26 @@
     "singleQuote": true
   },
   "dependencies": {
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.4.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^11.0.0",
     "masonic": "^4.1.0",
-    "next": "15.0.7",
+    "next": "16.2.10",
+    "next-sanity": "^13.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "react-youtube": "^10.1.0"
+    "react-youtube": "^10.1.0",
+    "sanity": "^6.4.0",
+    "styled-components": "^6.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "prettier": "^3.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.0.0"
