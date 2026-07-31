@@ -4,11 +4,14 @@ import * as React from 'react'
 import * as THREE from 'three'
 import {
   ATLAS_SIZE,
+  BLOB_RECT,
   LOGO_RECT,
   LOGO_URL,
   PHOSPHOR,
   SCREEN_RECT
 } from './config'
+
+type Rect = { x: number; y: number; width: number; height: number }
 
 type ScreenMaps = {
   emissive: THREE.CanvasTexture
@@ -55,16 +58,21 @@ export function useScreenMaps(
         if (cancelled) return
 
         const emissive = paint(emissiveOriginal, emissiveImage, (ctx) => {
-          clearScreen(ctx, '#000000')
-          drawPhosphorLogo(ctx, logo)
-          drawScanlines(ctx)
-          drawTubeFalloff(ctx)
+          withClip(ctx, SCREEN_RECT, () => {
+            fill(ctx, SCREEN_RECT, '#000000')
+            drawPhosphorLogo(ctx, logo)
+            drawScanlines(ctx)
+            drawTubeFalloff(ctx)
+          })
         })
 
         const base = paint(baseOriginal, baseImage, (ctx) => {
           // Near-black rather than pure black: an unlit CRT is dark grey glass,
           // and a true zero here would flatten the bezel's inner edge.
-          clearScreen(ctx, '#060607')
+          withClip(ctx, SCREEN_RECT, () => fill(ctx, SCREEN_RECT, '#060607'))
+          // The grime above the screen, covered separately so the main wipe can
+          // stay clear of the bezel's corners.
+          withClip(ctx, BLOB_RECT, () => fill(ctx, BLOB_RECT, '#060607'))
         })
 
         if (!emissive || !base) return
@@ -104,14 +112,9 @@ function paint(
   if (!ctx) return null
 
   ctx.drawImage(image, 0, 0, ATLAS_SIZE, ATLAS_SIZE)
-
-  const { x, y, width, height } = SCREEN_RECT
-  ctx.save()
-  ctx.beginPath()
-  ctx.rect(x, y, width, height)
-  ctx.clip()
+  // Clipping is left to each draw op: the base map covers two separate regions
+  // of the atlas, so a single clip here would shut the second one out.
   draw(ctx)
-  ctx.restore()
 
   const texture = new THREE.CanvasTexture(canvas)
   // glTF textures are authored top-down and GLTFLoader disables the flip to
@@ -126,10 +129,18 @@ function paint(
   return texture
 }
 
-function clearScreen(ctx: CanvasRenderingContext2D, colour: string) {
-  const { x, y, width, height } = SCREEN_RECT
+function withClip(ctx: CanvasRenderingContext2D, rect: Rect, draw: () => void) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(rect.x, rect.y, rect.width, rect.height)
+  ctx.clip()
+  draw()
+  ctx.restore()
+}
+
+function fill(ctx: CanvasRenderingContext2D, rect: Rect, colour: string) {
   ctx.fillStyle = colour
-  ctx.fillRect(x, y, width, height)
+  ctx.fillRect(rect.x, rect.y, rect.width, rect.height)
 }
 
 /**

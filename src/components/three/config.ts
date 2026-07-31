@@ -11,13 +11,22 @@ export const ATLAS_SIZE = 1024
  * notably a patch of case grime just above it, which otherwise shows through in
  * the screen's top-left corner.
  *
- * These bounds are a deliberate compromise. The screen and the bezel overlap in
- * this atlas, so no rect wipes one without eating into the other: widening it
- * further blackens the monitor's surround. Calibrated against renders to sit
- * just short of that, which leaves a faint warm cast at the top of the screen
- * that passes for a reflection in the glass.
+ * Kept tight to the screen itself. The screen and the bezel overlap in this
+ * atlas, so every pixel this rect reaches beyond the tube risks blacking out
+ * part of the monitor's surround — an earlier version stretched up to y=515 to
+ * swallow the grime patch above the screen and cut visible notches out of the
+ * bezel's top corners. That patch has its own rect below instead.
  */
-export const SCREEN_RECT = { x: 0, y: 515, width: 405, height: 425 }
+export const SCREEN_RECT = { x: 0, y: 640, width: 368, height: 302 }
+
+/**
+ * The patch of case grime sitting just above the screen in the atlas.
+ *
+ * The screen quad samples it, so left alone it shows through in the screen's
+ * top-left corner. Covering it with its own small rect rather than by extending
+ * SCREEN_RECT upward keeps the wipe away from the bezel corners.
+ */
+export const BLOB_RECT = { x: 274, y: 524, width: 128, height: 124 }
 
 /**
  * Where the logo is placed, kept separate from the wipe above.
