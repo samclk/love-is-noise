@@ -39,3 +39,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# large source assets (optimised versions are committed)
+public/models/*.source.glb
