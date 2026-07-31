@@ -15,9 +15,14 @@ RectAreaLightUniformsLib.init()
 
 type OldComputerProps = {
   reducedMotion: boolean
+  /** Reports where the screen ended up, so the rain can catch its light. */
+  onScreenMeasured?: (centre: THREE.Vector3) => void
 }
 
-export function OldComputer({ reducedMotion }: OldComputerProps) {
+export function OldComputer({
+  reducedMotion,
+  onScreenMeasured
+}: OldComputerProps) {
   const { scene } = useGLTF(MODEL_URL)
   const lightRef = React.useRef<THREE.RectAreaLight>(null)
 
@@ -37,6 +42,10 @@ export function OldComputer({ reducedMotion }: OldComputerProps) {
     () => screenMaterial?.emissiveIntensity ?? 1,
     [screenMaterial]
   )
+
+  React.useEffect(() => {
+    if (screen) onScreenMeasured?.(screen.centre)
+  }, [screen, onScreenMeasured])
 
   React.useEffect(() => {
     if (!screenMaterial || !painted) return

@@ -20,15 +20,15 @@ const TARGET_X = -0.5
  * ride up to favour the monitor, letting the keyboard fall out of frame.
  */
 const FRAMING = {
-  narrow: { width: 5.2, targetY: 2.0, cameraY: 2.3 },
-  wide: { width: 7.4, targetY: 1.58, cameraY: 2.05 }
+  narrow: { width: 6.4, targetY: 2.0, cameraY: 2.4 },
+  wide: { width: 9.6, targetY: 1.62, cameraY: 2.3 }
 }
 
 /**
  * Distance is capped at both ends. Too close and the wide-angle distortion
  * bends the CRT; too far and the subject starts dissolving into its own fog.
  */
-const DISTANCE = { min: 6.2, max: 13 }
+const DISTANCE = { min: 6.2, max: 15 }
 
 const ASPECT_RANGE = { narrow: 0.75, wide: 1.35 }
 

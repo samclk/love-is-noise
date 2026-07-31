@@ -5,10 +5,14 @@ import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
+import { Backdrop } from './Backdrop'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
+import { FOG } from './config'
 import { Effects } from './Effects'
 import { Lighting } from './Lighting'
+import { LightShafts } from './LightShafts'
 import { OldComputer } from './OldComputer'
+import { Rain } from './Rain'
 import { Staging } from './Staging'
 import { useSceneActive } from './useSceneActive'
 
@@ -18,6 +22,12 @@ export default function Scene() {
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
+  const [screen, setScreen] = React.useState<THREE.Vector3 | null>(null)
+
+  const handleScreenMeasured = React.useCallback(
+    (centre: THREE.Vector3) => setScreen(centre),
+    []
+  )
 
   return (
     <div ref={container} className="fixed inset-0 h-screen w-full">
@@ -46,22 +56,40 @@ export default function Scene() {
       >
         <color attach="background" args={['#000000']} />
         {/*
-          Dissolves the floor into the background long before its edge. Kept
-          deliberately thin: fog is distance-based, and narrow viewports pull the
-          camera back to ~13 units, so a denser value would start eating the
-          subject itself rather than just the horizon.
+          Dissolves the floor into the sky long before its edge. Tinted to the
+          backdrop's horizon rather than black, so the ground melts into the sky
+          instead of cutting a hard line against it, and so the haze it leaves on
+          the machine reads as night air rather than grey wash.
         */}
-        <fogExp2 attach="fog" args={['#000000', 0.026]} />
+        <fogExp2 attach="fog" args={[FOG.colour, FOG.density]} />
 
+        {/*
+          Drives the quality tier. flipflops/onFallback stop it oscillating
+          between tiers on a device sitting near the threshold, which would
+          otherwise pop the puddle reflections in and out.
+        */}
         <PerformanceMonitor
+          flipflops={3}
           onDecline={() => setQuality('low')}
           onIncline={() => setQuality('high')}
+          onFallback={() => setQuality('low')}
         />
 
         <React.Suspense fallback={null}>
-          <OldComputer reducedMotion={reducedMotion} />
+          <OldComputer
+            reducedMotion={reducedMotion}
+            onScreenMeasured={handleScreenMeasured}
+          />
+          <Backdrop />
           <Lighting />
-          <Staging />
+          <LightShafts />
+          <Staging quality={quality} reducedMotion={reducedMotion} />
+          {/*
+            Falling rain is the one thing here that cannot be made still and
+            still make sense, so under reduced motion it is dropped entirely.
+            The puddles stay, which carries the idea on their own.
+          */}
+          {!reducedMotion && <Rain glow={screen} />}
           <Effects quality={quality} />
         </React.Suspense>
 
