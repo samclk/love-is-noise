@@ -3,6 +3,8 @@
 import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
+import { SLIDES, type SlideAction } from './config'
+import { StoreDialog } from './StoreDialog'
 
 /**
  * The Canvas touches browser APIs on mount and cannot render on the server.
@@ -22,14 +24,74 @@ const Scene = dynamic(() => import('./Scene'), {
  */
 export function HomeScene() {
   const [revealed, setRevealed] = React.useState(false)
+  const [storesOpen, setStoresOpen] = React.useState(false)
+
   const reveal = React.useCallback(() => setRevealed(true), [])
+  const closeStores = React.useCallback(() => setStoresOpen(false), [])
+
+  const activate = React.useCallback((action: SlideAction) => {
+    if (action.kind === 'stores') {
+      setStoresOpen(true)
+      return
+    }
+    window.open(action.href, '_blank', 'noopener,noreferrer')
+  }, [])
 
   return (
     <>
-      <Scene onReady={reveal} />
+      {/* The cycle holds while the dialog is up: the screen behind it should not
+          carry on changing under a panel the screen itself opened. */}
+      <Scene onReady={reveal} onActivate={activate} paused={storesOpen} />
       <Curtain revealed={revealed} onTimeout={reveal} />
       <SceneProgress revealed={revealed} />
+      <ScreenLinks onStores={() => setStoresOpen(true)} />
+      <StoreDialog open={storesOpen} onClose={closeStores} />
     </>
+  )
+}
+
+/**
+ * The screen's destinations as real controls.
+ *
+ * The CRT is clickable, but a hit target inside a canvas does not exist for a
+ * keyboard or a screen reader, and these are the page's primary calls to
+ * action. Everything is listed permanently rather than following the slideshow,
+ * so nobody has to wait for the right slide to come round — and there is no
+ * race to lose. They become visible on focus, so a sighted keyboard user can
+ * see where they are.
+ */
+function ScreenLinks({ onStores }: { onStores: () => void }) {
+  const shared =
+    'sr-only focus:not-sr-only focus:m-3 focus:inline-block focus:bg-black focus:px-4 focus:py-2 focus:font-styled focus:text-lg focus:text-white focus:outline focus:outline-white'
+
+  return (
+    <nav aria-label="Shop and tickets" className="fixed bottom-0 left-0 z-30">
+      <ul className="flex">
+        {SLIDES.map((slide) => {
+          const action = slide.action
+          if (!action) return null
+
+          return (
+            <li key={action.label}>
+              {action.kind === 'link' ? (
+                <a
+                  href={action.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={shared}
+                >
+                  {action.label}
+                </a>
+              ) : (
+                <button type="button" onClick={onStores} className={shared}>
+                  {action.label}
+                </button>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </nav>
   )
 }
 

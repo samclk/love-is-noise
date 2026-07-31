@@ -5,7 +5,15 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
-import { FLICKER, MODEL_SIZE, MODEL_URL, SPILL } from './config'
+import {
+  FLICKER,
+  MODEL_SIZE,
+  MODEL_URL,
+  SLIDES,
+  SLIDESHOW,
+  SPILL,
+  type SlideAction
+} from './config'
 import { useScreenMaps } from './useScreenTexture'
 
 // RectAreaLight needs its lookup textures built before first use, otherwise it
@@ -19,12 +27,18 @@ type OldComputerProps = {
   onScreenMeasured?: (centre: THREE.Vector3) => void
   /** Fires once the CRT is showing the logo rather than the baked DOS screen. */
   onReady?: () => void
+  /** Handed the current slide's action when the screen is clicked. */
+  onActivate?: (action: SlideAction) => void
+  /** Holds the cycle, e.g. while a dialog the screen opened is still up. */
+  paused?: boolean
 }
 
 export function OldComputer({
   reducedMotion,
   onScreenMeasured,
-  onReady
+  onReady,
+  onActivate,
+  paused
 }: OldComputerProps) {
   const { scene } = useGLTF(MODEL_URL)
   const lightRef = React.useRef<THREE.RectAreaLight>(null)
@@ -50,20 +64,50 @@ export function OldComputer({
     if (screen) onScreenMeasured?.(screen.centre)
   }, [screen, onScreenMeasured])
 
+  /** Index of the slide currently burned into the tube. */
+  const slide = React.useRef(0)
+  /** Milliseconds the current slide has been held. */
+  const held = React.useRef(0)
+  /** Milliseconds into a swap, or null when the screen is settled. */
+  const swapping = React.useRef<number | null>(null)
+  const swapped = React.useRef(false)
+  /** Pointer resting on the glass. Stops the cycle so what you see is clickable. */
+  const hovering = React.useRef(false)
+  /** Action captured when the press started, not when it finished. */
+  const armed = React.useRef<SlideAction | null>(null)
+
+  // Restored on unmount so a cursor set over the glass cannot outlive the scene.
+  React.useEffect(() => () => setCursor(null), [])
+
+  const showSlide = React.useCallback(
+    (index: number) => {
+      const artwork = SLIDES[index]?.image
+      const texture = artwork ? painted?.emissive.get(artwork) : null
+      if (!screenMaterial || !texture) return
+      // No needsUpdate here on purpose: swapping one texture for another in a
+      // slot that already had one needs no shader recompile, and forcing one
+      // every four seconds would hitch the frame the swap lands on.
+      screenMaterial.emissiveMap = texture
+    },
+    [painted, screenMaterial]
+  )
+
   React.useEffect(() => {
     if (!screenMaterial || !painted) return
-    screenMaterial.emissiveMap = painted.emissive
     screenMaterial.map = painted.base
+    showSlide(slide.current)
+    // Only here: this is the one point where the maps genuinely change identity
+    // from the model's originals to ours.
     screenMaterial.needsUpdate = true
 
-    // The repaint is the last thing to land: the logo is a plain Image, so it
+    // The repaint is the last thing to land: the artwork is plain Images, so it
     // sits outside three's loading manager and finishes after progress has
     // already reported complete. Revealing on progress alone would show the
     // baked blue DOS screen for a moment before it popped to the logo.
     onReady?.()
-  }, [screenMaterial, painted, onReady])
+  }, [screenMaterial, painted, showSlide, onReady])
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     const light = lightRef.current
 
     if (reducedMotion) {
@@ -81,12 +125,56 @@ export function OldComputer({
       0
     )
     const factor = 1 + drift * FLICKER.amplitude
+    const dip = advanceSlideshow(delta)
 
-    if (screenMaterial) screenMaterial.emissiveIntensity = baseEmissive * factor
+    if (screenMaterial) {
+      screenMaterial.emissiveIntensity = baseEmissive * factor * dip
+    }
     // The spill has to move with the screen, or the light and its source
-    // visibly disagree.
-    if (light) light.intensity = SPILL_INTENSITY * factor
+    // visibly disagree — including through the dip, so the room darkens with
+    // the tube when it changes slide.
+    if (light) light.intensity = SPILL_INTENSITY * factor * dip
   })
+
+  /**
+   * Runs the cycle and returns the brightness multiplier for this frame.
+   *
+   * The swap happens at the bottom of a dim, the way a CRT behaves when it
+   * changes input, so the slide is never seen changing — only the tube dropping
+   * out and coming back with something else on it.
+   */
+  function advanceSlideshow(delta: number) {
+    const { holdMs, dipMs } = SLIDESHOW
+    const ms = delta * 1000
+
+    if (swapping.current === null) {
+      if (!hovering.current && !paused) held.current += ms
+      if (held.current >= holdMs && painted) {
+        swapping.current = 0
+        swapped.current = false
+      }
+      return 1
+    }
+
+    swapping.current += ms
+    const progress = Math.min(swapping.current / dipMs, 1)
+
+    if (progress >= 0.5 && !swapped.current) {
+      slide.current = (slide.current + 1) % SLIDES.length
+      showSlide(slide.current)
+      swapped.current = true
+    }
+
+    if (progress >= 1) {
+      swapping.current = null
+      held.current = 0
+      return 1
+    }
+
+    // A V from full to almost-out and back. Not quite to zero: a tube retains a
+    // little glow, and a hard cut to black reads as a fault rather than a change.
+    return 0.05 + 0.95 * Math.abs(progress * 2 - 1)
+  }
 
   return (
     <>
@@ -111,11 +199,62 @@ export function OldComputer({
           }
         />
       )}
+
+      {/*
+        The click target. An invisible plane on the glass rather than handlers on
+        the model itself, because the screen shares a mesh with the whole case —
+        a hit on that mesh cannot tell the tube from the keyboard. The glass was
+        already measured for the spill light, so its bounds come free.
+      */}
+      {screen && (
+        <mesh
+          position={[screen.centre.x, screen.centre.y, screen.centre.z + 0.03]}
+          onPointerOver={(event) => {
+            event.stopPropagation()
+            hovering.current = true
+            setCursor(SLIDES[slide.current]?.action ? 'pointer' : null)
+          }}
+          onPointerOut={() => {
+            hovering.current = false
+            setCursor(null)
+          }}
+          onPointerDown={(event) => {
+            event.stopPropagation()
+            // Captured on press, not on click. The cycle is paused while a
+            // pointer is over the glass, but touch has no hover, so without
+            // this a slide could change between the tap starting and landing
+            // and send someone to the wrong place.
+            armed.current = SLIDES[slide.current]?.action ?? null
+          }}
+          onPointerUp={(event) => {
+            event.stopPropagation()
+            const action = armed.current
+            armed.current = null
+            // Handed out to the DOM rather than acted on here. Merch opens a
+            // dialog, which belongs in the document where it can be a real
+            // focus-trapping element rather than something drawn in a canvas.
+            if (action) onActivate?.(action)
+          }}
+        >
+          <planeGeometry args={[screen.width, screen.height]} />
+          {/* Fully transparent, but still raycast: only `visible` is consulted. */}
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
     </>
   )
 }
 
 const SPILL_INTENSITY = 7
+
+/**
+ * The only affordance the screen has, so it is set on the document rather than
+ * the canvas — R3F's own cursor handling does not survive the pointer moving
+ * between meshes cleanly enough to rely on here.
+ */
+function setCursor(cursor: 'pointer' | null) {
+  document.body.style.cursor = cursor ?? ''
+}
 
 type PreparedModel = {
   model: THREE.Object3D

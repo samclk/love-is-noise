@@ -1,6 +1,68 @@
 export const MODEL_URL = '/models/old-computer.glb'
 export const LOGO_URL = '/img/lin-scythe-logo.png'
 
+/**
+ * Where the band's merch actually lives.
+ *
+ * Three regions with three separate storefronts, which is why Merch opens a
+ * chooser rather than a link — there is no single correct destination, and
+ * guessing someone's region is worse than asking. The fourth has no href, which
+ * is exactly the shape the existing Button component already renders as plain
+ * text rather than a link.
+ */
+export const STORES = [
+  { label: 'uk store', href: 'https://shop.loveisnoise.world' },
+  { label: 'us store', href: 'https://loveisnoise-world.myshopify.com/' },
+  {
+    label: 'eu store',
+    href: 'https://www.impericon.com/collections/love-is-noise/'
+  },
+  { label: 'aus/sea store', message: '(coming soon)' }
+]
+
+/** What clicking a slide does. */
+export type SlideAction =
+  | { kind: 'link'; href: string; label: string }
+  | { kind: 'stores'; label: string }
+
+export type Slide = {
+  /** Artwork burned into the tube. Light-on-transparent; its alpha is the mask. */
+  image: string
+  /** Null slides are not interactive. */
+  action: SlideAction | null
+}
+
+/**
+ * What the CRT cycles through.
+ *
+ * The logo sits between the two calls to action rather than them following each
+ * other, so the screen keeps returning to the band rather than reading as a
+ * two-slot advert.
+ *
+ * The words are committed artwork, not text drawn at runtime: the logo is
+ * distressed rather than clean type, and live-set type beside it looks like a
+ * different design. See scripts/make-slide-assets.mjs.
+ */
+export const SLIDES: Slide[] = [
+  { image: LOGO_URL, action: null },
+  {
+    image: '/img/screen-tickets.webp',
+    action: {
+      kind: 'link',
+      href: 'https://www.bandsintown.com/a/245374-love-is-noise',
+      label: 'Tickets'
+    }
+  },
+  { image: LOGO_URL, action: null },
+  {
+    image: '/img/screen-merch.webp',
+    action: { kind: 'stores', label: 'Merch' }
+  }
+]
+
+/** How long each slide holds, and how long the tube dims across the swap. */
+export const SLIDESHOW = { holdMs: 1500, dipMs: 320 }
+
 /** Width and height of the model's emissive texture atlas, in pixels. */
 export const ATLAS_SIZE = 1024
 
@@ -29,14 +91,18 @@ export const SCREEN_RECT = { x: 0, y: 640, width: 368, height: 302 }
 export const BLOB_RECT = { x: 274, y: 524, width: 128, height: 124 }
 
 /**
- * Where the logo is placed, kept separate from the wipe above.
+ * Where slide artwork is placed, kept separate from the wipe above.
  *
  * The quad's exact UV bounds cannot be derived from the geometry — the glass
  * and case meshes sit under different node transforms, and the atlas region is
- * shared — so this box was calibrated from renders instead: the logo was
- * measured against the screen's centre and the box moved until it sat true.
+ * shared — so this box was calibrated from renders instead, measuring the
+ * artwork against the screen's centre and moving the box until it sat true.
+ *
+ * Its centre must track SCREEN_RECT's. It drifted 19px above it when that rect
+ * was retuned to stop the wipe catching the bezel corners, which tipped every
+ * slide visibly high on the tube.
  */
-export const LOGO_RECT = { x: 0, y: 624, width: 363, height: 296 }
+export const LOGO_RECT = { x: 0, y: 643, width: 363, height: 296 }
 
 /** Longest edge of the model once normalised, in world units. */
 export const MODEL_SIZE = 4

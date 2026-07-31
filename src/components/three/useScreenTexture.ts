@@ -6,29 +6,32 @@ import {
   ATLAS_SIZE,
   BLOB_RECT,
   LOGO_RECT,
-  LOGO_URL,
   PHOSPHOR,
-  SCREEN_RECT
+  SCREEN_RECT,
+  SLIDES
 } from './config'
 
 type Rect = { x: number; y: number; width: number; height: number }
 
-type ScreenMaps = {
-  emissive: THREE.CanvasTexture
+export type ScreenMaps = {
+  /** Shared by every slide: the base colour only ever blacks the tube out. */
   base: THREE.CanvasTexture
+  /** One emissive map per distinct slide image, keyed by its URL. */
+  emissive: Map<string, THREE.CanvasTexture>
 }
 
 /**
- * Repaints the CRT so it shows the band logo as glowing phosphor instead of the
- * baked DOS file manager.
+ * Repaints the CRT so it shows the band's artwork as glowing phosphor instead of
+ * the baked DOS file manager, and builds one map per slide up front.
  *
  * Two maps have to change, not one. The emissive map supplies the glow, but
  * emission is *added* to the base colour, so leaving the base alone leaves the
- * original blue screen and its grime showing through underneath the amber.
+ * original blue screen and its grime showing through underneath the amber. Only
+ * the emissive differs between slides, so the base is built once.
  *
- * Both repaints draw the original texture first and only overwrite the screen
- * rect, which keeps the rest of the atlas — including the thin edge-glow sliver
- * below the screen — exactly as authored.
+ * Every slide is painted at load rather than on demand. Repainting a 1024px
+ * atlas mid-cycle would stall the frame the swap lands on, which is exactly the
+ * moment the eye is on the screen.
  */
 export function useScreenMaps(
   emissiveSource: THREE.Texture | null,
@@ -49,22 +52,11 @@ export function useScreenMaps(
     }
 
     let cancelled = false
-    const logo = new Image()
-    logo.src = LOGO_URL
+    const urls = [...new Set(SLIDES.map((slide) => slide.image))]
 
-    logo
-      .decode()
-      .then(() => {
+    Promise.all(urls.map(loadImage))
+      .then((artworks) => {
         if (cancelled) return
-
-        const emissive = paint(emissiveOriginal, emissiveImage, (ctx) => {
-          withClip(ctx, SCREEN_RECT, () => {
-            fill(ctx, SCREEN_RECT, '#000000')
-            drawPhosphorLogo(ctx, logo)
-            drawScanlines(ctx)
-            drawTubeFalloff(ctx)
-          })
-        })
 
         const base = paint(baseOriginal, baseImage, (ctx) => {
           // Near-black rather than pure black: an unlit CRT is dark grey glass,
@@ -74,12 +66,27 @@ export function useScreenMaps(
           // stay clear of the bezel's corners.
           withClip(ctx, BLOB_RECT, () => fill(ctx, BLOB_RECT, '#060607'))
         })
+        if (!base) return
 
-        if (!emissive || !base) return
-        setMaps({ emissive, base })
+        const emissive = new Map<string, THREE.CanvasTexture>()
+        artworks.forEach((artwork, index) => {
+          if (!artwork) return
+          const texture = paint(emissiveOriginal, emissiveImage, (ctx) => {
+            withClip(ctx, SCREEN_RECT, () => {
+              fill(ctx, SCREEN_RECT, '#000000')
+              drawPhosphor(ctx, artwork)
+              drawScanlines(ctx)
+              drawTubeFalloff(ctx)
+            })
+          })
+          if (texture) emissive.set(urls[index] as string, texture)
+        })
+
+        if (!emissive.size) return
+        setMaps({ base, emissive })
       })
       .catch(() => {
-        // A missing logo should cost us the repaint, not the whole scene: the
+        // Missing artwork should cost us the repaint, not the whole scene: the
         // baked DOS screen stays and still lights everything correctly.
       })
 
@@ -90,13 +97,19 @@ export function useScreenMaps(
 
   React.useEffect(
     () => () => {
-      maps?.emissive.dispose()
       maps?.base.dispose()
+      maps?.emissive.forEach((texture) => texture.dispose())
     },
     [maps]
   )
 
   return maps
+}
+
+function loadImage(url: string) {
+  const image = new Image()
+  image.src = url
+  return image.decode().then(() => image)
 }
 
 function paint(
@@ -144,23 +157,23 @@ function fill(ctx: CanvasRenderingContext2D, rect: Rect, colour: string) {
 }
 
 /**
- * The logo is light artwork on transparency, so its alpha is already the glyph
- * mask. Compositing a flat fill through that alpha recolours it to phosphor
- * without touching the black around it.
+ * Every slide is light artwork on transparency, so its alpha is already the
+ * glyph mask. Compositing a flat fill through that alpha recolours it to
+ * phosphor without touching the black around it.
  */
-function drawPhosphorLogo(
+function drawPhosphor(
   ctx: CanvasRenderingContext2D,
-  logo: HTMLImageElement
+  artwork: HTMLImageElement
 ) {
   const { x, y, width, height } = LOGO_RECT
 
   const inset = 0.84
   const scale = Math.min(
-    (width * inset) / logo.width,
-    (height * inset) / logo.height
+    (width * inset) / artwork.width,
+    (height * inset) / artwork.height
   )
-  const w = logo.width * scale
-  const h = logo.height * scale
+  const w = artwork.width * scale
+  const h = artwork.height * scale
 
   const layer = document.createElement('canvas')
   layer.width = width
@@ -169,7 +182,7 @@ function drawPhosphorLogo(
   const lctx = layer.getContext('2d')
   if (!lctx) return
 
-  lctx.drawImage(logo, (width - w) / 2, (height - h) / 2, w, h)
+  lctx.drawImage(artwork, (width - w) / 2, (height - h) / 2, w, h)
   lctx.globalCompositeOperation = 'source-in'
   lctx.fillStyle = PHOSPHOR
   lctx.fillRect(0, 0, width, height)

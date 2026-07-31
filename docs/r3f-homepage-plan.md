@@ -220,6 +220,44 @@ holds: device pixel ratios of 2 and 3 both render at an effective 1.5.
 - Framerate was not profiled on real mobile hardware — the checks above ran
   against SwiftShader, which says nothing about actual GPU performance.
 
+## Screen slideshow — agreed plan
+
+The CRT cycles Logo → Tickets → Logo → Merch on a 4s beat, and the screen is
+clickable on the two linked slides.
+
+| Decision | Choice |
+|---|---|
+| Rendering | Slides painted into the texture, as the logo already is. |
+| Click target | Transparent plane over the measured glass bounds. |
+| Accessibility | Both links also exist as visually-hidden real anchors in the DOM. |
+| Destinations | External. Tickets → Bandsintown, Merch → shop.loveisnoise.world. |
+| Transition | Cut behind a brightness dip, dimming the spill light with it. |
+| Pausing | Pointer over the screen pauses; frozen under reduced motion. |
+| Mis-click | Destination captured on pointerdown, not on click. |
+| Typography | Real p22-canterbury-pro, exported to WebP. |
+| Affordance | Pointer cursor only. |
+
+**Why the words are assets, not drawn text.** The scythe logo is distressed
+artwork rather than clean type. Text set live into a canvas comes out crisp and
+would sit beside it looking like a different design. The words are therefore
+rendered once and committed, and they drop into the existing `drawPhosphorLogo`
+path unchanged — it already tints an image through its own alpha.
+
+They could not be generated on this machine: `p22-canterbury-pro` is a Typekit
+face and is not installed locally, and there is no blackletter on the system at
+all. They were rendered in the browser instead, where Typekit has already loaded
+the real face, lightly speckled to echo the logo's erosion, and exported as WebP
+with alpha (~14 KB each). `scripts/make-slide-assets.mjs` re-runs it.
+
+**Why keyboard users get static anchors rather than a focus-pause.** Both
+destinations sit in the DOM permanently, independent of which slide is showing.
+That is better than pausing the cycle on focus: there is no race to lose, and no
+keyboard user ever has to wait for the right slide to come round.
+
+**Known trade-off.** Affordance is the pointer cursor alone, so touch users get
+no on-screen signal that the CRT is interactive. Accepted deliberately; the
+blinking-prompt option was declined.
+
 ## Open for later
 
 - Where the store links, tour, discord, videos and socials live relative to the
