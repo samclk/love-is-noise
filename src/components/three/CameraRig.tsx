@@ -21,7 +21,10 @@ const TARGET_X = -0.5
  * ride up to favour the monitor, letting the keyboard fall out of frame.
  */
 const FRAMING = {
-  narrow: { width: 6.4, targetY: 2.0, cameraY: 2.4 },
+  // targetY sits near the machine's own centre (it spans 0 to ~2.96). Aiming
+  // above the subject pushes it down the frame, which is what made it look low
+  // in portrait on top of the viewport-height bug.
+  narrow: { width: 6.4, targetY: 1.78, cameraY: 2.18 },
   wide: { width: 9.6, targetY: 1.62, cameraY: 2.3 }
 }
 

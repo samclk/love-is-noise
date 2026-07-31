@@ -96,7 +96,7 @@ function ScreenLinks({ onStores }: { onStores: () => void }) {
 }
 
 function SceneFallback() {
-  return <div className="fixed inset-0 h-screen w-full bg-black" />
+  return <div className="fixed inset-0 h-dvh w-full bg-black" />
 }
 
 const FADE_MS = 1400

@@ -5,7 +5,7 @@ import { HomeScene } from '@/components/three/HomeScene'
 // canvas in a following pass.
 export default function Home() {
   return (
-    <main className="relative h-screen w-full overflow-hidden">
+    <main className="relative h-dvh w-full overflow-hidden">
       <HomeScene />
     </main>
   )

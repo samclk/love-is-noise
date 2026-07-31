@@ -75,7 +75,7 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
     /*
       touch-action matters more than it looks. This was pan-y, meaning the
       browser claimed any gesture with a vertical component for a scroll — and
-      the page is h-screen overflow-hidden, so there is nothing to scroll. It was
+      the page does not scroll at all, so there was nothing to scroll. It was
       cancelling most drags before the scene ever saw them, for no benefit.
 
       It is `none`, and on the canvas rather than here. pinch-zoom would have
@@ -90,9 +90,19 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
       Revisit when content lands below the canvas — page scrolling will then need
       a route back, most likely by making the canvas not the scroll container.
     */
+    /*
+      h-dvh, not h-screen. 100vh on iOS deliberately means the *largest*
+      viewport — the height the page would have if the browser toolbars were
+      hidden — so the canvas ran taller than the visible area, its centre fell
+      below the centre of the screen, and the machine sat low. dvh tracks what is
+      actually visible.
+
+      Safe from resize jank here because the page does not scroll, so the toolbar
+      never collapses and dvh stays put.
+    */
     <div
       ref={container}
-      className="fixed inset-0 h-screen w-full [&_canvas]:touch-none"
+      className="fixed inset-0 h-dvh w-full [&_canvas]:touch-none"
     >
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
