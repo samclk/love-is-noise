@@ -17,11 +17,14 @@ type OldComputerProps = {
   reducedMotion: boolean
   /** Reports where the screen ended up, so the rain can catch its light. */
   onScreenMeasured?: (centre: THREE.Vector3) => void
+  /** Fires once the CRT is showing the logo rather than the baked DOS screen. */
+  onReady?: () => void
 }
 
 export function OldComputer({
   reducedMotion,
-  onScreenMeasured
+  onScreenMeasured,
+  onReady
 }: OldComputerProps) {
   const { scene } = useGLTF(MODEL_URL)
   const lightRef = React.useRef<THREE.RectAreaLight>(null)
@@ -52,7 +55,13 @@ export function OldComputer({
     screenMaterial.emissiveMap = painted.emissive
     screenMaterial.map = painted.base
     screenMaterial.needsUpdate = true
-  }, [screenMaterial, painted])
+
+    // The repaint is the last thing to land: the logo is a plain Image, so it
+    // sits outside three's loading manager and finishes after progress has
+    // already reported complete. Revealing on progress alone would show the
+    // baked blue DOS screen for a moment before it popped to the logo.
+    onReady?.()
+  }, [screenMaterial, painted, onReady])
 
   useFrame(({ clock }) => {
     const light = lightRef.current

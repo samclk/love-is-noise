@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { useTouchDrag } from './useTouchDrag'
 
 export const CAMERA_FOV = 35
 
@@ -32,13 +33,27 @@ const DISTANCE = { min: 6.2, max: 15 }
 
 const ASPECT_RANGE = { narrow: 0.75, wide: 1.35 }
 
-/** How far the pointer can drag the camera, in world units. */
-const TRAVEL = { x: 0.55, y: 0.28 }
+/**
+ * How far the pointer can drag the camera, in world units.
+ *
+ * The aim point stays fixed, so this is a pure orbit around the screen rather
+ * than a lateral slide. Letting the target drift as well was tried and dropped:
+ * it moves far more of the frame, but the shot stops being anchored on the
+ * machine and starts feeling like the whole set is sliding past.
+ */
+const TRAVEL = { x: 0.95, y: 0.46 }
 
 /** Higher converges faster. Framerate-independent, so it feels the same at 30 and 120fps. */
 const DAMPING = 2.6
 
 const FLOAT = { amplitude: 0.045, frequency: 0.31 }
+
+/**
+ * How quickly a touch drag drifts back to the composed shot after release.
+ * Much slower than the pointer damping, so it reads as the scene settling
+ * rather than being yanked back.
+ */
+const RECENTRE = 0.5
 
 export const CAMERA_POSITION: [number, number, number] = [
   0,
@@ -52,12 +67,14 @@ type CameraRigProps = {
 
 export function CameraRig({ reducedMotion }: CameraRigProps) {
   const { camera, pointer, size } = useThree()
+  const drag = useTouchDrag()
 
   const framing = React.useMemo(
     () => framingFor(size.width / size.height),
     [size.width, size.height]
   )
 
+  /** The shot's aim point. Fixed, so the camera orbits rather than slides. */
   const target = React.useMemo(
     () => new THREE.Vector3(TARGET_X, framing.targetY, 0),
     [framing.targetY]
@@ -71,11 +88,27 @@ export function CameraRig({ reducedMotion }: CameraRigProps) {
   useFrame((_, delta) => {
     if (reducedMotion) return
 
+    const touch = drag.current
+
+    // Once a finger has driven the scene, the mouse pointer is ignored for the
+    // rest of the session. On touch it holds a stale position from the last tap
+    // and would fight the drag for control.
+    if (touch.engaged && !touch.holding) {
+      // Ease back to the composed framing, slowly enough to read as the scene
+      // settling rather than snapping out of the user's hands.
+      const recentre = 1 - Math.exp(-RECENTRE * delta)
+      touch.x += (0 - touch.x) * recentre
+      touch.y += (0 - touch.y) * recentre
+    }
+
+    const inputX = touch.engaged ? touch.x : pointer.x
+    const inputY = touch.engaged ? touch.y : pointer.y
+
     const t = performance.now() / 1000
-    const targetX = pointer.x * TRAVEL.x
+    const targetX = inputX * TRAVEL.x
     const targetY =
       framing.cameraY +
-      pointer.y * TRAVEL.y +
+      inputY * TRAVEL.y +
       Math.sin(t * FLOAT.frequency) * FLOAT.amplitude
 
     // Exponential damping rather than a fixed lerp factor, so the easing does
@@ -83,6 +116,8 @@ export function CameraRig({ reducedMotion }: CameraRigProps) {
     const alpha = 1 - Math.exp(-DAMPING * delta)
     camera.position.x += (targetX - camera.position.x) * alpha
     camera.position.y += (targetY - camera.position.y) * alpha
+
+    // Fixed aim: the camera swings around the machine and the screen stays put.
     camera.lookAt(target)
   })
 

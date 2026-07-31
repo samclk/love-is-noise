@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import * as THREE from 'three'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
@@ -16,21 +16,62 @@ import { Rain } from './Rain'
 import { Staging } from './Staging'
 import { useSceneActive } from './useSceneActive'
 
-export default function Scene() {
+type SceneProps = {
+  /** Fires once the scene is composed and has actually drawn a few frames. */
+  onReady?: () => void
+}
+
+/**
+ * Waits for real frames before declaring the scene ready.
+ *
+ * React state says the materials are in place; it does not say anything has
+ * been rasterised. The first frames also carry one-off work — shader compiles,
+ * the environment bake, the reflection's first pass — so fading up immediately
+ * would reveal the scene mid-stutter. A few frames of headroom costs nothing
+ * and guarantees there is something finished to look at.
+ */
+function WhenDrawn({
+  enabled,
+  onDrawn
+}: {
+  enabled: boolean
+  onDrawn?: () => void
+}) {
+  const drawn = React.useRef(0)
+  const fired = React.useRef(false)
+
+  useFrame(() => {
+    if (!enabled || fired.current) return
+    drawn.current += 1
+    if (drawn.current < 4) return
+    fired.current = true
+    onDrawn?.()
+  })
+
+  return null
+}
+
+export default function Scene({ onReady }: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
   const [screen, setScreen] = React.useState<THREE.Vector3 | null>(null)
+  const [composed, setComposed] = React.useState(false)
 
   const handleScreenMeasured = React.useCallback(
     (centre: THREE.Vector3) => setScreen(centre),
     []
   )
 
+  const handleComposed = React.useCallback(() => setComposed(true), [])
+
   return (
-    <div ref={container} className="fixed inset-0 h-screen w-full">
+    // pan-y rather than none: horizontal drags reach the scene as pointer
+    // events, while vertical ones stay with the browser so the page can still
+    // be scrolled once content sits below the canvas.
+    <div ref={container} className="fixed inset-0 h-screen w-full touch-pan-y">
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
         // three 0.185. Plain PCF is ample here since ContactShadows does most
@@ -87,6 +128,7 @@ export default function Scene() {
           <OldComputer
             reducedMotion={reducedMotion}
             onScreenMeasured={handleScreenMeasured}
+            onReady={handleComposed}
           />
           <Lighting />
           <LightShafts />
@@ -102,6 +144,7 @@ export default function Scene() {
         </React.Suspense>
 
         <CameraRig reducedMotion={reducedMotion} />
+        <WhenDrawn enabled={composed} onDrawn={onReady} />
       </Canvas>
     </div>
   )

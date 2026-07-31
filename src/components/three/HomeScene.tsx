@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
 
@@ -13,11 +14,21 @@ const Scene = dynamic(() => import('./Scene'), {
   loading: () => <SceneFallback />
 })
 
+/**
+ * Nothing should be visible until the scene is actually composed, so the page
+ * opens on black and fades through to the render.
+ *
+ * Waiting on load progress alone is not enough — see Curtain.
+ */
 export function HomeScene() {
+  const [revealed, setRevealed] = React.useState(false)
+  const reveal = React.useCallback(() => setRevealed(true), [])
+
   return (
     <>
-      <Scene />
-      <SceneProgress />
+      <Scene onReady={reveal} />
+      <Curtain revealed={revealed} onTimeout={reveal} />
+      <SceneProgress revealed={revealed} />
     </>
   )
 }
@@ -26,14 +37,52 @@ function SceneFallback() {
   return <div className="fixed inset-0 h-screen w-full bg-black" />
 }
 
-/** The model is the entire hero, so there is nothing else to look at while it loads. */
-function SceneProgress() {
-  const { active, progress } = useProgress()
+const FADE_MS = 1400
 
-  if (!active) return null
+/**
+ * The black the scene fades up from.
+ *
+ * The timeout is a safety line, not a schedule. The reveal is driven by the
+ * scene reporting itself composed, and if anything on that path fails — a
+ * texture that never decodes, a model that never resolves — the page would
+ * otherwise sit on black forever. Better to show an unfinished scene than
+ * nothing at all.
+ */
+function Curtain({
+  revealed,
+  onTimeout
+}: {
+  revealed: boolean
+  onTimeout: () => void
+}) {
+  React.useEffect(() => {
+    if (revealed) return
+    const timer = setTimeout(onTimeout, 8000)
+    return () => clearTimeout(timer)
+  }, [revealed, onTimeout])
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center pb-16">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-10 bg-black transition-opacity ease-out"
+      style={{
+        opacity: revealed ? 0 : 1,
+        transitionDuration: `${FADE_MS}ms`
+      }}
+    />
+  )
+}
+
+/** The model is the entire hero, so there is nothing else to look at while it loads. */
+function SceneProgress({ revealed }: { revealed: boolean }) {
+  const { active, progress } = useProgress()
+
+  // Sits above the curtain rather than behind it, and goes the moment the fade
+  // starts so it is never caught halfway through the reveal.
+  if (!active || revealed) return null
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-20 flex items-end justify-center pb-16">
       <div className="flex flex-col items-center gap-3">
         <div className="h-px w-40 overflow-hidden bg-white/15">
           <div
