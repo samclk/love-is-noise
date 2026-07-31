@@ -1,5 +1,12 @@
 export const MODEL_URL = '/models/old-computer.glb'
-export const LOGO_URL = '/img/lin-scythe-logo.png'
+/**
+ * WebP, not the PNG. This is only ever a source for the canvas that paints the
+ * screen, never displayed, so next/image cannot optimise it and the full 380 KB
+ * was landing on every visit. The alpha mask — which is the whole effect —
+ * survives the conversion unchanged. /epk still uses the PNG, where next/image
+ * does optimise it.
+ */
+export const LOGO_URL = '/img/lin-scythe-logo.webp'
 
 /**
  * Where the band's merch actually lives.
@@ -176,8 +183,8 @@ export const FOG = { colour: '#000000', density: 0.05 }
  * frame — so the count drops on the low tier rather than the opacity.
  */
 export const FOG_LAYERS = {
-  count: 14,
-  lowCount: 6,
+  count: 9,
+  lowCount: 5,
   /**
    * A pale blue-grey, cold against the amber screen and the red street, and a
    * vertical gradient rather than one colour: lit up where the smoke reads
@@ -189,7 +196,7 @@ export const FOG_LAYERS = {
    */
   colourHigh: '#c3ced9',
   colourLow: '#080a0e',
-  opacity: 0.055,
+  opacity: 0.075,
   seed: 90210
 }
 

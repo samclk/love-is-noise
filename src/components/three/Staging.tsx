@@ -139,7 +139,7 @@ export function Staging({ quality, reducedMotion }: StagingProps) {
               reading as a polished floor rather than standing water.
             */
             <MeshReflectorMaterial
-              resolution={512}
+              resolution={256}
               // Only a little blur: enough to suggest a disturbed surface, not so
               // much that the machine stops being recognisable in the water.
               mixBlur={0.45}
@@ -183,6 +183,10 @@ export function Staging({ quality, reducedMotion }: StagingProps) {
       <ContactShadows
         // Hugging the contact plane. Any higher and it paints across the base of
         // the machine, which is exactly what made it look lifted.
+        // Rendered once, not every frame. drei defaults to redrawing this
+        // forever, and it was costing a full scene depth pass per frame for a
+        // machine that never moves. The shadow does not depend on the camera.
+        frames={1}
         position={[0, 0.0015, 0]}
         opacity={0.55}
         scale={12}

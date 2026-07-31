@@ -30,7 +30,8 @@ export function Effects({ quality }: EffectsProps) {
         intensity={low ? 1.2 : 1.75}
         luminanceThreshold={1.05}
         luminanceSmoothing={0.28}
-        kernelSize={low ? KernelSize.MEDIUM : KernelSize.LARGE}
+        // LARGE adds passes to a glow that is already soft and wide.
+        kernelSize={low ? KernelSize.SMALL : KernelSize.MEDIUM}
         mipmapBlur
       />
 

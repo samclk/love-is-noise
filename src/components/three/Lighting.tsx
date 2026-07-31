@@ -1,5 +1,8 @@
 'use client'
 
+import * as React from 'react'
+import type * as THREE from 'three'
+import { useFrame } from '@react-three/fiber'
 import { Environment, Lightformer } from '@react-three/drei'
 import { FLOOD, RIM, SHAFT } from './config'
 
@@ -13,6 +16,32 @@ import { FLOOD, RIM, SHAFT } from './config'
  * all the work.
  */
 export function Lighting() {
+  const shadowCaster = React.useRef<THREE.DirectionalLight>(null)
+  const frames = React.useRef(0)
+
+  /**
+   * Bakes the shadow map once instead of every frame.
+   *
+   * Both the caster and the light are static — only the camera moves, and a
+   * directional light's shadow does not depend on the camera. three still
+   * re-rendered the whole scene into the shadow map on every frame, which was
+   * one of four full scene traversals happening per frame.
+   *
+   * A few frames of grace first, so the model is definitely in place before the
+   * one render that gets kept.
+   */
+  useFrame(() => {
+    const light = shadowCaster.current
+    if (!light || frames.current > 4) return
+
+    frames.current += 1
+    if (frames.current === 4) {
+      light.shadow.autoUpdate = false
+      // Renders exactly once more, then three clears the flag itself.
+      light.shadow.needsUpdate = true
+    }
+  })
+
   return (
     <>
       <ambientLight intensity={0.03} />
@@ -35,6 +64,7 @@ export function Lighting() {
       {/* Cold, from behind and above. The only shadow caster — a second would
           muddy the floor. */}
       <directionalLight
+        ref={shadowCaster}
         position={[-3.5, 4.5, -5]}
         intensity={1.7}
         color={RIM}
