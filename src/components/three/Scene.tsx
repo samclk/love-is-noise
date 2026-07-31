@@ -5,11 +5,10 @@ import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
-import { Backdrop } from './Backdrop'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
 import { FOG } from './config'
 import { Effects } from './Effects'
-import { Haze } from './Haze'
+import { FogLayers } from './FogLayers'
 import { Lighting } from './Lighting'
 import { LightShafts } from './LightShafts'
 import { OldComputer } from './OldComputer'
@@ -57,10 +56,10 @@ export default function Scene() {
       >
         <color attach="background" args={['#000000']} />
         {/*
-          Dissolves the floor into the sky long before its edge. Tinted to the
-          backdrop's horizon rather than black, so the ground melts into the sky
-          instead of cutting a hard line against it, and so the haze it leaves on
-          the machine reads as night air rather than grey wash.
+          Black, and dense enough that the ground reaches it well before the
+          plane ends. That is what removes the horizon: the floor and the sky
+          converge on the same colour, so there is no line where they meet and
+          the top of the frame is simply black.
         */}
         <fogExp2 attach="fog" args={[FOG.colour, FOG.density]} />
 
@@ -89,10 +88,9 @@ export default function Scene() {
             reducedMotion={reducedMotion}
             onScreenMeasured={handleScreenMeasured}
           />
-          <Backdrop />
           <Lighting />
           <LightShafts />
-          <Haze reducedMotion={reducedMotion} />
+          <FogLayers quality={quality} reducedMotion={reducedMotion} />
           <Staging quality={quality} reducedMotion={reducedMotion} />
           {/*
             Falling rain is the one thing here that cannot be made still and

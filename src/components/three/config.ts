@@ -80,29 +80,42 @@ export const RAIN = {
 }
 
 /**
- * Heavy enough to dissolve the floor into the sky well before its edge, which
- * is what removes the hard horizon line. The colour is matched to the backdrop's
- * horizon rather than black, so distant ground melts into the sky instead of
- * cutting against it.
+ * Black on purpose, and dense enough that the ground fades fully into it
+ * before the plane ends.
+ *
+ * This is what removes the horizon. Any fog colour that differs from the sky
+ * leaves a visible line where the two meet, so both are black and the top of
+ * the frame just goes dark.
  */
-export const FOG = { colour: '#12030a', density: 0.05 }
+export const FOG = { colour: '#000000', density: 0.05 }
 
 /**
- * Drifting haze layered through the scene, which distance fog cannot do on its
- * own — fog dims by depth and nothing more, where these sit in front of and
- * behind the machine and parallax against it.
+ * Volumetric smoke, as a stack of scrolling noise planes at different depths.
  *
- * Billboards are cheap in geometry but pay in fill rate, since each one covers
- * a lot of screen. Hence a low count at low opacity rather than many dense ones.
+ * Replaces an earlier attempt at billboard puffs. Those rendered fine but read
+ * as flat: individual soft blobs do not parallax against each other, so nothing
+ * suggested depth. Layered planes do, which is why this is the shape most sites
+ * doing convincing volumetrics settle on.
+ *
+ * Cheap in geometry and expensive in fill rate — each layer covers much of the
+ * frame — so the count drops on the low tier rather than the opacity.
  */
-export const HAZE = {
-  count: 16,
-  radius: 9,
-  height: { min: 0.2, max: 4.2 },
-  size: { min: 5, max: 12 },
-  /** Warm and desaturated, so it veils toward the street's red, not toward grey. */
-  colour: '#5b2a26',
-  opacity: 0.26
+export const FOG_LAYERS = {
+  count: 14,
+  lowCount: 6,
+  /**
+   * A pale blue-grey, cold against the amber screen and the red street, and a
+   * vertical gradient rather than one colour: lit up where the smoke reads
+   * against the dark sky, sinking to near-black as it approaches the ground.
+   *
+   * Fading the colour as well as the alpha is what makes it meet the floor
+   * cleanly. Alpha alone still leaves a pale film lying over the ground, and
+   * the join shows as a band.
+   */
+  colourHigh: '#c3ced9',
+  colourLow: '#080a0e',
+  opacity: 0.055,
+  seed: 90210
 }
 
 /**
