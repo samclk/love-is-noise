@@ -72,10 +72,28 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
   const handleComposed = React.useCallback(() => setComposed(true), [])
 
   return (
-    // pan-y rather than none: horizontal drags reach the scene as pointer
-    // events, while vertical ones stay with the browser so the page can still
-    // be scrolled once content sits below the canvas.
-    <div ref={container} className="fixed inset-0 h-screen w-full touch-pan-y">
+    /*
+      touch-action matters more than it looks. This was pan-y, meaning the
+      browser claimed any gesture with a vertical component for a scroll — and
+      the page is h-screen overflow-hidden, so there is nothing to scroll. It was
+      cancelling most drags before the scene ever saw them, for no benefit.
+
+      pinch-zoom rather than none: the app gets every single-finger pan on both
+      axes, while the browser keeps pinch to zoom. `none` would take zooming away
+      across a full-screen canvas, which some people rely on to read a page.
+
+      Revisit when content lands below the canvas — page scrolling will then need
+      a route back, most likely by making the canvas not the scroll container.
+
+      Set on the canvas as well as here. The browser intersects touch-action up
+      the ancestor chain, so this element alone does work, but R3F inserts its own
+      wrappers in between at `auto` — being explicit on the element actually
+      touched leaves nothing to infer.
+    */
+    <div
+      ref={container}
+      className="fixed inset-0 h-screen w-full touch-pinch-zoom [&_canvas]:touch-pinch-zoom"
+    >
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
         // three 0.185. Plain PCF is ample here since ContactShadows does most

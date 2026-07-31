@@ -75,6 +75,8 @@ export function OldComputer({
   const hovering = React.useRef(false)
   /** Action captured when the press started, not when it finished. */
   const armed = React.useRef<SlideAction | null>(null)
+  /** Where that press began, so a drag can be told apart from a tap. */
+  const pressedAt = React.useRef<{ x: number; y: number } | null>(null)
 
   // Restored on unmount so a cursor set over the glass cannot outlive the scene.
   React.useEffect(() => () => setCursor(null), [])
@@ -217,6 +219,9 @@ export function OldComputer({
           onPointerOut={() => {
             hovering.current = false
             setCursor(null)
+            // Left the glass mid-press: no longer a tap on it.
+            armed.current = null
+            pressedAt.current = null
           }}
           onPointerDown={(event) => {
             event.stopPropagation()
@@ -225,15 +230,30 @@ export function OldComputer({
             // this a slide could change between the tap starting and landing
             // and send someone to the wrong place.
             armed.current = SLIDES[slide.current]?.action ?? null
+            pressedAt.current = { x: event.clientX, y: event.clientY }
           }}
           onPointerUp={(event) => {
             event.stopPropagation()
             const action = armed.current
+            const from = pressedAt.current
             armed.current = null
+            pressedAt.current = null
+            if (!action || !from) return
+
+            // A drag across the screen is someone looking around, not someone
+            // buying a t-shirt. Without this the glass is both the click target
+            // and the biggest thing to grab, so every attempt to move the camera
+            // from the middle of the frame opened a store.
+            const travelled = Math.hypot(
+              event.clientX - from.x,
+              event.clientY - from.y
+            )
+            if (travelled > TAP_SLOP) return
+
             // Handed out to the DOM rather than acted on here. Merch opens a
             // dialog, which belongs in the document where it can be a real
             // focus-trapping element rather than something drawn in a canvas.
-            if (action) onActivate?.(action)
+            onActivate?.(action)
           }}
         >
           <planeGeometry args={[screen.width, screen.height]} />
@@ -246,6 +266,14 @@ export function OldComputer({
 }
 
 const SPILL_INTENSITY = 7
+
+/**
+ * How far a press may travel and still count as a tap, in CSS pixels.
+ *
+ * Generous, because a thumb on glass never holds still — anything tighter and
+ * real taps get rejected as drags.
+ */
+const TAP_SLOP = 14
 
 /**
  * The only affordance the screen has, so it is set on the document rather than
