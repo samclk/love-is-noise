@@ -143,7 +143,7 @@ function prepareModel(scene: THREE.Object3D): PreparedModel {
   model.scale.setScalar(scale)
   model.position.set(
     -centre.x * scale,
-    -bounds.min.y * scale,
+    -groundLevel(model) * scale,
     -centre.z * scale
   )
   model.updateMatrixWorld(true)
@@ -169,6 +169,39 @@ function prepareModel(scene: THREE.Object3D): PreparedModel {
     screenMaterial,
     screen: glass ? measureScreen(glass) : null
   }
+}
+
+/**
+ * Where the machine actually rests, which is not its lowest vertex.
+ *
+ * The bounding box bottoms out at the mouse cable, which droops well below the
+ * casing — about 120 of 9,387 vertices trail down there. Grounding on that
+ * floated the whole machine a visible gap above the floor, with its shadow and
+ * reflection stranded underneath it.
+ *
+ * Taking a low percentile instead ignores dangling geometry and lands on the
+ * real footprint. Erring slightly low is deliberate: sinking a hair into the
+ * ground is invisible, whereas hovering above it is not.
+ */
+function groundLevel(model: THREE.Object3D) {
+  const heights: number[] = []
+  const vertex = new THREE.Vector3()
+
+  model.updateMatrixWorld(true)
+  model.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    const position = object.geometry.getAttribute('position')
+
+    for (let i = 0; i < position.count; i++) {
+      vertex.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld)
+      heights.push(vertex.y)
+    }
+  })
+
+  if (!heights.length) return 0
+
+  heights.sort((a, b) => a - b)
+  return heights[Math.floor(heights.length * 0.02)] ?? heights[0] ?? 0
 }
 
 /**

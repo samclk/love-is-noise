@@ -85,7 +85,25 @@ export const RAIN = {
  * horizon rather than black, so distant ground melts into the sky instead of
  * cutting against it.
  */
-export const FOG = { colour: '#12030a', density: 0.042 }
+export const FOG = { colour: '#12030a', density: 0.05 }
+
+/**
+ * Drifting haze layered through the scene, which distance fog cannot do on its
+ * own — fog dims by depth and nothing more, where these sit in front of and
+ * behind the machine and parallax against it.
+ *
+ * Billboards are cheap in geometry but pay in fill rate, since each one covers
+ * a lot of screen. Hence a low count at low opacity rather than many dense ones.
+ */
+export const HAZE = {
+  count: 16,
+  radius: 9,
+  height: { min: 0.2, max: 4.2 },
+  size: { min: 5, max: 12 },
+  /** Warm and desaturated, so it veils toward the street's red, not toward grey. */
+  colour: '#5b2a26',
+  opacity: 0.26
+}
 
 /**
  * Puddles are a roughness map on the floor plane that already exists, so they

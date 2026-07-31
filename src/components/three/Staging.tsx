@@ -108,44 +108,66 @@ export function Staging({ quality, reducedMotion }: StagingProps) {
         />
       </mesh>
 
-      {quality === 'high' && maps.maskMap && (
+      {maps.maskMap && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
           <planeGeometry args={[PUDDLES.area, PUDDLES.area]} />
           {/*
-            A genuine mirrored render, not an environment trick, so what appears
-            in the water tracks the camera as it drifts. The alpha mask keeps it
-            inside the puddle outlines, and the blur stops it reading as a
-            polished floor rather than standing water.
+            The water layer renders on both tiers; only the reflection is
+            conditional. Dropping the whole mesh on the low tier left the dry
+            floor's punched-out puddles showing through as flat black holes,
+            because the wash deliberately withholds the red emissive from them.
+            The cheap material keeps them looking like water — glossy, red-lit,
+            picking up the lightformers — just without a mirrored render.
           */}
-          <MeshReflectorMaterial
-            resolution={512}
-            // Only a little blur: enough to suggest a disturbed surface, not so
-            // much that the machine stops being recognisable in the water.
-            mixBlur={0.45}
-            mixStrength={4.5}
-            // Light blur only. At [90, 30] the machine dissolved into a smear
-            // and the water stopped reading as a reflection at all.
-            blur={[34, 14]}
-            mirror={1}
-            // Left off deliberately. The depth-based fade is another variable
-            // between here and a working reflection, and the blur already does
-            // the softening it would buy.
-            depthScale={0}
-            // A mirror only shows what is above its own plane, so the red
-            // emissive road underneath never appears in it. Tinting the water
-            // red puts the street back into the puddles.
-            color="#1a0a0e"
-            // Carries the same red wash as the dry floor, so the wet layer and
-            // the road underneath read as one surface rather than a sheet laid
-            // over the top of it.
-            emissive={FLOOD}
-            emissiveMap={maps.glowMap?.texture ?? null}
-            emissiveIntensity={0.3}
-            roughness={0.22}
-            metalness={0}
-            transparent
-            alphaMap={maps.maskMap.texture}
-          />
+          {quality === 'low' ? (
+            <meshStandardMaterial
+              color="#1a0a0e"
+              emissive={FLOOD}
+              emissiveMap={maps.glowMap?.texture ?? null}
+              emissiveIntensity={0.3}
+              roughness={0.16}
+              metalness={0.25}
+              envMapIntensity={2.4}
+              transparent
+              alphaMap={maps.maskMap.texture}
+            />
+          ) : (
+            /*
+              A genuine mirrored render, not an environment trick, so what
+              appears in the water tracks the camera as it drifts. The alpha
+              mask keeps it inside the puddle outlines, and the blur stops it
+              reading as a polished floor rather than standing water.
+            */
+            <MeshReflectorMaterial
+              resolution={512}
+              // Only a little blur: enough to suggest a disturbed surface, not so
+              // much that the machine stops being recognisable in the water.
+              mixBlur={0.45}
+              mixStrength={4.5}
+              // Light blur only. At [90, 30] the machine dissolved into a smear
+              // and the water stopped reading as a reflection at all.
+              blur={[34, 14]}
+              mirror={1}
+              // Left off deliberately. The depth-based fade is another variable
+              // between here and a working reflection, and the blur already does
+              // the softening it would buy.
+              depthScale={0}
+              // A mirror only shows what is above its own plane, so the red
+              // emissive road underneath never appears in it. Tinting the water
+              // red puts the street back into the puddles.
+              color="#1a0a0e"
+              // Carries the same red wash as the dry floor, so the wet layer and
+              // the road underneath read as one surface rather than a sheet laid
+              // over the top of it.
+              emissive={FLOOD}
+              emissiveMap={maps.glowMap?.texture ?? null}
+              emissiveIntensity={0.3}
+              roughness={0.22}
+              metalness={0}
+              transparent
+              alphaMap={maps.maskMap.texture}
+            />
+          )}
         </mesh>
       )}
 

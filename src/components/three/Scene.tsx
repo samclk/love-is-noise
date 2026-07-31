@@ -9,6 +9,7 @@ import { Backdrop } from './Backdrop'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
 import { FOG } from './config'
 import { Effects } from './Effects'
+import { Haze } from './Haze'
 import { Lighting } from './Lighting'
 import { LightShafts } from './LightShafts'
 import { OldComputer } from './OldComputer'
@@ -64,15 +65,23 @@ export default function Scene() {
         <fogExp2 attach="fog" args={[FOG.colour, FOG.density]} />
 
         {/*
-          Drives the quality tier. flipflops/onFallback stop it oscillating
-          between tiers on a device sitting near the threshold, which would
-          otherwise pop the puddle reflections in and out.
+          Drives the quality tier.
+
+          No onFallback handler on purpose. Wiring it to drop to low meant that
+          after a few flip-flops the scene downgraded permanently a few seconds
+          after load, every time, on hardware that was coping fine — the very
+          pop it was added to prevent. Without a handler, flipflops still stops
+          the oscillation; it just settles where it is instead of giving up.
+
+          The bounds are relaxed for the same reason: the default steps down
+          below 50fps, which this scene dips under briefly without being in any
+          real trouble.
         */}
         <PerformanceMonitor
+          bounds={() => [28, 58]}
           flipflops={3}
           onDecline={() => setQuality('low')}
           onIncline={() => setQuality('high')}
-          onFallback={() => setQuality('low')}
         />
 
         <React.Suspense fallback={null}>
@@ -83,6 +92,7 @@ export default function Scene() {
           <Backdrop />
           <Lighting />
           <LightShafts />
+          <Haze reducedMotion={reducedMotion} />
           <Staging quality={quality} reducedMotion={reducedMotion} />
           {/*
             Falling rain is the one thing here that cannot be made still and
