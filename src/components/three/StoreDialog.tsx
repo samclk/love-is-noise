@@ -22,12 +22,21 @@ type StoreDialogProps = {
  */
 export function StoreDialog({ open, onClose }: StoreDialogProps) {
   const ref = React.useRef<HTMLDialogElement>(null)
+  const panel = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
 
-    if (open && !dialog.open) dialog.showModal()
+    if (open && !dialog.open) {
+      dialog.showModal()
+      // showModal focuses the first focusable child, which put a ring around the
+      // UK store the instant the dialog appeared — as though it had been chosen.
+      // Focus moves to the panel instead: still inside the dialog, so the trap
+      // and screen-reader announcement are intact, but nothing looks selected.
+      // Tabbing from here reaches the stores and rings them properly.
+      panel.current?.focus()
+    }
     if (!open && dialog.open) dialog.close()
   }, [open])
 
@@ -51,7 +60,13 @@ export function StoreDialog({ open, onClose }: StoreDialogProps) {
         the first store the moment the dialog opens, which is the one place it
         would be most obviously wrong.
       */}
-      <div className="flex flex-col gap-6 border-2 border-white/15 bg-black p-6 [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-white">
+      <div
+        ref={panel}
+        // Focusable only programmatically, and never ringed itself — it exists as
+        // a landing place for focus, not as a control.
+        tabIndex={-1}
+        className="flex flex-col gap-6 border-2 border-white/15 bg-black p-6 outline-none [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-white"
+      >
         <h2
           id="store-dialog-title"
           className="font-styled text-center text-3xl text-white"
