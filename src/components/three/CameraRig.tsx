@@ -55,6 +55,26 @@ const FLOAT = { amplitude: 0.045, frequency: 0.31 }
  */
 const RECENTRE = 0.5
 
+/**
+ * A single swing into the composed shot as the scene fades up.
+ *
+ * This is how the scene shows it is 3D on a phone. Pointer parallax needs a
+ * cursor that mobile does not have, and a drag only pays off for someone who
+ * happens to try one — so depth was invisible to anyone who just opened the page
+ * and looked. A one-off move needs no input, no permission and no gesture, and
+ * it lands the same way every time on every device.
+ *
+ * The offsets are where the camera starts relative to the final framing: out to
+ * one side, a little higher, a little further back, so it arcs in and settles
+ * rather than sliding sideways.
+ */
+const ENTRANCE = {
+  durationMs: 3200,
+  x: 1.35,
+  y: 0.4,
+  z: 1.5
+}
+
 export const CAMERA_POSITION: [number, number, number] = [
   0,
   FRAMING.wide.cameraY,
@@ -63,11 +83,20 @@ export const CAMERA_POSITION: [number, number, number] = [
 
 type CameraRigProps = {
   reducedMotion: boolean
+  /**
+   * Starts the entrance move. Driven by the same signal as the fade, so the
+   * scene is already arcing in as it appears rather than starting to move once
+   * it has arrived.
+   */
+  begin?: boolean
 }
 
-export function CameraRig({ reducedMotion }: CameraRigProps) {
+export function CameraRig({ reducedMotion, begin }: CameraRigProps) {
   const { camera, pointer, size } = useThree()
   const drag = useTouchDrag()
+
+  /** 0 while waiting, running to 1 across the entrance. */
+  const entrance = React.useRef(0)
 
   const framing = React.useMemo(
     () => framingFor(size.width / size.height),
@@ -81,12 +110,32 @@ export function CameraRig({ reducedMotion }: CameraRigProps) {
   )
 
   React.useEffect(() => {
-    camera.position.set(0, framing.cameraY, framing.distance)
+    // Placed where the entrance starts from, not at the final framing, so the
+    // first frame drawn behind the fade is already the beginning of the move.
+    const offset = reducedMotion ? 0 : 1
+    camera.position.set(
+      ENTRANCE.x * offset,
+      framing.cameraY + ENTRANCE.y * offset,
+      framing.distance + ENTRANCE.z * offset
+    )
     camera.lookAt(target)
-  }, [camera, framing, target])
+  }, [camera, framing, target, reducedMotion])
 
   useFrame((_, delta) => {
+    // Reduced motion keeps the composed shot and skips the arc: the entrance is
+    // automatic camera movement, which is precisely what the preference is for.
     if (reducedMotion) return
+
+    if (begin && entrance.current < 1) {
+      entrance.current = Math.min(
+        1,
+        entrance.current + (delta * 1000) / ENTRANCE.durationMs
+      )
+    }
+    // Cubic ease-out: most of the travel happens early, then it settles. Held at
+    // full offset until `begin`, so nothing moves while the curtain is still up.
+    const settled = begin ? 1 - Math.pow(1 - entrance.current, 3) : 0
+    const arriving = 1 - settled
 
     const touch = drag.current
 
@@ -105,19 +154,24 @@ export function CameraRig({ reducedMotion }: CameraRigProps) {
     const inputY = touch.engaged ? touch.y : pointer.y
 
     const t = performance.now() / 1000
-    const targetX = inputX * TRAVEL.x
+    const targetX = inputX * TRAVEL.x + ENTRANCE.x * arriving
     const targetY =
       framing.cameraY +
       inputY * TRAVEL.y +
-      Math.sin(t * FLOAT.frequency) * FLOAT.amplitude
+      Math.sin(t * FLOAT.frequency) * FLOAT.amplitude +
+      ENTRANCE.y * arriving
+    const targetZ = framing.distance + ENTRANCE.z * arriving
 
     // Exponential damping rather than a fixed lerp factor, so the easing does
     // not change character with the frame rate.
     const alpha = 1 - Math.exp(-DAMPING * delta)
     camera.position.x += (targetX - camera.position.x) * alpha
     camera.position.y += (targetY - camera.position.y) * alpha
+    camera.position.z += (targetZ - camera.position.z) * alpha
 
     // Fixed aim: the camera swings around the machine and the screen stays put.
+    // With the aim held, the entrance's lateral offset arcs around the machine
+    // rather than sliding past it.
     camera.lookAt(target)
   })
 

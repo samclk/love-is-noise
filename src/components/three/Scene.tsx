@@ -78,21 +78,21 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
       the page is h-screen overflow-hidden, so there is nothing to scroll. It was
       cancelling most drags before the scene ever saw them, for no benefit.
 
-      pinch-zoom rather than none: the app gets every single-finger pan on both
-      axes, while the browser keeps pinch to zoom. `none` would take zooming away
-      across a full-screen canvas, which some people rely on to read a page.
+      It is `none`, and on the canvas rather than here. pinch-zoom would have
+      been the nicer value — the browser keeps zooming, the app gets the pans —
+      but Safari does not recognise it, and an unrecognised value invalidates the
+      whole declaration and falls back to auto. That silently hands every gesture
+      straight back to the browser on exactly the devices this matters most on.
+
+      Scoping it to the canvas keeps the cost small: there is no text in a 3D
+      scene to enlarge, and the store dialog sits outside it with zooming intact.
 
       Revisit when content lands below the canvas — page scrolling will then need
       a route back, most likely by making the canvas not the scroll container.
-
-      Set on the canvas as well as here. The browser intersects touch-action up
-      the ancestor chain, so this element alone does work, but R3F inserts its own
-      wrappers in between at `auto` — being explicit on the element actually
-      touched leaves nothing to infer.
     */
     <div
       ref={container}
-      className="fixed inset-0 h-screen w-full touch-pinch-zoom [&_canvas]:touch-pinch-zoom"
+      className="fixed inset-0 h-screen w-full [&_canvas]:touch-none"
     >
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
@@ -167,7 +167,8 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
           <Effects quality={quality} />
         </React.Suspense>
 
-        <CameraRig reducedMotion={reducedMotion} />
+        {/* Same signal as the fade, so the arc plays as the scene appears. */}
+        <CameraRig reducedMotion={reducedMotion} begin={composed} />
         <WhenDrawn enabled={composed} onDrawn={onReady} />
       </Canvas>
     </div>
