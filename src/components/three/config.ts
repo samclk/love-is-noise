@@ -7,6 +7,9 @@ export const MODEL_URL = '/models/old-computer.glb'
  * does optimise it.
  */
 export const LOGO_URL = '/img/lin-scythe-logo.webp'
+export const COVER_ART_URL = '/img/cover-art.webp'
+export const LYRICS_URL = '/img/lyrics.webp'
+export const SMILE_URL = '/img/smile.webp'
 
 /**
  * Where the band's merch actually lives.
@@ -32,9 +35,25 @@ export type SlideAction =
   | { kind: 'link'; href: string; label: string }
   | { kind: 'stores'; label: string }
 
+/**
+ * How a slide's artwork becomes phosphor.
+ *
+ * `mask` is for light-on-transparent line art: the alpha *is* the artwork, so a
+ * flat phosphor fill composited through it recolours the glyphs and leaves the
+ * tube black around them.
+ *
+ * `luma` is for opaque, full-frame artwork. It has no alpha to mask with, so
+ * `mask` would fill the whole screen rect with solid phosphor — a glowing
+ * square with the picture thrown away. This maps the artwork's own brightness
+ * onto the phosphor instead, the way an amber monochrome tube would show it.
+ */
+export type SlideTone = 'mask' | 'luma'
+
 export type Slide = {
-  /** Artwork burned into the tube. Light-on-transparent; its alpha is the mask. */
+  /** Artwork burned into the tube. */
   image: string
+  /** Set this to match the artwork, or the screen will not show what you expect. */
+  tone: SlideTone
   /** Null slides are not interactive. */
   action: SlideAction | null
 }
@@ -51,19 +70,16 @@ export type Slide = {
  * different design. See scripts/make-slide-assets.mjs.
  */
 export const SLIDES: Slide[] = [
-  { image: LOGO_URL, action: null },
+  { image: LOGO_URL, tone: 'mask', action: null },
   {
-    image: '/img/screen-tickets.webp',
-    action: {
-      kind: 'link',
-      href: 'https://www.bandsintown.com/a/245374-love-is-noise',
-      label: 'Tickets'
-    }
+    image: COVER_ART_URL,
+    tone: 'luma',
+    action: null
   },
-  { image: LOGO_URL, action: null },
   {
-    image: '/img/screen-merch.webp',
-    action: { kind: 'stores', label: 'Merch' }
+    image: SMILE_URL,
+    tone: 'mask',
+    action: null
   }
 ]
 
