@@ -10,6 +10,7 @@ export const LOGO_URL = '/img/lin-scythe-logo.webp'
 export const COVER_ART_URL = '/img/cover-art.webp'
 export const LYRICS_URL = '/img/lyrics.webp'
 export const SMILE_URL = '/img/smile.webp'
+export const PRESAVE_URL = '/img/pre-save.webp'
 
 /**
  * Where the band's merch actually lives.
@@ -91,6 +92,11 @@ export const SLIDES: Slide[] = [
   },
   {
     image: SMILE_URL,
+    tone: 'mask',
+    action: null
+  },
+  {
+    image: PRESAVE_URL,
     tone: 'mask',
     action: null
   }
