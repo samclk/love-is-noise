@@ -3,9 +3,9 @@ import '../css/main.css'
 
 export const metadata: Metadata = {
   title: 'Love Is Noise',
-  description: 'Everyone Bleeds',
+  description: 'smile.',
   openGraph: {
-    images: '/img/epk/page-header.jpg'
+    images: '/img/LIN2.webp'
   },
   icons: {
     icon: [
