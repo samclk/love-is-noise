@@ -3,7 +3,7 @@
 import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
-import { SLIDES, type SlideAction } from './config'
+import { SCREEN_ACTION, type SlideAction } from './config'
 import { StoreDialog } from './StoreDialog'
 
 /**
@@ -44,54 +44,30 @@ export function HomeScene() {
       <Scene onReady={reveal} onActivate={activate} paused={storesOpen} />
       <Curtain revealed={revealed} onTimeout={reveal} />
       <SceneProgress revealed={revealed} />
-      <ScreenLinks onStores={() => setStoresOpen(true)} />
+      <ScreenLink />
       <StoreDialog open={storesOpen} onClose={closeStores} />
     </>
   )
 }
 
 /**
- * The screen's destinations as real controls.
+ * The screen's destination as a real control.
  *
  * The CRT is clickable, but a hit target inside a canvas does not exist for a
- * keyboard or a screen reader, and these are the page's primary calls to
- * action. Everything is listed permanently rather than following the slideshow,
- * so nobody has to wait for the right slide to come round — and there is no
- * race to lose. They become visible on focus, so a sighted keyboard user can
- * see where they are.
+ * keyboard or a screen reader, and this is the page's primary call to action.
+ * It becomes visible on focus, so a sighted keyboard user can see where they
+ * are.
  */
-function ScreenLinks({ onStores }: { onStores: () => void }) {
-  const shared =
-    'sr-only focus:not-sr-only focus:m-3 focus:inline-block focus:bg-black focus:px-4 focus:py-2 focus:font-styled focus:text-lg focus:text-white focus:outline focus:outline-white'
-
+function ScreenLink() {
   return (
-    <nav aria-label="Shop and tickets" className="fixed bottom-0 left-0 z-30">
-      <ul className="flex">
-        {SLIDES.map((slide) => {
-          const action = slide.action
-          if (!action) return null
-
-          return (
-            <li key={action.label}>
-              {action.kind === 'link' ? (
-                <a
-                  href={action.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={shared}
-                >
-                  {action.label}
-                </a>
-              ) : (
-                <button type="button" onClick={onStores} className={shared}>
-                  {action.label}
-                </button>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-    </nav>
+    <a
+      href={SCREEN_ACTION.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="sr-only fixed bottom-0 left-0 z-30 focus:not-sr-only focus:m-3 focus:inline-block focus:bg-black focus:px-4 focus:py-2 focus:font-styled focus:text-lg focus:text-white focus:outline focus:outline-white"
+    >
+      {SCREEN_ACTION.label}
+    </a>
   )
 }
 

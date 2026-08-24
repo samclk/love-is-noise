@@ -9,6 +9,7 @@ import {
   FLICKER,
   MODEL_SIZE,
   MODEL_URL,
+  SCREEN_ACTION,
   SLIDES,
   SLIDESHOW,
   SPILL,
@@ -27,7 +28,7 @@ type OldComputerProps = {
   onScreenMeasured?: (centre: THREE.Vector3) => void
   /** Fires once the CRT is showing the logo rather than the baked DOS screen. */
   onReady?: () => void
-  /** Handed the current slide's action when the screen is clicked. */
+  /** Handed the screen's action when the glass is clicked. */
   onActivate?: (action: SlideAction) => void
   /** Holds the cycle, e.g. while a dialog the screen opened is still up. */
   paused?: boolean
@@ -71,11 +72,7 @@ export function OldComputer({
   /** Milliseconds into a swap, or null when the screen is settled. */
   const swapping = React.useRef<number | null>(null)
   const swapped = React.useRef(false)
-  /** Pointer resting on the glass. Stops the cycle so what you see is clickable. */
-  const hovering = React.useRef(false)
-  /** Action captured when the press started, not when it finished. */
-  const armed = React.useRef<SlideAction | null>(null)
-  /** Where that press began, so a drag can be told apart from a tap. */
+  /** Where a press began, so a drag can be told apart from a tap. */
   const pressedAt = React.useRef<{ x: number; y: number } | null>(null)
 
   // Restored on unmount so a cursor set over the glass cannot outlive the scene.
@@ -150,7 +147,7 @@ export function OldComputer({
     const ms = delta * 1000
 
     if (swapping.current === null) {
-      if (!hovering.current && !paused) held.current += ms
+      if (!paused) held.current += ms
       if (held.current >= holdMs && painted) {
         swapping.current = 0
         swapped.current = false
@@ -213,47 +210,34 @@ export function OldComputer({
           position={[screen.centre.x, screen.centre.y, screen.centre.z + 0.03]}
           onPointerOver={(event) => {
             event.stopPropagation()
-            hovering.current = true
-            setCursor(SLIDES[slide.current]?.action ? 'pointer' : null)
+            setCursor('pointer')
           }}
           onPointerOut={() => {
-            hovering.current = false
             setCursor(null)
             // Left the glass mid-press: no longer a tap on it.
-            armed.current = null
             pressedAt.current = null
           }}
           onPointerDown={(event) => {
             event.stopPropagation()
-            // Captured on press, not on click. The cycle is paused while a
-            // pointer is over the glass, but touch has no hover, so without
-            // this a slide could change between the tap starting and landing
-            // and send someone to the wrong place.
-            armed.current = SLIDES[slide.current]?.action ?? null
             pressedAt.current = { x: event.clientX, y: event.clientY }
           }}
           onPointerUp={(event) => {
             event.stopPropagation()
-            const action = armed.current
             const from = pressedAt.current
-            armed.current = null
             pressedAt.current = null
-            if (!action || !from) return
+            if (!from) return
 
-            // A drag across the screen is someone looking around, not someone
-            // buying a t-shirt. Without this the glass is both the click target
-            // and the biggest thing to grab, so every attempt to move the camera
-            // from the middle of the frame opened a store.
+            // The glass is both the click target and the biggest thing to
+            // grab, so without this every drag from mid-frame opened the link.
             const travelled = Math.hypot(
               event.clientX - from.x,
               event.clientY - from.y
             )
             if (travelled > TAP_SLOP) return
 
-            // Handed out to the DOM rather than acted on here. Merch opens a
-            // dialog, which belongs in the document where it can be a real
-            // focus-trapping element rather than something drawn in a canvas.
-            onActivate?.(action)
+            // Handed out to the DOM rather than acted on here: opening a tab
+            // belongs in the document, not in a render loop.
+            onActivate?.(SCREEN_ACTION)
           }}
         >
           <planeGeometry args={[screen.width, screen.height]} />

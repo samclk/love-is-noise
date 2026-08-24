@@ -36,6 +36,19 @@ export type SlideAction =
   | { kind: 'stores'; label: string }
 
 /**
+ * Where the CRT goes when you click it.
+ *
+ * One destination for the whole tube rather than one per slide: a target that
+ * changes under the pointer every couple of seconds sends people somewhere they
+ * did not choose.
+ */
+export const SCREEN_ACTION = {
+  kind: 'link',
+  href: 'https://loveisnoise.bfan.link/smile',
+  label: 'listen to smile'
+} satisfies SlideAction
+
+/**
  * How a slide's artwork becomes phosphor.
  *
  * `mask` is for light-on-transparent line art: the alpha *is* the artwork, so a
