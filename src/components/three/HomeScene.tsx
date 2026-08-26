@@ -3,7 +3,7 @@
 import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
-import { SCREEN_ACTION, type SlideAction } from './config'
+import { SLIDES, type SlideAction } from './config'
 import { StoreDialog } from './StoreDialog'
 
 /**
@@ -27,6 +27,7 @@ export function HomeScene() {
   const [storesOpen, setStoresOpen] = React.useState(false)
 
   const reveal = React.useCallback(() => setRevealed(true), [])
+  const openStores = React.useCallback(() => setStoresOpen(true), [])
   const closeStores = React.useCallback(() => setStoresOpen(false), [])
 
   const activate = React.useCallback((action: SlideAction) => {
@@ -44,32 +45,66 @@ export function HomeScene() {
       <Scene onReady={reveal} onActivate={activate} paused={storesOpen} />
       <Curtain revealed={revealed} onTimeout={reveal} />
       <SceneProgress revealed={revealed} />
-      <ScreenLink />
+      <ScreenLinks onStores={openStores} />
       <StoreDialog open={storesOpen} onClose={closeStores} />
     </>
   )
 }
 
+/** Every destination the CRT offers, in the order it cycles through them. */
+const SCREEN_ACTIONS = SLIDES.map((slide) => slide.action).filter(
+  (action): action is SlideAction => action !== null
+)
+
 /**
- * The screen's destination as a real control.
+ * The screen's destinations as real controls.
  *
  * The CRT is clickable, but a hit target inside a canvas does not exist for a
- * keyboard or a screen reader, and this is the page's primary call to action.
- * It becomes visible on focus, so a sighted keyboard user can see where they
- * are.
+ * keyboard or a screen reader, and these are the page's calls to action. Each
+ * becomes visible on focus, so a sighted keyboard user can see where they are.
+ *
+ * They stack on the same corner rather than in a row: only one can hold focus,
+ * so only one is ever visible, and none of them shifts the others as it opens.
  */
-function ScreenLink() {
+function ScreenLinks({ onStores }: { onStores: () => void }) {
   return (
-    <a
-      href={SCREEN_ACTION.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="sr-only fixed bottom-0 left-0 z-30 focus:not-sr-only focus:m-3 focus:inline-block focus:bg-black focus:px-4 focus:py-2 focus:font-styled focus:text-lg focus:text-white focus:outline focus:outline-white"
-    >
-      {SCREEN_ACTION.label}
-    </a>
+    <>
+      {SCREEN_ACTIONS.map((action) =>
+        action.kind === 'link' ? (
+          <a
+            key={action.label}
+            href={action.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={SCREEN_LINK_CLASS}
+          >
+            {action.label}
+          </a>
+        ) : (
+          // Merch has no single href — see STORES — so the keyboard path opens
+          // the same chooser the glass does rather than picking a region.
+          <button
+            key={action.label}
+            type="button"
+            onClick={onStores}
+            className={SCREEN_LINK_CLASS}
+          >
+            {action.label}
+          </button>
+        )
+      )}
+    </>
   )
 }
+
+/**
+ * Parked off-screen rather than `sr-only`, because `not-sr-only` restores
+ * `position: static` and so cancels the `fixed` these need to sit over the
+ * canvas — focusing one dropped it behind the scene at the top of the document.
+ * A transform hides it without touching layout, so focus brings it back in place.
+ */
+const SCREEN_LINK_CLASS =
+  'fixed bottom-0 left-0 z-30 m-3 -translate-x-[calc(100%+2rem)] bg-black px-4 py-2 font-styled text-lg text-white outline outline-white focus:translate-x-0'
 
 function SceneFallback() {
   return <div className="fixed inset-0 h-dvh w-full bg-black" />

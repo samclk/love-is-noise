@@ -9,7 +9,6 @@ import {
   FLICKER,
   MODEL_SIZE,
   MODEL_URL,
-  SCREEN_ACTION,
   SLIDES,
   SLIDESHOW,
   SPILL,
@@ -74,9 +73,20 @@ export function OldComputer({
   const swapped = React.useRef(false)
   /** Where a press began, so a drag can be told apart from a tap. */
   const pressedAt = React.useRef<{ x: number; y: number } | null>(null)
+  /** Whether the pointer is on the glass, so the cursor can follow the cycle. */
+  const hovering = React.useRef(false)
 
   // Restored on unmount so a cursor set over the glass cannot outlive the scene.
   React.useEffect(() => () => setCursor(null), [])
+
+  /**
+   * The cursor tracks the cycle, not just the pointer: the slide under a resting
+   * pointer changes every couple of seconds, and half of them are inert.
+   */
+  const refreshCursor = React.useCallback(() => {
+    const interactive = Boolean(SLIDES[slide.current]?.action)
+    setCursor(hovering.current && interactive ? 'pointer' : null)
+  }, [])
 
   const showSlide = React.useCallback(
     (index: number) => {
@@ -161,6 +171,7 @@ export function OldComputer({
     if (progress >= 0.5 && !swapped.current) {
       slide.current = (slide.current + 1) % SLIDES.length
       showSlide(slide.current)
+      refreshCursor()
       swapped.current = true
     }
 
@@ -210,10 +221,12 @@ export function OldComputer({
           position={[screen.centre.x, screen.centre.y, screen.centre.z + 0.03]}
           onPointerOver={(event) => {
             event.stopPropagation()
-            setCursor('pointer')
+            hovering.current = true
+            refreshCursor()
           }}
           onPointerOut={() => {
-            setCursor(null)
+            hovering.current = false
+            refreshCursor()
             // Left the glass mid-press: no longer a tap on it.
             pressedAt.current = null
           }}
@@ -235,9 +248,14 @@ export function OldComputer({
             )
             if (travelled > TAP_SLOP) return
 
+            // The logo slides swallow the click rather than sending it wherever
+            // the cycle happens to have moved on to.
+            const action = SLIDES[slide.current]?.action
+            if (!action) return
+
             // Handed out to the DOM rather than acted on here: opening a tab
             // belongs in the document, not in a render loop.
-            onActivate?.(SCREEN_ACTION)
+            onActivate?.(action)
           }}
         >
           <planeGeometry args={[screen.width, screen.height]} />
