@@ -15,11 +15,9 @@ export const MERCH_URL = '/img/merch.webp'
 /**
  * Where the band's merch actually lives.
  *
- * Three regions with three separate storefronts, which is why Merch opens a
+ * Four regions with four separate storefronts, which is why Merch opens a
  * chooser rather than a link — there is no single correct destination, and
- * guessing someone's region is worse than asking. The fourth has no href, which
- * is exactly the shape the existing Button component already renders as plain
- * text rather than a link.
+ * guessing someone's region is worse than asking.
  */
 export const STORES = [
   { label: 'uk store', href: 'https://shop.loveisnoise.world' },
@@ -28,7 +26,10 @@ export const STORES = [
     label: 'eu store',
     href: 'https://www.impericon.com/collections/love-is-noise/'
   },
-  { label: 'aus/sea store', message: '(coming soon)' }
+  {
+    label: 'aus/sea store',
+    href: 'https://www.cvltindustries.com/collections/love-is-noise'
+  }
 ]
 
 /** What clicking a slide does. */
