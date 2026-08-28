@@ -16,8 +16,7 @@ type StoreDialogProps = {
  * hands us the focus trap, Escape to close, inert background and the top layer
  * for free — all things a canvas-drawn panel could not have at any price.
  *
- * The store list reuses the site's existing barbed-wire Button, including its
- * hrefless variant for the store that is not open yet. That component was
+ * The store list reuses the site's existing barbed-wire Button, which was
  * already built for exactly this list.
  */
 export function StoreDialog({ open, onClose }: StoreDialogProps) {

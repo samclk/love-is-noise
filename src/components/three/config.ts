@@ -7,19 +7,17 @@ export const MODEL_URL = '/models/old-computer.glb'
  * does optimise it.
  */
 export const LOGO_URL = '/img/lin-scythe-logo.webp'
-export const COVER_ART_URL = '/img/cover-art.webp'
-export const LYRICS_URL = '/img/lyrics.webp'
-export const SMILE_URL = '/img/smile.webp'
-export const PRESAVE_URL = '/img/pre-save.webp'
+export const DISCORD_URL = '/img/discord.webp'
+export const PRESAVE_URL = '/img/ep-presave.webp'
+export const LIVE_URL = '/img/live.webp'
+export const MERCH_URL = '/img/merch.webp'
 
 /**
  * Where the band's merch actually lives.
  *
- * Three regions with three separate storefronts, which is why Merch opens a
+ * Four regions with four separate storefronts, which is why Merch opens a
  * chooser rather than a link — there is no single correct destination, and
- * guessing someone's region is worse than asking. The fourth has no href, which
- * is exactly the shape the existing Button component already renders as plain
- * text rather than a link.
+ * guessing someone's region is worse than asking.
  */
 export const STORES = [
   { label: 'uk store', href: 'https://shop.loveisnoise.world' },
@@ -28,26 +26,16 @@ export const STORES = [
     label: 'eu store',
     href: 'https://www.impericon.com/collections/love-is-noise/'
   },
-  { label: 'aus/sea store', message: '(coming soon)' }
+  {
+    label: 'aus/sea store',
+    href: 'https://www.cvltindustries.com/collections/love-is-noise'
+  }
 ]
 
 /** What clicking a slide does. */
 export type SlideAction =
   | { kind: 'link'; href: string; label: string }
   | { kind: 'stores'; label: string }
-
-/**
- * Where the CRT goes when you click it.
- *
- * One destination for the whole tube rather than one per slide: a target that
- * changes under the pointer every couple of seconds sends people somewhere they
- * did not choose.
- */
-export const SCREEN_ACTION = {
-  kind: 'link',
-  href: 'https://loveisnoise.bfan.link/smile',
-  label: 'listen to smile'
-} satisfies SlideAction
 
 /**
  * How a slide's artwork becomes phosphor.
@@ -75,30 +63,54 @@ export type Slide = {
 /**
  * What the CRT cycles through.
  *
- * The logo sits between the two calls to action rather than them following each
- * other, so the screen keeps returning to the band rather than reading as a
- * two-slot advert.
+ * A logo between every word, so the screen keeps returning to the band rather
+ * than reading as a run of adverts.
+ *
+ * That spacing is also what makes a per-slide destination safe. A target that
+ * changes under a resting pointer can send someone somewhere they did not
+ * choose, so every other slide is inert: a click that lands a beat late lands
+ * on the logo and does nothing.
  *
  * The words are committed artwork, not text drawn at runtime: the logo is
- * distressed rather than clean type, and live-set type beside it looks like a
- * different design. See scripts/make-slide-assets.mjs.
+ * distressed rather than clean type, and words set live beside it look like a
+ * different design.
  */
 export const SLIDES: Slide[] = [
   { image: LOGO_URL, tone: 'mask', action: null },
   {
-    image: COVER_ART_URL,
-    tone: 'luma',
-    action: null
-  },
-  {
-    image: SMILE_URL,
+    image: DISCORD_URL,
     tone: 'mask',
-    action: null
+    action: {
+      kind: 'link',
+      href: 'https://discord.gg/skHFhyZKc2',
+      label: 'join the discord'
+    }
   },
+  { image: LOGO_URL, tone: 'mask', action: null },
   {
     image: PRESAVE_URL,
     tone: 'mask',
-    action: null
+    action: {
+      kind: 'link',
+      href: 'https://loveisnoise.bfan.link/the-space-between-happiness-and-heartache',
+      label: 'pre-save the ep'
+    }
+  },
+  { image: LOGO_URL, tone: 'mask', action: null },
+  {
+    image: LIVE_URL,
+    tone: 'mask',
+    action: {
+      kind: 'link',
+      href: 'https://www.bandsintown.com/a/245374-love-is-noise',
+      label: 'live dates and tickets'
+    }
+  },
+  { image: LOGO_URL, tone: 'mask', action: null },
+  {
+    image: MERCH_URL,
+    tone: 'mask',
+    action: { kind: 'stores', label: 'shop merch' }
   }
 ]
 
