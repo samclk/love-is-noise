@@ -111,7 +111,7 @@ export const SLIDES: Slide[] = [
     tone: 'mask',
     action: {
       kind: 'link',
-      href: 'https://www.bandsintown.com/a/245374-love-is-noise',
+      href: 'https://www.songkick.com/artists/10190645-love-is-noise',
       label: 'live dates and tickets'
     }
   },
