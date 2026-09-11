@@ -9,6 +9,7 @@ import {
   FLICKER,
   MODEL_SIZE,
   MODEL_URL,
+  RESTING_SLIDE,
   SLIDES,
   SLIDESHOW,
   SPILL,
@@ -29,7 +30,10 @@ type OldComputerProps = {
   onReady?: () => void
   /** Handed the screen's action when the glass is clicked. */
   onActivate?: (action: SlideAction) => void
-  /** Holds the cycle, e.g. while a dialog the screen opened is still up. */
+  /**
+   * Holds the cycle — while a dialog the screen opened is still up, and until
+   * the page has finished arriving so the opening slide is not spent on black.
+   */
   paused?: boolean
 }
 
@@ -104,6 +108,9 @@ export function OldComputer({
   React.useEffect(() => {
     if (!screenMaterial || !painted) return
     screenMaterial.map = painted.base
+    // Under reduced motion the cycle never runs, so whatever lands here stays up
+    // for the whole visit.
+    slide.current = reducedMotion ? RESTING_SLIDE : 0
     showSlide(slide.current)
     // Only here: this is the one point where the maps genuinely change identity
     // from the model's originals to ours.
@@ -114,7 +121,7 @@ export function OldComputer({
     // already reported complete. Revealing on progress alone would show the
     // baked blue DOS screen for a moment before it popped to the logo.
     onReady?.()
-  }, [screenMaterial, painted, showSlide, onReady])
+  }, [screenMaterial, painted, showSlide, onReady, reducedMotion])
 
   useFrame(({ clock }, delta) => {
     const light = lightRef.current
