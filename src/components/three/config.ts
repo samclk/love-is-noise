@@ -63,8 +63,12 @@ export type Slide = {
 /**
  * What the CRT cycles through.
  *
- * A logo between every word, so the screen keeps returning to the band rather
- * than reading as a run of adverts.
+ * Merch opens, because the tube is the page's only call to action and the first
+ * thing on it should be the one that sells something. The cycle is held until
+ * the reveal has finished so that slot is actually seen — see HomeScene.
+ *
+ * A logo between every word after that, so the screen keeps returning to the
+ * band rather than reading as a run of adverts.
  *
  * That spacing is also what makes a per-slide destination safe. A target that
  * changes under a resting pointer can send someone somewhere they did not
@@ -76,6 +80,11 @@ export type Slide = {
  * different design.
  */
 export const SLIDES: Slide[] = [
+  {
+    image: MERCH_URL,
+    tone: 'mask',
+    action: { kind: 'stores', label: 'shop merch' }
+  },
   { image: LOGO_URL, tone: 'mask', action: null },
   {
     image: DISCORD_URL,
@@ -102,17 +111,23 @@ export const SLIDES: Slide[] = [
     tone: 'mask',
     action: {
       kind: 'link',
-      href: 'https://www.bandsintown.com/a/245374-love-is-noise',
+      href: 'https://www.songkick.com/artists/10190645-love-is-noise',
       label: 'live dates and tickets'
     }
   },
-  { image: LOGO_URL, tone: 'mask', action: null },
-  {
-    image: MERCH_URL,
-    tone: 'mask',
-    action: { kind: 'stores', label: 'shop merch' }
-  }
+  { image: LOGO_URL, tone: 'mask', action: null }
 ]
+
+/**
+ * The slide the tube rests on when the cycle never runs.
+ *
+ * Under reduced motion the screen never changes, so the opening slide sits there
+ * for the whole visit — and that is now merch. A storefront is the wrong thing to
+ * leave burned onto the screen forever; the band's mark is not.
+ */
+export const RESTING_SLIDE = SLIDES.findIndex(
+  (slide) => slide.image === LOGO_URL
+)
 
 /** How long each slide holds, and how long the tube dims across the swap. */
 export const SLIDESHOW = { holdMs: 1500, dipMs: 320 }

@@ -25,6 +25,7 @@ const Scene = dynamic(() => import('./Scene'), {
 export function HomeScene() {
   const [revealed, setRevealed] = React.useState(false)
   const [storesOpen, setStoresOpen] = React.useState(false)
+  const arrived = useArrived(revealed)
 
   const reveal = React.useCallback(() => setRevealed(true), [])
   const openStores = React.useCallback(() => setStoresOpen(true), [])
@@ -40,9 +41,14 @@ export function HomeScene() {
 
   return (
     <>
-      {/* The cycle holds while the dialog is up: the screen behind it should not
-          carry on changing under a panel the screen itself opened. */}
-      <Scene onReady={reveal} onActivate={activate} paused={storesOpen} />
+      {/* The cycle holds until the page has arrived, and again while the dialog
+          is up: the screen behind it should not carry on changing under a panel
+          the screen itself opened. */}
+      <Scene
+        onReady={reveal}
+        onActivate={activate}
+        paused={storesOpen || !arrived}
+      />
       <Curtain revealed={revealed} onTimeout={reveal} />
       <SceneProgress revealed={revealed} />
       <ScreenLinks onStores={openStores} />
@@ -105,6 +111,30 @@ function ScreenLinks({ onStores }: { onStores: () => void }) {
  */
 const SCREEN_LINK_CLASS =
   'fixed bottom-0 left-0 z-30 m-3 -translate-x-[calc(100%+2rem)] bg-black px-4 py-2 font-styled text-lg text-white outline outline-white focus:translate-x-0'
+
+/**
+ * Whether the page has finished arriving, fade included.
+ *
+ * The cycle would otherwise be running behind the curtain, so the opening slide
+ * — the one carrying merch — could be most of the way through its hold, or gone
+ * altogether, before anyone could see it. Waiting on `revealed` alone is not
+ * enough: that only marks the fade starting.
+ *
+ * A timer rather than a transitionend: the curtain is `pointer-events-none` and
+ * purely decorative, and a backgrounded tab can drop the event entirely, which
+ * would strand the screen on one slide for the rest of the visit.
+ */
+function useArrived(revealed: boolean) {
+  const [arrived, setArrived] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!revealed) return
+    const timer = setTimeout(() => setArrived(true), FADE_MS)
+    return () => clearTimeout(timer)
+  }, [revealed])
+
+  return arrived
+}
 
 function SceneFallback() {
   return <div className="fixed inset-0 h-dvh w-full bg-black" />

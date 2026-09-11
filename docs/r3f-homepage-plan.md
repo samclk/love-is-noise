@@ -230,7 +230,7 @@ clickable on the two linked slides.
 | Rendering | Slides painted into the texture, as the logo already is. |
 | Click target | Transparent plane over the measured glass bounds. |
 | Accessibility | Both links also exist as visually-hidden real anchors in the DOM. |
-| Destinations | External. Tickets → Bandsintown, Merch → shop.loveisnoise.world. |
+| Destinations | External. Tickets → Songkick, Merch → shop.loveisnoise.world. |
 | Transition | Cut behind a brightness dip, dimming the spill light with it. |
 | Pausing | Pointer over the screen pauses; frozen under reduced motion. |
 | Mis-click | Destination captured on pointerdown, not on click. |
