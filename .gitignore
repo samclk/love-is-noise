@@ -42,3 +42,6 @@ yarn-error.log*
 
 # large source assets (optimised versions are committed)
 public/models/*.source.glb
+
+# agent-local worktrees — a whole nested checkout, never ours to commit
+.claude/worktrees/

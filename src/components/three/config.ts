@@ -1,16 +1,18 @@
 export const MODEL_URL = '/models/old-computer.glb'
 /**
- * WebP, not the PNG. This is only ever a source for the canvas that paints the
- * screen, never displayed, so next/image cannot optimise it and the full 380 KB
- * was landing on every visit. The alpha mask — which is the whole effect —
- * survives the conversion unchanged. /epk still uses the PNG, where next/image
- * does optimise it.
+ * The clip burned into the tube.
+ *
+ * Re-encoded from the 1438x1080 master to 640x480 with the audio track
+ * stripped: the tube renders at roughly 360px across, so the master was
+ * carrying nine times the pixels anyone can see, and the page is never allowed
+ * to play the audio. 21MB down to 1.6MB.
+ *
+ * CRF 30 rather than the 26 a full-size clip would want. The shader throws away
+ * the colour and reduces the picture to amber luma with scanlines over it, so
+ * compression artefacts that would show on a normal video are gone by the time
+ * anything reaches the glass.
  */
-export const LOGO_URL = '/img/lin-scythe-logo.webp'
-export const DISCORD_URL = '/img/discord.webp'
-export const PRESAVE_URL = '/img/ep-presave.webp'
-export const LIVE_URL = '/img/live.webp'
-export const MERCH_URL = '/img/merch.webp'
+export const CLIP_URL = '/video/screen-clip.mp4'
 
 /**
  * Where the band's merch actually lives.
@@ -32,105 +34,38 @@ export const STORES = [
   }
 ]
 
-/** What clicking a slide does. */
-export type SlideAction =
+/** A destination the screen offers, as a control outside the canvas. */
+export type ScreenAction =
   | { kind: 'link'; href: string; label: string }
   | { kind: 'stores'; label: string }
 
 /**
- * How a slide's artwork becomes phosphor.
+ * The page's calls to action.
  *
- * `mask` is for light-on-transparent line art: the alpha *is* the artwork, so a
- * flat phosphor fill composited through it recolours the glyphs and leaves the
- * tube black around them.
- *
- * `luma` is for opaque, full-frame artwork. It has no alpha to mask with, so
- * `mask` would fill the whole screen rect with solid phosphor — a glowing
- * square with the picture thrown away. This maps the artwork's own brightness
- * onto the phosphor instead, the way an amber monochrome tube would show it.
+ * These used to be slides cycling on the tube, clickable through the glass. The
+ * tube now plays the clip and nothing else, so they survive only as the
+ * focus-reachable controls in ScreenLinks — which is where a keyboard or a
+ * screen reader always reached them anyway, since a hit target inside a canvas
+ * does not exist for either.
  */
-export type SlideTone = 'mask' | 'luma'
-
-export type Slide = {
-  /** Artwork burned into the tube. */
-  image: string
-  /** Set this to match the artwork, or the screen will not show what you expect. */
-  tone: SlideTone
-  /** Null slides are not interactive. */
-  action: SlideAction | null
-}
-
-/**
- * What the CRT cycles through.
- *
- * Merch opens, because the tube is the page's only call to action and the first
- * thing on it should be the one that sells something. The cycle is held until
- * the reveal has finished so that slot is actually seen — see HomeScene.
- *
- * A logo between every word after that, so the screen keeps returning to the
- * band rather than reading as a run of adverts.
- *
- * That spacing is also what makes a per-slide destination safe. A target that
- * changes under a resting pointer can send someone somewhere they did not
- * choose, so every other slide is inert: a click that lands a beat late lands
- * on the logo and does nothing.
- *
- * The words are committed artwork, not text drawn at runtime: the logo is
- * distressed rather than clean type, and words set live beside it look like a
- * different design.
- */
-export const SLIDES: Slide[] = [
+export const SCREEN_ACTIONS: ScreenAction[] = [
+  { kind: 'stores', label: 'shop merch' },
   {
-    image: MERCH_URL,
-    tone: 'mask',
-    action: { kind: 'stores', label: 'shop merch' }
+    kind: 'link',
+    href: 'https://discord.gg/skHFhyZKc2',
+    label: 'join the discord'
   },
-  { image: LOGO_URL, tone: 'mask', action: null },
   {
-    image: DISCORD_URL,
-    tone: 'mask',
-    action: {
-      kind: 'link',
-      href: 'https://discord.gg/skHFhyZKc2',
-      label: 'join the discord'
-    }
+    kind: 'link',
+    href: 'https://loveisnoise.bfan.link/the-space-between-happiness-and-heartache',
+    label: 'pre-save the ep'
   },
-  { image: LOGO_URL, tone: 'mask', action: null },
   {
-    image: PRESAVE_URL,
-    tone: 'mask',
-    action: {
-      kind: 'link',
-      href: 'https://loveisnoise.bfan.link/the-space-between-happiness-and-heartache',
-      label: 'pre-save the ep'
-    }
-  },
-  { image: LOGO_URL, tone: 'mask', action: null },
-  {
-    image: LIVE_URL,
-    tone: 'mask',
-    action: {
-      kind: 'link',
-      href: 'https://www.songkick.com/artists/10190645-love-is-noise',
-      label: 'live dates and tickets'
-    }
-  },
-  { image: LOGO_URL, tone: 'mask', action: null }
+    kind: 'link',
+    href: 'https://www.songkick.com/artists/10190645-love-is-noise',
+    label: 'live dates and tickets'
+  }
 ]
-
-/**
- * The slide the tube rests on when the cycle never runs.
- *
- * Under reduced motion the screen never changes, so the opening slide sits there
- * for the whole visit — and that is now merch. A storefront is the wrong thing to
- * leave burned onto the screen forever; the band's mark is not.
- */
-export const RESTING_SLIDE = SLIDES.findIndex(
-  (slide) => slide.image === LOGO_URL
-)
-
-/** How long each slide holds, and how long the tube dims across the swap. */
-export const SLIDESHOW = { holdMs: 1500, dipMs: 320 }
 
 /** Width and height of the model's emissive texture atlas, in pixels. */
 export const ATLAS_SIZE = 1024
@@ -159,25 +94,101 @@ export const SCREEN_RECT = { x: 0, y: 640, width: 368, height: 302 }
  */
 export const BLOB_RECT = { x: 274, y: 524, width: 128, height: 124 }
 
-/**
- * Where slide artwork is placed, kept separate from the wipe above.
- *
- * The quad's exact UV bounds cannot be derived from the geometry — the glass
- * and case meshes sit under different node transforms, and the atlas region is
- * shared — so this box was calibrated from renders instead, measuring the
- * artwork against the screen's centre and moving the box until it sat true.
- *
- * Its centre must track SCREEN_RECT's. It drifted 19px above it when that rect
- * was retuned to stop the wipe catching the bezel corners, which tipped every
- * slide visibly high on the tube.
- */
-export const LOGO_RECT = { x: 0, y: 643, width: 363, height: 296 }
-
 /** Longest edge of the model once normalised, in world units. */
 export const MODEL_SIZE = 4
 
 /** Burned into the screen itself. Warm amber, pulled toward the site's yellow. */
 export const PHOSPHOR = '#ffcf1f'
+
+/**
+ * How the clip is drawn onto the tube.
+ *
+ * The clip is not painted into the model's texture atlas the way the old slides
+ * were. Repainting a 1024px atlas every frame means a 4MB texture upload per
+ * frame and a full pixel loop on the CPU to do the phosphor tint; a quad in
+ * front of the glass with the tint in its fragment shader costs neither.
+ *
+ * It blends additively, which is what keeps the glass. An opaque plate over the
+ * tube would hide the Glass mesh's specular entirely; adding light instead means
+ * the clip's black leaves the glass and the darkened tube showing through, and
+ * only the lit glyphs land on top — which is what a lit phosphor actually does.
+ */
+export const SCREEN_VIDEO = {
+  /**
+   * Fraction of the Glass mesh's measured bounds the picture fills.
+   *
+   * The mesh bounds include the curve out to the bezel lip, so filling them
+   * exactly pushes the picture under the surround. Calibrated from renders.
+   */
+  inset: 0.9,
+  /**
+   * Distance in front of the glass centre to hang the quad, in world units.
+   *
+   * It has to clear the glass, not sit behind it: the Glass material is
+   * transparent but still writes depth, so a quad behind it is depth-rejected
+   * and never drawn. The mesh bulges about 0.17 forward of its centre.
+   */
+  offset: 0.2,
+  /** The clip's own aspect. Cropped, not letterboxed — see ScreenVideo. */
+  aspect: 4 / 3,
+  /**
+   * How the clip's brightness becomes phosphor.
+   *
+   * `luma` ramps it: every level of grey maps to a level of glow, which keeps
+   * photographic gradation and reads as a tube showing a picture.
+   *
+   * `mask` keys it: anything above the threshold is lit phosphor at full
+   * strength, anything below is dark glass, and nothing in between survives.
+   * This is what the old word slides did, except they keyed on the artwork's
+   * alpha channel because it had one. Video does not, so the key runs off
+   * brightness instead, and the result is the same flat, graphic fill. It
+   * throws the picture away, so it suits line art and not footage.
+   */
+  tone: 'luma' as 'luma' | 'mask',
+
+  /**
+   * Where `mask` cuts, and how soft the cut is, in luma from 0 to 1.
+   *
+   * Raise `keyLow` to drop more of the picture into black and keep only what is
+   * genuinely lit; lower it to keep more. The gap between the two is the only
+   * thing standing between the key and hard aliased edges, so keep some.
+   *
+   * One threshold has to serve the whole clip, so how much survives tracks how
+   * the footage was lit: a bright arena shot fills the tube and a dark one
+   * leaves a sliver. That is the cost of keying rather than ramping, and the
+   * alternative is measuring each frame's brightness on the CPU, which is the
+   * per-frame work this shader exists to avoid.
+   */
+  keyLow: 0.38,
+  keyHigh: 0.55,
+
+  /**
+   * Curve applied to the clip's brightness under `luma`, and ignored by `mask`.
+   *
+   * Above 1 the mid-tones tighten, which stops the bloom smearing bright areas
+   * into each other at the emissive strength the screen runs at.
+   */
+  gamma: 1.6,
+  /** Ceiling on the brightest phosphor a frame may reach. */
+  gain: 0.92,
+  /**
+   * How much of the clip's own colour survives, from 0 for a pure amber
+   * monochrome tube to 1 for the clip's own hues at phosphor brightness.
+   *
+   * One, so the footage keeps its colour. Safe to turn freely: the clip's hue
+   * and the phosphor are both normalised to unit luma before they mix, so this
+   * changes hue only. It cannot change how hard a pixel glows, and so cannot
+   * change which pixels breach the bloom threshold.
+   *
+   * Drop it toward zero for the amber monochrome tube the word slides used.
+   */
+  chroma: 1,
+  /** Dark rows across the tube: how many, and how far each one dims. */
+  scanlines: 100,
+  scanlineDepth: 0.34,
+  /** How far the tube falls off toward the bezel. */
+  falloff: 0.55
+}
 
 /** The spill thrown by the screen. Warmer than the phosphor so it reads as bounce. */
 export const SPILL = '#ffa72e'

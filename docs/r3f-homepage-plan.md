@@ -135,11 +135,13 @@ the default MSAA is wasted once there is a post pass.
 ```
 src/components/three/
   Scene.tsx              'use client' — Canvas, composition, Suspense boundary
-  OldComputer.tsx        model + painted emissive texture
+  OldComputer.tsx        model + blanked emissive texture
+  ScreenVideo.tsx        the clip, tinted to phosphor in a shader
   Lighting.tsx           rig + lightformers
   Staging.tsx            floor, fog, contact shadows
   Effects.tsx            EffectComposer stack
-  useScreenTexture.ts    canvas compositing of the scythe logo
+  useScreenMaps.ts       blanks the tube out of the model's atlas
+  useScreenClip.ts       the clip's element and play state
   useCameraRig.ts        parallax + idle float, reduced-motion aware
 src/app/page.tsx         mounts Scene
 ```
@@ -220,43 +222,74 @@ holds: device pixel ratios of 2 and 3 both render at an effective 1.5.
 - Framerate was not profiled on real mobile hardware — the checks above ran
   against SwiftShader, which says nothing about actual GPU performance.
 
-## Screen slideshow — agreed plan
+## Screen slideshow — superseded
 
-The CRT cycles Logo → Tickets → Logo → Merch on a 4s beat, and the screen is
-clickable on the two linked slides.
+The CRT cycled Logo → Merch → Discord → Pre-save → Live on a 1.5s beat, each
+word painted into the emissive atlas and clickable through the glass. It is gone;
+the tube plays a single clip instead. The section below records what replaced
+it.
+Git has the slideshow if it is ever wanted back.
+
+## Screen clip — what the tube does now
+
+The CRT plays one short silent clip, tinted to the same amber phosphor the
+slides used, started by a play/pause control in the bottom-left corner or by
+clicking the glass.
 
 | Decision | Choice |
 |---|---|
-| Rendering | Slides painted into the texture, as the logo already is. |
-| Click target | Transparent plane over the measured glass bounds. |
-| Accessibility | Both links also exist as visually-hidden real anchors in the DOM. |
-| Destinations | External. Tickets → Songkick, Merch → shop.loveisnoise.world. |
-| Transition | Cut behind a brightness dip, dimming the spill light with it. |
-| Pausing | Pointer over the screen pauses; frozen under reduced motion. |
-| Mis-click | Destination captured on pointerdown, not on click. |
-| Typography | Real p22-canterbury-pro, exported to WebP. |
-| Affordance | Pointer cursor only. |
+| Rendering | An additive quad in front of the glass, not a repaint of the atlas. |
+| Tint | The footage's own colour through a phosphor curve, plus scanlines and tube falloff. |
+| Atlas | Screen and grime rects blacked out in both the base and emissive maps. |
+| Audio | Stripped from the file, and the element is muted regardless. |
+| Start | Loops from the reveal, except under reduced motion, where it waits for the button. |
+| Paused | The tube is dark. No poster, no still, no last frame left on the glass. |
+| Calls to action | Merch, discord, pre-save and live survive only as ScreenLinks. |
 
-**Why the words are assets, not drawn text.** The scythe logo is distressed
-artwork rather than clean type. Text set live into a canvas comes out crisp and
-would sit beside it looking like a different design. The words are therefore
-rendered once and committed, and they drop into the existing `drawPhosphorLogo`
-path unchanged — it already tints an image through its own alpha.
+**Why a quad and not the atlas.** Repainting a 1024px atlas every frame means a
+4MB texture upload per frame plus a full pixel loop on the CPU to do the tint. A
+quad with the tint in its fragment shader costs neither, and the shader can work
+in sRGB the way the canvas repaint did and linearise once at the end. The same
+shader has since carried a lyric video, a still title card and this clip without
+changing: only the texture's source moves.
 
-They could not be generated on this machine: `p22-canterbury-pro` is a Typekit
-face and is not installed locally, and there is no blackletter on the system at
-all. They were rendered in the browser instead, where Typekit has already loaded
-the real face, lightly speckled to echo the logo's erosion, and exported as WebP
-with alpha (~14 KB each). `scripts/make-slide-assets.mjs` re-runs it.
+**Why additive.** An opaque plate over the tube hides the Glass mesh's specular
+completely. Adding light instead means the clip's black leaves the glass and the
+darkened tube showing through, and only the lit parts land on top, which is what
+a lit phosphor actually does.
 
-**Why keyboard users get static anchors rather than a focus-pause.** Both
-destinations sit in the DOM permanently, independent of which slide is showing.
-That is better than pausing the cycle on focus: there is no race to lose, and no
-keyboard user ever has to wait for the right slide to come round.
+**Why it hangs in front of the glass.** The Glass material is transparent but
+still writes depth, so a quad behind it is depth-rejected and never drawn. The
+mesh bulges about 0.17 world units forward of its centre; the quad sits at 0.2.
+The camera's total swing is under 9 degrees, so the parallax that buys is under
+two percent of the screen's width.
 
-**Known trade-off.** Affordance is the pointer cursor alone, so touch users get
-no on-screen signal that the CRT is interactive. Accepted deliberately; the
-blinking-prompt option was declined.
+**Why paused is black.** A tube that is not playing is an unlit tube rather than
+one holding a frame. ScreenVideo hides the quad outright on pause, which is also
+the honest thing to do with the texture, since a paused video presents no frames
+and anything left on screen is whatever was last uploaded.
+
+**Why the tube is in colour.** `SCREEN_VIDEO.chroma` is 1, so the clip keeps its
+own hues; the phosphor still sets the brightness curve, and the scanlines, tube
+falloff and bloom still sit over it. Turning it down toward 0 gives the amber
+monochrome the word slides had. It is safe to turn at any time, because the
+clip's hue and the phosphor are both normalised to unit luma before they mix, so
+it changes hue only and never what the composer blooms.
+
+**The other tone mode.** `SCREEN_VIDEO.tone` can be `mask`, which keys instead of
+ramping: above a brightness threshold is lit phosphor at full strength, below is
+dark glass, nothing in between. That is what the word slides did, except they
+keyed on the artwork's alpha channel; video has none, so it keys on brightness.
+It throws the picture away, which suited line art and does not suit footage.
+
+**Encoding.** CRF 30 rather than the 26 a full-size clip would want. The shader
+discards the colour and reduces the picture to amber luma under scanlines, so
+artefacts that would show on a normal video are gone by the time anything
+reaches the glass. Worth remembering if the clip is ever swapped for something
+with fine detail that has to survive.
+
+**Rights.** The current clip is third-party broadcast footage. That is a
+licensing question rather than a technical one, and it is not settled here.
 
 ## Open for later
 

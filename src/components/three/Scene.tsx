@@ -6,7 +6,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
-import { FOG, type SlideAction } from './config'
+import { FOG } from './config'
 import { Effects } from './Effects'
 import { FogLayers } from './FogLayers'
 import { Lighting } from './Lighting'
@@ -19,10 +19,10 @@ import { useSceneActive } from './useSceneActive'
 type SceneProps = {
   /** Fires once the scene is composed and has actually drawn a few frames. */
   onReady?: () => void
-  /** Handed the slide action when the CRT is clicked. */
-  onActivate?: (action: SlideAction) => void
-  /** Holds the slideshow, e.g. while the store dialog is open. */
-  paused?: boolean
+  /** The clip the CRT plays. Null until the element mounts. */
+  video: HTMLVideoElement | null
+  /** The glass is a second play/pause control — see OldComputer. */
+  onToggleVideo: () => void
 }
 
 /**
@@ -55,7 +55,7 @@ function WhenDrawn({
   return null
 }
 
-export default function Scene({ onReady, onActivate, paused }: SceneProps) {
+export default function Scene({ onReady, video, onToggleVideo }: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
   const reducedMotion = useReducedMotion() ?? false
@@ -161,8 +161,8 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
             reducedMotion={reducedMotion}
             onScreenMeasured={handleScreenMeasured}
             onReady={handleComposed}
-            onActivate={onActivate}
-            paused={paused}
+            video={video}
+            onToggleVideo={onToggleVideo}
           />
           <Lighting />
           <LightShafts />
