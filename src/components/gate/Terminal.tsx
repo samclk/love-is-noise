@@ -10,7 +10,7 @@ type Reveal = Extract<GateResponse, { stage: 'reveal' }>
 
 /**
  * The screens after the CRT, drawn as if the page were now the tube itself:
- * amber phosphor, a soft glow and scanlines over plain DOM text.
+ * phosphor-coloured text, a soft glow and scanlines over plain DOM text.
  */
 function TerminalScreen({
   shown,
@@ -32,7 +32,7 @@ function TerminalScreen({
 
   return (
     <div
-      className={`${terminalFont.className} fixed inset-0 flex items-center justify-center bg-black px-6 text-2xl leading-snug text-[#ffcf1f] transition-opacity ease-out [text-shadow:0_0_8px_rgb(255_207_31/0.55)] sm:text-3xl`}
+      className={`${terminalFont.className} fixed inset-0 flex items-center justify-center bg-black px-6 text-2xl leading-snug transition-opacity ease-out sm:text-3xl text-[#8fe1eb] [text-shadow:0_0_8px_rgb(143_225_235/0.55)]`}
       style={{
         opacity: shown && entered ? 1 : 0,
         transitionDuration: `${TERMINAL_FADE_MS}ms`
@@ -149,7 +149,7 @@ export function Riddle({
             spellCheck={false}
             enterKeyHint="go"
             maxLength={MAX_INPUT}
-            className="min-w-0 flex-1 bg-transparent caret-[#ffcf1f] outline-none [caret-shape:block]"
+            className="min-w-0 flex-1 bg-transparent caret-[#8fe1eb] outline-none [caret-shape:block]"
           />
         </form>
       )}
