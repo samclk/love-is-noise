@@ -9,8 +9,9 @@ import {
   TERMINAL_FADE_MS
 } from '@/components/gate/Terminal'
 import { submitAnswer } from '@/components/gate/submitAnswer'
-import { MAX_INPUT, type GateResponse } from '@/lib/gate'
-import { POWER_OFF } from './config'
+import type { GateResponse } from '@/lib/gate'
+import { countSlots, fillTemplate } from '@/lib/template'
+import { POWER_OFF, PROMPT } from './config'
 
 /**
  * The Canvas touches browser APIs on mount and cannot render on the server.
@@ -45,7 +46,8 @@ export function HomeScene() {
   const [sceneShown, setSceneShown] = React.useState(false)
   const showScene = React.useCallback(() => setSceneShown(true), [])
 
-  const [text, setText] = React.useState('')
+  const [digits, setDigits] = React.useState('')
+  const entry = fillTemplate(PROMPT.template, digits)
   const [rejections, setRejections] = React.useState(0)
   const pending = React.useRef(false)
   const input = React.useRef<HTMLInputElement>(null)
@@ -67,17 +69,19 @@ export function HomeScene() {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (pending.current || stage.name !== 'gate' || !text.trim()) return
+    // Only a filled template is an answer; Enter before then does nothing.
+    if (pending.current || stage.name !== 'gate' || entry.next !== null) return
     pending.current = true
-    const result = await submitAnswer({ coordinate: text })
+    const coordinate = entry.text
+    const result = await submitAnswer({ coordinate })
     pending.current = false
 
     if (result?.stage === 'riddle') {
       input.current?.blur()
-      setStage({ name: 'poweringOff', coordinate: text, riddle: result.riddle })
+      setStage({ name: 'poweringOff', coordinate, riddle: result.riddle })
       return
     }
-    setText('')
+    setDigits('')
     setRejections((count) => count + 1)
   }
 
@@ -130,7 +134,8 @@ export function HomeScene() {
       <Scene
         onReady={showScene}
         onPress={focusPrompt}
-        text={text}
+        text={entry.text}
+        cursorAt={entry.next ?? entry.text.length}
         rejections={rejections}
         off={stage.name !== 'gate'}
         onPoweredOff={leave}
@@ -142,8 +147,12 @@ export function HomeScene() {
       <form onSubmit={submit}>
         <input
           ref={input}
-          value={text}
-          onChange={(event) => setText(event.target.value)}
+          value={digits}
+          // Paste works too: a pasted coordinate keeps only its digits, in order.
+          onChange={(event) =>
+            setDigits(event.target.value.replace(/\D/g, '').slice(0, SLOTS))
+          }
+          inputMode="numeric"
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           aria-label="Coordinates"
@@ -152,7 +161,6 @@ export function HomeScene() {
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="go"
-          maxLength={MAX_INPUT}
           disabled={stage.name !== 'gate'}
           // 16px is the size below which iOS zooms the page on focus.
           className="pointer-events-none fixed top-1/3 left-1/2 w-px text-[16px] opacity-0"
@@ -179,6 +187,8 @@ function useTouchPrimary() {
 function SceneFallback() {
   return <div className="fixed inset-0 h-dvh w-full bg-black" />
 }
+
+const SLOTS = countSlots(PROMPT.template)
 
 const FADE_MS = 1400
 

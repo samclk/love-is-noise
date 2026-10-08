@@ -36,6 +36,8 @@ type OldComputerProps = {
   onReady?: () => void
   /** What has been typed at the prompt so far. */
   text: string
+  /** The character the cursor sits on: the next empty slot of the template. */
+  cursorAt: number
   /** Each increment dips the tube once, the only response a wrong answer gets. */
   rejections: number
   /** Switches the tube off. There is no way back on. */
@@ -49,6 +51,7 @@ export function OldComputer({
   onScreenMeasured,
   onReady,
   text,
+  cursorAt,
   rejections,
   off,
   onPoweredOff
@@ -140,7 +143,7 @@ export function OldComputer({
         ? { brightness: 0, collapse: { x: 0, y: 0 } }
         : powerOff(poweringOff.current)
 
-      paint({ text, cursor: false, collapse })
+      paint({ text, cursor: false, cursorAt, collapse })
       if (screenMaterial) {
         screenMaterial.emissiveIntensity = baseEmissive * brightness
       }
@@ -161,7 +164,7 @@ export function OldComputer({
       reducedMotion ||
       now - typedAt.current < PROMPT.blinkMs ||
       Math.floor(now / PROMPT.blinkMs) % 2 === 0
-    paint({ text, cursor })
+    paint({ text, cursor, cursorAt })
 
     if (reducedMotion) {
       if (screenMaterial) screenMaterial.emissiveIntensity = baseEmissive

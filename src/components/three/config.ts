@@ -6,7 +6,16 @@ export const MODEL_URL = '/models/old-computer.glb'
  * `lineChars` is how much fits on one line at full size; a longer entry, such as
  * a full-precision paste, shrinks the type to stay on the glass.
  */
-export const PROMPT = { label: 'coordinates:', lineChars: 24, blinkMs: 530 }
+export const PROMPT = {
+  label: 'coordinates:',
+  /**
+   * Typed digits fill the underscores; the rest is printed. Its shape gives away
+   * the answer's digit counts and sign, so change it with GATE_COORDINATE.
+   */
+  template: '__.____, -_.____',
+  lineChars: 24,
+  blinkMs: 530
+}
 
 /**
  * The tube switching off once the code is right: the picture squashes to a

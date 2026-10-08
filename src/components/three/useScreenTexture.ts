@@ -18,6 +18,8 @@ type Rect = { x: number; y: number; width: number; height: number }
 export type ScreenFrame = {
   text: string
   cursor: boolean
+  /** The character the cursor sits on. */
+  cursorAt: number
   /**
    * How much of the picture is left during power-off, per axis, from 1 for the
    * full screen to 0 for nothing. Absent while the tube is on normally.
@@ -101,7 +103,7 @@ export function useScreenTexture(
           emissive.needsUpdate = true
         }
 
-        draw({ text: '', cursor: true })
+        draw({ text: '', cursor: true, cursorAt: 0 })
         setScreen({ base, emissive, paint: draw })
       })
 
@@ -132,7 +134,7 @@ const PADDING = 26
 function drawPrompt(
   ctx: CanvasRenderingContext2D,
   family: string,
-  { text, cursor }: ScreenFrame
+  { text, cursor, cursorAt }: ScreenFrame
 ) {
   const { x, y, width } = CONTENT_RECT
 
@@ -154,8 +156,8 @@ function drawPrompt(
   ctx.fillText(text, left, top)
 
   if (cursor) {
-    const end = left + ctx.measureText(text).width
-    ctx.fillRect(end, top, advance * fit, size * 0.85)
+    const at = left + ctx.measureText(text.slice(0, cursorAt)).width
+    ctx.fillRect(at, top, advance * fit, size * 0.85)
   }
 }
 

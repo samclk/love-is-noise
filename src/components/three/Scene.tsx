@@ -23,6 +23,8 @@ type SceneProps = {
   onPress?: () => void
   /** What has been typed at the CRT prompt. */
   text: string
+  /** The character the CRT's cursor sits on. */
+  cursorAt: number
   /** Each increment dips the tube once. */
   rejections: number
   /** Switches the tube off. */
@@ -69,6 +71,7 @@ export default function Scene({
   onReady,
   onPress,
   text,
+  cursorAt,
   rejections,
   off,
   onPoweredOff,
@@ -182,6 +185,7 @@ export default function Scene({
             onScreenMeasured={handleScreenMeasured}
             onReady={handleComposed}
             text={text}
+            cursorAt={cursorAt}
             rejections={rejections}
             off={off}
             onPoweredOff={onPoweredOff}
