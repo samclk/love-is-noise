@@ -192,8 +192,8 @@ export function HomeScene() {
  * Points newcomers at the CRT. Held back until the camera's entrance has
  * mostly settled, so it arrives as the shot does rather than over the fade.
  *
- * Desktop already has the prompt focused on arrival, so there it says to type
- * rather than to click.
+ * On a phone it sits above the monitor and points down at the glass. Desktop
+ * already has the prompt focused, so there it just says to type, at the bottom.
  */
 function PromptHint({ shown, touch }: { shown: boolean; touch: boolean }) {
   const [due, setDue] = React.useState(false)
@@ -206,11 +206,17 @@ function PromptHint({ shown, touch }: { shown: boolean; touch: boolean }) {
   return (
     <p
       aria-hidden
-      className={`${terminalFont.className} pointer-events-none fixed inset-x-0 top-[27%] z-20 flex flex-col items-center text-2xl text-[#ffcf1f] transition-opacity duration-1000 ease-out [text-shadow:0_0_8px_rgb(255_207_31/0.55)]`}
+      className={`${terminalFont.className} pointer-events-none fixed inset-x-0 z-20 flex flex-col items-center text-2xl ${touch ? 'top-[27%]' : 'bottom-10'} text-[#ffcf1f] transition-opacity duration-1000 ease-out [text-shadow:0_0_8px_rgb(255_207_31/0.55)]`}
       style={{ opacity: shown && due ? 1 : 0 }}
     >
-      <span>{touch ? 'tap the screen' : 'start typing'}</span>
-      <span className="motion-safe:animate-bounce">↓</span>
+      {touch ? (
+        <>
+          <span>tap the screen</span>
+          <span className="motion-safe:animate-bounce">↓</span>
+        </>
+      ) : (
+        <span>start typing</span>
+      )}
     </p>
   )
 }
