@@ -9,13 +9,12 @@ import {
   FLICKER,
   MODEL_SIZE,
   MODEL_URL,
-  RESTING_SLIDE,
-  SLIDES,
-  SLIDESHOW,
-  SPILL,
-  type SlideAction
+  POWER_OFF,
+  PROMPT,
+  REJECT,
+  SPILL
 } from './config'
-import { useScreenMaps } from './useScreenTexture'
+import { useScreenTexture, type ScreenFrame } from './useScreenTexture'
 
 // RectAreaLight needs its lookup textures built before first use, otherwise it
 // contributes nothing at all. Safe at module scope because this file only ever
@@ -26,23 +25,26 @@ type OldComputerProps = {
   reducedMotion: boolean
   /** Reports where the screen ended up, so the rain can catch its light. */
   onScreenMeasured?: (centre: THREE.Vector3) => void
-  /** Fires once the CRT is showing the logo rather than the baked DOS screen. */
+  /** Fires once the CRT is showing the prompt rather than the baked DOS screen. */
   onReady?: () => void
-  /** Handed the screen's action when the glass is clicked. */
-  onActivate?: (action: SlideAction) => void
-  /**
-   * Holds the cycle — while a dialog the screen opened is still up, and until
-   * the page has finished arriving so the opening slide is not spent on black.
-   */
-  paused?: boolean
+  /** What has been typed at the prompt so far. */
+  text: string
+  /** Each increment dips the tube once, the only response a wrong answer gets. */
+  rejections: number
+  /** Switches the tube off. There is no way back on. */
+  off: boolean
+  /** Fires once the tube has gone fully dark. */
+  onPoweredOff?: () => void
 }
 
 export function OldComputer({
   reducedMotion,
   onScreenMeasured,
   onReady,
-  onActivate,
-  paused
+  text,
+  rejections,
+  off,
+  onPoweredOff
 }: OldComputerProps) {
   const { scene } = useGLTF(MODEL_URL)
   const lightRef = React.useRef<THREE.RectAreaLight>(null)
@@ -52,10 +54,16 @@ export function OldComputer({
     [scene]
   )
 
-  const painted = useScreenMaps(
-    screenMaterial?.emissiveMap ?? null,
-    screenMaterial?.map ?? null
+  // Captured once: the effect below swaps our own maps onto this material, and
+  // reading them back on the next render would rebuild the atlas every keystroke.
+  const originals = React.useMemo(
+    () => ({
+      emissive: screenMaterial?.emissiveMap ?? null,
+      base: screenMaterial?.map ?? null
+    }),
+    [screenMaterial]
   )
+  const painted = useScreenTexture(originals.emissive, originals.base)
 
   // Emissive strength is authored in the GLB (9.26 via
   // KHR_materials_emissive_strength) and is the baseline the flicker rides on.
@@ -68,63 +76,85 @@ export function OldComputer({
     if (screen) onScreenMeasured?.(screen.centre)
   }, [screen, onScreenMeasured])
 
-  /** Index of the slide currently burned into the tube. */
-  const slide = React.useRef(0)
-  /** Milliseconds the current slide has been held. */
-  const held = React.useRef(0)
-  /** Milliseconds into a swap, or null when the screen is settled. */
-  const swapping = React.useRef<number | null>(null)
-  const swapped = React.useRef(false)
-  /** Where a press began, so a drag can be told apart from a tap. */
-  const pressedAt = React.useRef<{ x: number; y: number } | null>(null)
-  /** Whether the pointer is on the glass, so the cursor can follow the cycle. */
-  const hovering = React.useRef(false)
-
-  // Restored on unmount so a cursor set over the glass cannot outlive the scene.
-  React.useEffect(() => () => setCursor(null), [])
-
-  /**
-   * The cursor tracks the cycle, not just the pointer: the slide under a resting
-   * pointer changes every couple of seconds, and half of them are inert.
-   */
-  const refreshCursor = React.useCallback(() => {
-    const interactive = Boolean(SLIDES[slide.current]?.action)
-    setCursor(hovering.current && interactive ? 'pointer' : null)
-  }, [])
-
-  const showSlide = React.useCallback(
-    (index: number) => {
-      const artwork = SLIDES[index]?.image
-      const texture = artwork ? painted?.emissive.get(artwork) : null
-      if (!screenMaterial || !texture) return
-      // No needsUpdate here on purpose: swapping one texture for another in a
-      // slot that already had one needs no shader recompile, and forcing one
-      // every four seconds would hitch the frame the swap lands on.
-      screenMaterial.emissiveMap = texture
-    },
-    [painted, screenMaterial]
-  )
-
   React.useEffect(() => {
     if (!screenMaterial || !painted) return
     screenMaterial.map = painted.base
-    // Under reduced motion the cycle never runs, so whatever lands here stays up
-    // for the whole visit.
-    slide.current = reducedMotion ? RESTING_SLIDE : 0
-    showSlide(slide.current)
-    // Only here: this is the one point where the maps genuinely change identity
-    // from the model's originals to ours.
+    screenMaterial.emissiveMap = painted.emissive
     screenMaterial.needsUpdate = true
 
-    // The repaint is the last thing to land: the artwork is plain Images, so it
-    // sits outside three's loading manager and finishes after progress has
-    // already reported complete. Revealing on progress alone would show the
-    // baked blue DOS screen for a moment before it popped to the logo.
+    // The repaint is the last thing to land: it waits on the prompt's webfont,
+    // which sits outside three's loading manager and finishes after progress
+    // has already reported complete. Revealing on progress alone would show the
+    // baked blue DOS screen for a moment before it popped to the prompt.
     onReady?.()
-  }, [screenMaterial, painted, showSlide, onReady, reducedMotion])
+  }, [screenMaterial, painted, onReady])
+
+  /** The last frame painted, so the canvas is only touched when it changes. */
+  const lastPainted = React.useRef('')
+  /** When the text last changed, so the cursor holds solid while typing. */
+  const typedAt = React.useRef(0)
+  /** Milliseconds into a rejection dip, or null when there is none. */
+  const dipping = React.useRef<number | null>(null)
+  /** Milliseconds since the tube was switched off, or null while it is on. */
+  const poweringOff = React.useRef<number | null>(null)
+  const poweredOff = React.useRef(false)
+
+  React.useEffect(() => {
+    typedAt.current = performance.now()
+  }, [text])
+
+  // A new canvas starts blank, whatever was last painted onto the old one.
+  React.useEffect(() => {
+    lastPainted.current = ''
+  }, [painted])
+
+  React.useEffect(() => {
+    if (rejections > 0) dipping.current = 0
+  }, [rejections])
+
+  React.useEffect(() => {
+    if (off && poweringOff.current === null) poweringOff.current = 0
+  }, [off])
+
+  const paint = (frame: ScreenFrame) => {
+    const key = JSON.stringify(frame)
+    if (!painted || key === lastPainted.current) return
+    lastPainted.current = key
+    painted.paint(frame)
+  }
 
   useFrame(({ clock }, delta) => {
     const light = lightRef.current
+    const ms = delta * 1000
+
+    if (poweringOff.current !== null) {
+      poweringOff.current += ms
+      const { brightness, collapse } = reducedMotion
+        ? { brightness: 0, collapse: { x: 0, y: 0 } }
+        : powerOff(poweringOff.current)
+
+      paint({ text, cursor: false, collapse })
+      if (screenMaterial) {
+        screenMaterial.emissiveIntensity = baseEmissive * brightness
+      }
+      // The room goes dark as the picture does, not as the leftover dot does:
+      // a line or a dot throws almost no light.
+      if (light) light.intensity = SPILL_INTENSITY * collapse.y
+
+      if (brightness === 0 && !poweredOff.current) {
+        poweredOff.current = true
+        onPoweredOff?.()
+      }
+      return
+    }
+
+    const now = performance.now()
+    // Solid while typing and under reduced motion, blinking at rest.
+    const cursor =
+      reducedMotion ||
+      now - typedAt.current < PROMPT.blinkMs ||
+      Math.floor(now / PROMPT.blinkMs) % 2 === 0
+    paint({ text, cursor })
 
     if (reducedMotion) {
       if (screenMaterial) screenMaterial.emissiveIntensity = baseEmissive
@@ -141,55 +171,29 @@ export function OldComputer({
       0
     )
     const factor = 1 + drift * FLICKER.amplitude
-    const dip = advanceSlideshow(delta)
+    const dip = advanceDip(ms)
 
     if (screenMaterial) {
       screenMaterial.emissiveIntensity = baseEmissive * factor * dip
     }
     // The spill has to move with the screen, or the light and its source
     // visibly disagree — including through the dip, so the room darkens with
-    // the tube when it changes slide.
+    // the tube when it rejects an answer.
     if (light) light.intensity = SPILL_INTENSITY * factor * dip
   })
 
   /**
-   * Runs the cycle and returns the brightness multiplier for this frame.
-   *
-   * The swap happens at the bottom of a dim, the way a CRT behaves when it
-   * changes input, so the slide is never seen changing — only the tube dropping
-   * out and coming back with something else on it.
+   * The brightness multiplier for a rejection dip: a V from full to almost-out
+   * and back. Not quite to zero, since a hard cut to black reads as a fault.
    */
-  function advanceSlideshow(delta: number) {
-    const { holdMs, dipMs } = SLIDESHOW
-    const ms = delta * 1000
-
-    if (swapping.current === null) {
-      if (!paused) held.current += ms
-      if (held.current >= holdMs && painted) {
-        swapping.current = 0
-        swapped.current = false
-      }
-      return 1
-    }
-
-    swapping.current += ms
-    const progress = Math.min(swapping.current / dipMs, 1)
-
-    if (progress >= 0.5 && !swapped.current) {
-      slide.current = (slide.current + 1) % SLIDES.length
-      showSlide(slide.current)
-      refreshCursor()
-      swapped.current = true
-    }
-
+  function advanceDip(ms: number) {
+    if (dipping.current === null) return 1
+    dipping.current += ms
+    const progress = Math.min(dipping.current / REJECT.dipMs, 1)
     if (progress >= 1) {
-      swapping.current = null
-      held.current = 0
+      dipping.current = null
       return 1
     }
-
-    // A V from full to almost-out and back. Not quite to zero: a tube retains a
-    // little glow, and a hard cut to black reads as a fault rather than a change.
     return 0.05 + 0.95 * Math.abs(progress * 2 - 1)
   }
 
@@ -216,60 +220,6 @@ export function OldComputer({
           }
         />
       )}
-
-      {/*
-        The click target. An invisible plane on the glass rather than handlers on
-        the model itself, because the screen shares a mesh with the whole case —
-        a hit on that mesh cannot tell the tube from the keyboard. The glass was
-        already measured for the spill light, so its bounds come free.
-      */}
-      {screen && (
-        <mesh
-          position={[screen.centre.x, screen.centre.y, screen.centre.z + 0.03]}
-          onPointerOver={(event) => {
-            event.stopPropagation()
-            hovering.current = true
-            refreshCursor()
-          }}
-          onPointerOut={() => {
-            hovering.current = false
-            refreshCursor()
-            // Left the glass mid-press: no longer a tap on it.
-            pressedAt.current = null
-          }}
-          onPointerDown={(event) => {
-            event.stopPropagation()
-            pressedAt.current = { x: event.clientX, y: event.clientY }
-          }}
-          onPointerUp={(event) => {
-            event.stopPropagation()
-            const from = pressedAt.current
-            pressedAt.current = null
-            if (!from) return
-
-            // The glass is both the click target and the biggest thing to
-            // grab, so without this every drag from mid-frame opened the link.
-            const travelled = Math.hypot(
-              event.clientX - from.x,
-              event.clientY - from.y
-            )
-            if (travelled > TAP_SLOP) return
-
-            // The logo slides swallow the click rather than sending it wherever
-            // the cycle happens to have moved on to.
-            const action = SLIDES[slide.current]?.action
-            if (!action) return
-
-            // Handed out to the DOM rather than acted on here: opening a tab
-            // belongs in the document, not in a render loop.
-            onActivate?.(action)
-          }}
-        >
-          <planeGeometry args={[screen.width, screen.height]} />
-          {/* Fully transparent, but still raycast: only `visible` is consulted. */}
-          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-        </mesh>
-      )}
     </>
   )
 }
@@ -277,20 +227,22 @@ export function OldComputer({
 const SPILL_INTENSITY = 7
 
 /**
- * How far a press may travel and still count as a tap, in CSS pixels.
- *
- * Generous, because a thumb on glass never holds still — anything tighter and
- * real taps get rejected as drags.
+ * Where the power-off is, `elapsed` milliseconds in: how much of the picture is
+ * left on each axis, and how bright the tube still is.
  */
-const TAP_SLOP = 14
+function powerOff(elapsed: number) {
+  const { squashMs, shrinkMs, fadeMs } = POWER_OFF
+  // Ease-in: deflection fails slowly and then all at once.
+  const ease = (value: number) => Math.min(1, Math.max(0, value)) ** 2
 
-/**
- * The only affordance the screen has, so it is set on the document rather than
- * the canvas — R3F's own cursor handling does not survive the pointer moving
- * between meshes cleanly enough to rely on here.
- */
-function setCursor(cursor: 'pointer' | null) {
-  document.body.style.cursor = cursor ?? ''
+  const squash = ease(elapsed / squashMs)
+  const shrink = ease((elapsed - squashMs) / shrinkMs)
+  const fade = ease((elapsed - squashMs - shrinkMs) / fadeMs)
+
+  return {
+    collapse: { x: 1 - shrink, y: 1 - squash },
+    brightness: 1 - fade
+  }
 }
 
 type PreparedModel = {

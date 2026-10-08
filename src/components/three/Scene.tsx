@@ -6,7 +6,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
-import { FOG, type SlideAction } from './config'
+import { FOG } from './config'
 import { Effects } from './Effects'
 import { FogLayers } from './FogLayers'
 import { Lighting } from './Lighting'
@@ -14,15 +14,22 @@ import { LightShafts } from './LightShafts'
 import { OldComputer } from './OldComputer'
 import { Rain } from './Rain'
 import { Staging } from './Staging'
+import { useKeyboardInset } from './useKeyboardInset'
 import { useSceneActive } from './useSceneActive'
 
 type SceneProps = {
   /** Fires once the scene is composed and has actually drawn a few frames. */
   onReady?: () => void
-  /** Handed the slide action when the CRT is clicked. */
-  onActivate?: (action: SlideAction) => void
-  /** Holds the slideshow, e.g. while the store dialog is open. */
-  paused?: boolean
+  /** Any tap or click on the scene, so the page can hand focus to the prompt. */
+  onPress?: () => void
+  /** What has been typed at the CRT prompt. */
+  text: string
+  /** Each increment dips the tube once. */
+  rejections: number
+  /** Switches the tube off. */
+  off: boolean
+  /** Fires once the tube has gone fully dark. */
+  onPoweredOff?: () => void
 }
 
 /**
@@ -55,9 +62,17 @@ function WhenDrawn({
   return null
 }
 
-export default function Scene({ onReady, onActivate, paused }: SceneProps) {
+export default function Scene({
+  onReady,
+  onPress,
+  text,
+  rejections,
+  off,
+  onPoweredOff
+}: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
+  const keyboard = useKeyboardInset()
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
@@ -85,7 +100,7 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
       straight back to the browser on exactly the devices this matters most on.
 
       Scoping it to the canvas keeps the cost small: there is no text in a 3D
-      scene to enlarge, and the store dialog sits outside it with zooming intact.
+      scene to enlarge, and the riddle and reveal replace it with zooming intact.
 
       Revisit when content lands below the canvas — page scrolling will then need
       a route back, most likely by making the canvas not the scroll container.
@@ -103,6 +118,8 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
     <div
       ref={container}
       className="fixed inset-0 h-dvh w-full [&_canvas]:touch-none"
+      style={keyboard ?? undefined}
+      onClick={onPress}
     >
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
@@ -161,8 +178,10 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
             reducedMotion={reducedMotion}
             onScreenMeasured={handleScreenMeasured}
             onReady={handleComposed}
-            onActivate={onActivate}
-            paused={paused}
+            text={text}
+            rejections={rejections}
+            off={off}
+            onPoweredOff={onPoweredOff}
           />
           <Lighting />
           <LightShafts />

@@ -113,6 +113,9 @@ export function CameraRig({ reducedMotion, begin }: CameraRigProps) {
   )
 
   React.useEffect(() => {
+    // Once the entrance has begun, a resize (the phone keyboard opening) glides
+    // to the new framing through the damping instead of restarting the arc.
+    if (!reducedMotion && entrance.current > 0) return
     // Placed where the entrance starts from, not at the final framing, so the
     // first frame drawn behind the fade is already the beginning of the move.
     const offset = reducedMotion ? 0 : 1

@@ -3,8 +3,14 @@
 import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
-import { SLIDES, type SlideAction } from './config'
-import { StoreDialog } from './StoreDialog'
+import {
+  RevealScreen,
+  Riddle,
+  TERMINAL_FADE_MS
+} from '@/components/gate/Terminal'
+import { submitAnswer } from '@/components/gate/submitAnswer'
+import { MAX_INPUT, type GateResponse } from '@/lib/gate'
+import { POWER_OFF } from './config'
 
 /**
  * The Canvas touches browser APIs on mount and cannot render on the server.
@@ -17,123 +23,139 @@ const Scene = dynamic(() => import('./Scene'), {
 })
 
 /**
- * Nothing should be visible until the scene is actually composed, so the page
- * opens on black and fades through to the render.
+ * The page is a three-step puzzle: a coordinate typed at the CRT switches the
+ * tube off and leads to a riddle, and the riddle's answer leads to the reveal.
+ * The server checks every answer and holds every stage's content.
  *
- * Waiting on load progress alone is not enough — see Curtain.
+ * Each fade is a stage of its own, so whatever is fading out stays mounted
+ * until it is covered and no answer can be resubmitted mid-fade.
  */
+type Reveal = Extract<GateResponse, { stage: 'reveal' }>
+type Unlocked = { coordinate: string; riddle: string }
+type Stage =
+  | { name: 'gate' }
+  | ({ name: 'poweringOff' } & Unlocked)
+  | ({ name: 'leaving' } & Unlocked)
+  | ({ name: 'riddle' } & Unlocked)
+  | ({ name: 'solved'; reveal: Reveal } & Unlocked)
+  | { name: 'reveal'; reveal: Reveal }
+
 export function HomeScene() {
-  const [revealed, setRevealed] = React.useState(false)
-  const [storesOpen, setStoresOpen] = React.useState(false)
-  const arrived = useArrived(revealed)
+  const [stage, setStage] = React.useState<Stage>({ name: 'gate' })
+  const [sceneShown, setSceneShown] = React.useState(false)
+  const showScene = React.useCallback(() => setSceneShown(true), [])
 
-  const reveal = React.useCallback(() => setRevealed(true), [])
-  const openStores = React.useCallback(() => setStoresOpen(true), [])
-  const closeStores = React.useCallback(() => setStoresOpen(false), [])
+  const [text, setText] = React.useState('')
+  const [rejections, setRejections] = React.useState(0)
+  const pending = React.useRef(false)
+  const input = React.useRef<HTMLInputElement>(null)
 
-  const activate = React.useCallback((action: SlideAction) => {
-    if (action.kind === 'stores') {
-      setStoresOpen(true)
+  const focusPrompt = React.useCallback(() => {
+    if (sceneShown) input.current?.focus()
+  }, [sceneShown])
+
+  // Desktop only: a phone ignores a focus it was not tapped into, and would
+  // keep the keyboard down anyway. There the first tap on the scene does it.
+  React.useEffect(() => {
+    if (window.matchMedia('(pointer: fine)').matches) focusPrompt()
+  }, [focusPrompt])
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (pending.current || stage.name !== 'gate' || !text.trim()) return
+    pending.current = true
+    const result = await submitAnswer({ coordinate: text })
+    pending.current = false
+
+    if (result?.stage === 'riddle') {
+      input.current?.blur()
+      setStage({ name: 'poweringOff', coordinate: text, riddle: result.riddle })
       return
     }
-    window.open(action.href, '_blank', 'noopener,noreferrer')
-  }, [])
+    setText('')
+    setRejections((count) => count + 1)
+  }
 
-  return (
-    <>
-      {/* The cycle holds until the page has arrived, and again while the dialog
-          is up: the screen behind it should not carry on changing under a panel
-          the screen itself opened. */}
-      <Scene
-        onReady={reveal}
-        onActivate={activate}
-        paused={storesOpen || !arrived}
-      />
-      <Curtain revealed={revealed} onTimeout={reveal} />
-      <SceneProgress revealed={revealed} />
-      <ScreenLinks onStores={openStores} />
-      <StoreDialog open={storesOpen} onClose={closeStores} />
-    </>
+  const leave = React.useCallback(
+    () =>
+      setStage((current) =>
+        current.name === 'poweringOff'
+          ? { ...current, name: 'leaving' }
+          : current
+      ),
+    []
   )
-}
 
-/** Every destination the CRT offers, in the order it cycles through them. */
-const SCREEN_ACTIONS = SLIDES.map((slide) => slide.action).filter(
-  (action): action is SlideAction => action !== null
-)
-
-/**
- * The screen's destinations as real controls.
- *
- * The CRT is clickable, but a hit target inside a canvas does not exist for a
- * keyboard or a screen reader, and these are the page's calls to action. Each
- * becomes visible on focus, so a sighted keyboard user can see where they are.
- *
- * They stack on the same corner rather than in a row: only one can hold focus,
- * so only one is ever visible, and none of them shifts the others as it opens.
- */
-function ScreenLinks({ onStores }: { onStores: () => void }) {
-  return (
-    <>
-      {SCREEN_ACTIONS.map((action) =>
-        action.kind === 'link' ? (
-          <a
-            key={action.label}
-            href={action.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={SCREEN_LINK_CLASS}
-          >
-            {action.label}
-          </a>
-        ) : (
-          // Merch has no single href — see STORES — so the keyboard path opens
-          // the same chooser the glass does rather than picking a region.
-          <button
-            key={action.label}
-            type="button"
-            onClick={onStores}
-            className={SCREEN_LINK_CLASS}
-          >
-            {action.label}
-          </button>
-        )
-      )}
-    </>
-  )
-}
-
-/**
- * Parked off-screen rather than `sr-only`, because `not-sr-only` restores
- * `position: static` and so cancels the `fixed` these need to sit over the
- * canvas — focusing one dropped it behind the scene at the top of the document.
- * A transform hides it without touching layout, so focus brings it back in place.
- */
-const SCREEN_LINK_CLASS =
-  'fixed bottom-0 left-0 z-30 m-3 -translate-x-[calc(100%+2rem)] bg-black px-4 py-2 font-styled text-lg text-white outline outline-white focus:translate-x-0'
-
-/**
- * Whether the page has finished arriving, fade included.
- *
- * The cycle would otherwise be running behind the curtain, so the opening slide
- * — the one carrying merch — could be most of the way through its hold, or gone
- * altogether, before anyone could see it. Waiting on `revealed` alone is not
- * enough: that only marks the fade starting.
- *
- * A timer rather than a transitionend: the curtain is `pointer-events-none` and
- * purely decorative, and a backgrounded tab can drop the event entirely, which
- * would strand the screen on one slide for the rest of the visit.
- */
-function useArrived(revealed: boolean) {
-  const [arrived, setArrived] = React.useState(false)
-
+  // Every fade ends on a timer. The power-off normally ends early, when the
+  // tube reports itself dark; the timer covers a frame loop that has stopped.
   React.useEffect(() => {
-    if (!revealed) return
-    const timer = setTimeout(() => setArrived(true), FADE_MS)
+    const next =
+      stage.name === 'poweringOff'
+        ? { ms: POWER_OFF_FALLBACK_MS, run: leave }
+        : stage.name === 'leaving'
+          ? { ms: FADE_MS, run: () => setStage({ ...stage, name: 'riddle' }) }
+          : stage.name === 'solved'
+            ? {
+                ms: TERMINAL_FADE_MS,
+                run: () => setStage({ name: 'reveal', reveal: stage.reveal })
+              }
+            : null
+    if (!next) return
+    const timer = setTimeout(next.run, next.ms)
     return () => clearTimeout(timer)
-  }, [revealed])
+  }, [stage, leave])
 
-  return arrived
+  if (stage.name === 'riddle' || stage.name === 'solved') {
+    return (
+      <Riddle
+        riddle={stage.riddle}
+        coordinate={stage.coordinate}
+        shown={stage.name === 'riddle'}
+        onSolved={(reveal) => setStage({ ...stage, name: 'solved', reveal })}
+      />
+    )
+  }
+
+  if (stage.name === 'reveal') {
+    return <RevealScreen reveal={stage.reveal} shown />
+  }
+
+  return (
+    <>
+      <Scene
+        onReady={showScene}
+        onPress={focusPrompt}
+        text={text}
+        rejections={rejections}
+        off={stage.name !== 'gate'}
+        onPoweredOff={leave}
+      />
+      {/* The CRT is a texture, so keystrokes land here and are painted onto it.
+          Invisible but focusable, since a phone only raises its keyboard for that. */}
+      <form onSubmit={submit}>
+        <input
+          ref={input}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          aria-label="Code"
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+          maxLength={MAX_INPUT}
+          disabled={stage.name !== 'gate'}
+          // 16px is the size below which iOS zooms the page on focus.
+          className="pointer-events-none fixed top-1/3 left-1/2 w-px text-[16px] opacity-0"
+        />
+      </form>
+      <Curtain
+        opaque={!sceneShown || stage.name === 'leaving'}
+        onTimeout={showScene}
+      />
+      <SceneProgress revealed={sceneShown} />
+    </>
+  )
 }
 
 function SceneFallback() {
@@ -142,8 +164,13 @@ function SceneFallback() {
 
 const FADE_MS = 1400
 
+/** The whole power-off plus a second's grace. */
+const POWER_OFF_FALLBACK_MS =
+  POWER_OFF.squashMs + POWER_OFF.shrinkMs + POWER_OFF.fadeMs + 1000
+
 /**
- * The black the scene fades up from.
+ * The black the scene fades up from on arrival, and back down to once the tube
+ * has switched off.
  *
  * The timeout is a safety line, not a schedule. The reveal is driven by the
  * scene reporting itself composed, and if anything on that path fails — a
@@ -152,24 +179,24 @@ const FADE_MS = 1400
  * nothing at all.
  */
 function Curtain({
-  revealed,
+  opaque,
   onTimeout
 }: {
-  revealed: boolean
+  opaque: boolean
   onTimeout: () => void
 }) {
   React.useEffect(() => {
-    if (revealed) return
+    if (!opaque) return
     const timer = setTimeout(onTimeout, 8000)
     return () => clearTimeout(timer)
-  }, [revealed, onTimeout])
+  }, [opaque, onTimeout])
 
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-10 bg-black transition-opacity ease-out"
       style={{
-        opacity: revealed ? 0 : 1,
+        opacity: opaque ? 1 : 0,
         transitionDuration: `${FADE_MS}ms`
       }}
     />

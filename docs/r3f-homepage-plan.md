@@ -222,6 +222,9 @@ holds: device pixel ratios of 2 and 3 both render at an effective 1.5.
 
 ## Screen slideshow — agreed plan
 
+> **Superseded.** The slideshow, its artwork and `scripts/make-slide-assets.mjs`
+> were removed when the CRT became the password gate. See "Password gate" below.
+
 The CRT cycles Logo → Tickets → Logo → Merch on a 4s beat, and the screen is
 clickable on the two linked slides.
 
@@ -257,6 +260,35 @@ keyboard user ever has to wait for the right slide to come round.
 **Known trade-off.** Affordance is the pointer cursor alone, so touch users get
 no on-screen signal that the CRT is interactive. Accepted deliberately; the
 blinking-prompt option was declined.
+
+## Password gate
+
+The CRT shows only a blinking cursor. A hidden `<input>` takes the typing and
+the prompt is painted onto the screen texture (`useScreenTexture`).
+
+1. The right coordinate switches the tube off (squash to a line, shrink to a
+   dot, fade). The scene fades to black and the Canvas unmounts.
+2. A terminal-style riddle types itself out (`components/gate/Terminal.tsx`).
+   Any key or tap finishes it.
+3. The right answer fades to the reveal: title, date and an optional link.
+
+A wrong answer at either step clears the field and flickers the tube or jitters
+the line. Nothing else happens.
+
+`POST /api/gate` checks every answer and returns the next stage's content. The
+riddle step resends the coordinate. Everything is read from env vars so none of
+it is in git or the bundle:
+
+| Var | Purpose |
+| --- | --- |
+| `GATE_COORDINATE` | Decimal degrees, e.g. `51.5074,-0.1278`. Guesses are rounded to its precision. |
+| `RIDDLE_ANSWER` | Matched ignoring case, accents, spacing, punctuation and a leading "the". |
+| `RIDDLE_TEXT` | The riddle. Line breaks are kept. |
+| `REVEAL_TITLE`, `REVEAL_DATE` | The reveal. |
+| `REVEAL_LINK`, `REVEAL_LINK_LABEL` | Optional. The label defaults to "Pre-save". |
+
+There is no rate limiting and no memory between visits. Matching rules are
+covered by `yarn test`, which needs Node 22.6 or later.
 
 ## Open for later
 

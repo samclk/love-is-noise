@@ -2,43 +2,52 @@
 
 import * as React from 'react'
 import * as THREE from 'three'
+import { terminalFont } from '@/components/terminalFont'
 import {
   ATLAS_SIZE,
   BLOB_RECT,
-  LOGO_RECT,
+  CONTENT_RECT,
   PHOSPHOR,
-  SCREEN_RECT,
-  SLIDES,
-  type SlideTone
+  PROMPT,
+  SCREEN_RECT
 } from './config'
 
 type Rect = { x: number; y: number; width: number; height: number }
 
-export type ScreenMaps = {
-  /** Shared by every slide: the base colour only ever blacks the tube out. */
+/** What the tube shows on a given paint. */
+export type ScreenFrame = {
+  text: string
+  cursor: boolean
+  /**
+   * How much of the picture is left during power-off, per axis, from 1 for the
+   * full screen to 0 for nothing. Absent while the tube is on normally.
+   */
+  collapse?: { x: number; y: number }
+}
+
+export type Screen = {
   base: THREE.CanvasTexture
-  /** One emissive map per distinct slide image, keyed by its URL. */
-  emissive: Map<string, THREE.CanvasTexture>
+  emissive: THREE.CanvasTexture
+  paint: (frame: ScreenFrame) => void
 }
 
 /**
- * Repaints the CRT so it shows the band's artwork as glowing phosphor instead of
- * the baked DOS file manager, and builds one map per slide up front.
+ * Repaints the CRT so it shows a terminal prompt as glowing phosphor instead of
+ * the baked DOS file manager.
  *
  * Two maps have to change, not one. The emissive map supplies the glow, but
  * emission is *added* to the base colour, so leaving the base alone leaves the
- * original blue screen and its grime showing through underneath the amber. Only
- * the emissive differs between slides, so the base is built once.
+ * original blue screen and its grime showing through underneath the amber.
  *
- * Every slide is painted at load rather than on demand. Repainting a 1024px
- * atlas mid-cycle would stall the frame the swap lands on, which is exactly the
- * moment the eye is on the screen.
+ * The emissive canvas is kept and repainted in place, one clip of the atlas at a
+ * time, so a keystroke or a cursor blink costs one texture upload and no new
+ * allocations.
  */
-export function useScreenMaps(
+export function useScreenTexture(
   emissiveSource: THREE.Texture | null,
   baseSource: THREE.Texture | null
 ) {
-  const [maps, setMaps] = React.useState<ScreenMaps | null>(null)
+  const [screen, setScreen] = React.useState<Screen | null>(null)
 
   React.useEffect(() => {
     // Held in locals so the narrowing survives into the async callback below.
@@ -53,14 +62,17 @@ export function useScreenMaps(
     }
 
     let cancelled = false
-    // Deduped by image, since two slides pointing at the same artwork want the
-    // same texture rather than two copies of a 1024px atlas.
-    const slides = [
-      ...new Map(SLIDES.map((slide) => [slide.image, slide.tone]))
-    ].map(([image, tone]) => ({ image, tone }))
+    const family = terminalFont.style.fontFamily
 
-    Promise.all(slides.map((slide) => loadImage(slide.image)))
-      .then((artworks) => {
+    // A fallback face drawn before the real one lands would sit on the tube
+    // until the next keystroke or blink, so the first paint waits for it.
+    document.fonts
+      .load(`${FONT_SIZE}px ${family}`)
+      .catch((error) => {
+        // The fallback face is ugly but legible; better than a dead screen.
+        console.warn('screen: prompt font failed to load', error)
+      })
+      .then(() => {
         if (cancelled) return
 
         const base = paint(baseOriginal, baseImage, (ctx) => {
@@ -71,29 +83,26 @@ export function useScreenMaps(
           // stay clear of the bezel's corners.
           withClip(ctx, BLOB_RECT, () => fill(ctx, BLOB_RECT, '#060607'))
         })
-        if (!base) return
+        const emissive = paint(emissiveOriginal, emissiveImage, () => {})
+        if (!base || !emissive) return
 
-        const emissive = new Map<string, THREE.CanvasTexture>()
-        artworks.forEach((artwork, index) => {
-          const slide = slides[index]
-          if (!artwork || !slide) return
-          const texture = paint(emissiveOriginal, emissiveImage, (ctx) => {
-            withClip(ctx, SCREEN_RECT, () => {
-              fill(ctx, SCREEN_RECT, '#000000')
-              drawPhosphor(ctx, artwork, slide.tone)
-              drawScanlines(ctx)
-              drawTubeFalloff(ctx)
-            })
+        const canvas = emissive.image as HTMLCanvasElement
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        const draw = (frame: ScreenFrame) => {
+          withClip(ctx, SCREEN_RECT, () => {
+            fill(ctx, SCREEN_RECT, '#000000')
+            if (frame.collapse) drawCollapse(ctx, frame.collapse)
+            else drawPrompt(ctx, family, frame)
+            drawScanlines(ctx)
+            drawTubeFalloff(ctx)
           })
-          if (texture) emissive.set(slide.image, texture)
-        })
+          emissive.needsUpdate = true
+        }
 
-        if (!emissive.size) return
-        setMaps({ base, emissive })
-      })
-      .catch(() => {
-        // Missing artwork should cost us the repaint, not the whole scene: the
-        // baked DOS screen stays and still lights everything correctly.
+        draw({ text: '', cursor: true })
+        setScreen({ base, emissive, paint: draw })
       })
 
     return () => {
@@ -103,19 +112,66 @@ export function useScreenMaps(
 
   React.useEffect(
     () => () => {
-      maps?.base.dispose()
-      maps?.emissive.forEach((texture) => texture.dispose())
+      screen?.base.dispose()
+      screen?.emissive.dispose()
     },
-    [maps]
+    [screen]
   )
 
-  return maps
+  return screen
 }
 
-function loadImage(url: string) {
-  const image = new Image()
-  image.src = url
-  return image.decode().then(() => image)
+/** Full size, for entries up to PROMPT.lineChars. VT323 is fixed-width, so one advance measures every glyph. */
+const FONT_SIZE = 34
+
+/** Inset from the content box, so the prompt does not sit on the tube's curve. */
+const PADDING = 26
+
+function drawPrompt(
+  ctx: CanvasRenderingContext2D,
+  family: string,
+  { text, cursor }: ScreenFrame
+) {
+  const { x, y, width } = CONTENT_RECT
+
+  ctx.font = `${FONT_SIZE}px ${family}`
+  ctx.textBaseline = 'top'
+  ctx.fillStyle = PHOSPHOR
+
+  const advance = ctx.measureText('0').width
+  // Shrinks a long entry rather than letting it run off the glass.
+  const chars = Math.max(PROMPT.lineChars, text.length) + 1
+  const fit = Math.min(1, (width - PADDING * 2) / (advance * chars))
+  const size = FONT_SIZE * fit
+  ctx.font = `${size}px ${family}`
+
+  const left = x + PADDING
+  const top = y + PADDING
+  ctx.fillText(text, left, top)
+
+  if (cursor) {
+    const end = left + ctx.measureText(text).width
+    ctx.fillRect(end, top, advance * fit, size * 0.85)
+  }
+}
+
+/**
+ * The picture squashing to a line and the line to a dot, which is what a tube
+ * does as its deflection dies. The beam is still on, so what is left gets
+ * brighter as it shrinks rather than dimmer; the fade is OldComputer's job.
+ */
+function drawCollapse(
+  ctx: CanvasRenderingContext2D,
+  collapse: { x: number; y: number }
+) {
+  const { x, y, width, height } = CONTENT_RECT
+  const w = Math.max(3, width * collapse.x)
+  const h = Math.max(2, height * collapse.y)
+
+  ctx.globalAlpha = Math.min(1, 0.25 + (1 - collapse.y) * 0.75)
+  ctx.fillStyle = '#fff4d6'
+  ctx.fillRect(x + (width - w) / 2, y + (height - h) / 2, w, h)
+  ctx.globalAlpha = 1
 }
 
 function paint(
@@ -160,151 +216,6 @@ function withClip(ctx: CanvasRenderingContext2D, rect: Rect, draw: () => void) {
 function fill(ctx: CanvasRenderingContext2D, rect: Rect, colour: string) {
   ctx.fillStyle = colour
   ctx.fillRect(rect.x, rect.y, rect.width, rect.height)
-}
-
-/**
- * Turns a slide's artwork into glowing phosphor, by whichever of the two routes
- * its `tone` calls for. See SlideTone in config for why there are two.
- */
-function drawPhosphor(
-  ctx: CanvasRenderingContext2D,
-  artwork: HTMLImageElement,
-  tone: SlideTone
-) {
-  const { x, y, width, height } = LOGO_RECT
-
-  const inset = 0.84
-  const scale = Math.min(
-    (width * inset) / artwork.width,
-    (height * inset) / artwork.height
-  )
-  const w = artwork.width * scale
-  const h = artwork.height * scale
-
-  const layer = document.createElement('canvas')
-  layer.width = width
-  layer.height = height
-
-  const lctx = layer.getContext('2d')
-  if (!lctx) return
-
-  lctx.drawImage(artwork, (width - w) / 2, (height - h) / 2, w, h)
-
-  if (tone === 'mask') {
-    lctx.globalCompositeOperation = 'source-in'
-    lctx.fillStyle = PHOSPHOR
-    lctx.fillRect(0, 0, width, height)
-  } else {
-    tintToPhosphor(lctx, width, height)
-  }
-
-  ctx.drawImage(layer, x, y)
-}
-
-/** The phosphor as sRGB bytes, so the pixel loop below is plain arithmetic. */
-const PHOSPHOR_RGB = [
-  Number.parseInt(PHOSPHOR.slice(1, 3), 16),
-  Number.parseInt(PHOSPHOR.slice(3, 5), 16),
-  Number.parseInt(PHOSPHOR.slice(5, 7), 16)
-] as const
-
-/** Rec. 709 luma from sRGB bytes, normalised to 0..1. */
-function luma709(r: number, g: number, b: number) {
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
-}
-
-/**
- * The phosphor scaled to a luma of exactly 1.
- *
- * Colour and brightness are kept strictly separate in tintToPhosphor, and this
- * is half of how: mixing two unit-luma colours gives another unit-luma colour,
- * so how much of the artwork's own hue is retained cannot change how hard a
- * pixel glows, and therefore cannot change what the composer blooms.
- */
-const PHOSPHOR_CHROMA = PHOSPHOR_RGB.map(
-  (channel) =>
-    channel / 255 / luma709(PHOSPHOR_RGB[0], PHOSPHOR_RGB[1], PHOSPHOR_RGB[2])
-)
-
-/**
- * Curve applied to the artwork's brightness on its way to phosphor, and the
- * reason a photographic slide is legible at all.
- *
- * The screen runs at an emissive strength of 9.26 against a bloom threshold of
- * 1.05, so a mid-grey pixel still lands several times over it. Tinted linearly,
- * *every* pixel of a full-frame image breaches the threshold, the composer
- * flares all of them equally, and the slide reads as one glowing square with no
- * picture in it. Raising the curve drops the mid-tones back under the threshold
- * and leaves only the highlights to bloom, which is both legible and what a real
- * tube does: lit phosphor glows, unlit phosphor is dark glass.
- *
- * Tuned against the album artwork, which is dark with bright streetlamps. Lower
- * the gamma if a future slide comes out too murky to read.
- */
-const TONE_GAMMA = 2.4
-
-/** Ceiling on the brightest phosphor a full-frame slide may reach. */
-const TONE_GAIN = 0.92
-
-/**
- * How much of the artwork's own colour survives, from 0 for a pure amber
- * monochrome tube to 1 for the artwork's own hues at phosphor brightness.
- *
- * The dial to turn if the slides read too yellow or too photographic. It is safe
- * to turn freely: because both colours are normalised to unit luma before they
- * are mixed, this changes hue only, and never which pixels breach the bloom
- * threshold. Whatever legibility TONE_GAMMA buys is unaffected.
- */
-const TONE_CHROMA = 0.6
-
-/**
- * Remaps opaque artwork onto the phosphor.
- *
- * The artwork's luminance, curved by TONE_GAMMA, decides how hard each pixel
- * glows. Its hue is then blended toward the phosphor by TONE_CHROMA, so the
- * screen reads as a tube lit from behind rather than a photograph pasted onto
- * the glass, while still keeping the artwork's own colour in the highlights.
- *
- * Saturated colours can push a channel past full and clamp there. That is
- * intended: it reads as phosphor saturating, and the pixel's luma is correct
- * either way.
- *
- * Alpha is left alone, so artwork that *does* carry transparency still keeps its
- * shape rather than gaining a black box.
- */
-function tintToPhosphor(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number
-) {
-  const image = ctx.getImageData(0, 0, width, height)
-  const pixels = image.data
-
-  for (let i = 0; i < pixels.length; i += 4) {
-    const luma = luma709(pixels[i], pixels[i + 1], pixels[i + 2])
-
-    // Black stays black. Its hue is both meaningless and undefined to divide out.
-    if (luma < 1 / 255) {
-      pixels[i] = 0
-      pixels[i + 1] = 0
-      pixels[i + 2] = 0
-      continue
-    }
-
-    const level = TONE_GAIN * luma ** TONE_GAMMA
-
-    for (let channel = 0; channel < 3; channel++) {
-      // The artwork's own colour, scaled to unit luma exactly as the phosphor
-      // is, which is what makes the mix below a hue blend and nothing more.
-      const own = pixels[i + channel] / 255 / luma
-      pixels[i + channel] =
-        (own * TONE_CHROMA + PHOSPHOR_CHROMA[channel] * (1 - TONE_CHROMA)) *
-        level *
-        255
-    }
-  }
-
-  ctx.putImageData(image, 0, 0)
 }
 
 /** Alternating dark rows. Subtle at this texel density, but it kills the flatness. */
