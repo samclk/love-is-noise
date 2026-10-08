@@ -21,10 +21,17 @@ import { useScreenTexture, type ScreenFrame } from './useScreenTexture'
 // loads in the browser.
 RectAreaLightUniformsLib.init()
 
+/** The glass panel, measured in world units once the model is placed. */
+export type ScreenBounds = {
+  centre: THREE.Vector3
+  width: number
+  height: number
+}
+
 type OldComputerProps = {
   reducedMotion: boolean
-  /** Reports where the screen ended up, so the rain can catch its light. */
-  onScreenMeasured?: (centre: THREE.Vector3) => void
+  /** Reports where the screen ended up, for the rain's light and the camera's zoom. */
+  onScreenMeasured?: (screen: ScreenBounds) => void
   /** Fires once the CRT is showing the prompt rather than the baked DOS screen. */
   onReady?: () => void
   /** What has been typed at the prompt so far. */
@@ -73,7 +80,7 @@ export function OldComputer({
   )
 
   React.useEffect(() => {
-    if (screen) onScreenMeasured?.(screen.centre)
+    if (screen) onScreenMeasured?.(screen)
   }, [screen, onScreenMeasured])
 
   React.useEffect(() => {
@@ -248,7 +255,7 @@ function powerOff(elapsed: number) {
 type PreparedModel = {
   model: THREE.Object3D
   screenMaterial: THREE.MeshStandardMaterial | null
-  screen: { centre: THREE.Vector3; width: number; height: number } | null
+  screen: ScreenBounds | null
 }
 
 /**

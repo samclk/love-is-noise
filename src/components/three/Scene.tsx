@@ -11,7 +11,7 @@ import { Effects } from './Effects'
 import { FogLayers } from './FogLayers'
 import { Lighting } from './Lighting'
 import { LightShafts } from './LightShafts'
-import { OldComputer } from './OldComputer'
+import { OldComputer, type ScreenBounds } from './OldComputer'
 import { Rain } from './Rain'
 import { Staging } from './Staging'
 import { useKeyboardInset } from './useKeyboardInset'
@@ -30,6 +30,8 @@ type SceneProps = {
   off: boolean
   /** Fires once the tube has gone fully dark. */
   onPoweredOff?: () => void
+  /** Flies the camera in until the glass fills the view, so typing is legible on a phone. */
+  zoomed: boolean
 }
 
 /**
@@ -68,7 +70,8 @@ export default function Scene({
   text,
   rejections,
   off,
-  onPoweredOff
+  onPoweredOff,
+  zoomed
 }: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
@@ -76,11 +79,11 @@ export default function Scene({
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
-  const [screen, setScreen] = React.useState<THREE.Vector3 | null>(null)
+  const [screen, setScreen] = React.useState<ScreenBounds | null>(null)
   const [composed, setComposed] = React.useState(false)
 
   const handleScreenMeasured = React.useCallback(
-    (centre: THREE.Vector3) => setScreen(centre),
+    (bounds: ScreenBounds) => setScreen(bounds),
     []
   )
 
@@ -192,12 +195,16 @@ export default function Scene({
             still make sense, so under reduced motion it is dropped entirely.
             The puddles stay, which carries the idea on their own.
           */}
-          {!reducedMotion && <Rain glow={screen} />}
+          {!reducedMotion && <Rain glow={screen?.centre ?? null} />}
           <Effects quality={quality} />
         </React.Suspense>
 
         {/* Same signal as the fade, so the arc plays as the scene appears. */}
-        <CameraRig reducedMotion={reducedMotion} begin={composed} />
+        <CameraRig
+          reducedMotion={reducedMotion}
+          begin={composed}
+          zoomTo={zoomed ? screen : null}
+        />
         <WhenDrawn enabled={composed} onDrawn={onReady} />
       </Canvas>
     </div>

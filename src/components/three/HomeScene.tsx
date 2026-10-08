@@ -49,6 +49,11 @@ export function HomeScene() {
   const [rejections, setRejections] = React.useState(0)
   const pending = React.useRef(false)
   const input = React.useRef<HTMLInputElement>(null)
+  const [focused, setFocused] = React.useState(false)
+  const touch = useTouchPrimary()
+  // A phone frames the glass while typing and holds it through the power-off,
+  // since an answer can only be submitted from the zoomed-in prompt.
+  const zoomed = touch && (focused || stage.name !== 'gate')
 
   const focusPrompt = React.useCallback(() => {
     if (sceneShown) input.current?.focus()
@@ -129,6 +134,7 @@ export function HomeScene() {
         rejections={rejections}
         off={stage.name !== 'gate'}
         onPoweredOff={leave}
+        zoomed={zoomed}
       />
       {/* The CRT is a texture, so keystrokes land here and are painted onto it.
           Invisible but focusable, since a phone only raises its keyboard for that. */}
@@ -137,6 +143,8 @@ export function HomeScene() {
           ref={input}
           value={text}
           onChange={(event) => setText(event.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           aria-label="Code"
           autoComplete="off"
           autoCapitalize="off"
@@ -156,6 +164,15 @@ export function HomeScene() {
       <SceneProgress revealed={sceneShown} />
     </>
   )
+}
+
+/** Touch is the primary input, i.e. a phone or tablet rather than a laptop with a touchscreen. */
+function useTouchPrimary() {
+  const [touch, setTouch] = React.useState(false)
+  React.useEffect(() => {
+    setTouch(window.matchMedia('(pointer: coarse)').matches)
+  }, [])
+  return touch
 }
 
 function SceneFallback() {

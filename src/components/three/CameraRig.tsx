@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import type { ScreenBounds } from './OldComputer'
 import { useTouchDrag } from './useTouchDrag'
 
 export const CAMERA_FOV = 35
@@ -52,6 +53,12 @@ const DAMPING = 2.6
 const FLOAT = { amplitude: 0.045, frequency: 0.31 }
 
 /**
+ * How much room to leave around the glass when zoomed, as a multiple of its
+ * size. Enough to keep a sliver of bezel, so it still reads as a monitor.
+ */
+const ZOOM_MARGIN = 1.18
+
+/**
  * How quickly a touch drag drifts back to the composed shot after release.
  * Much slower than the pointer damping, so it reads as the scene settling
  * rather than being yanked back.
@@ -92,14 +99,20 @@ type CameraRigProps = {
    * it has arrived.
    */
   begin?: boolean
+  /** Frames this screen head-on and fills the view with it, or null for the composed shot. */
+  zoomTo?: ScreenBounds | null
 }
 
-export function CameraRig({ reducedMotion, begin }: CameraRigProps) {
+export function CameraRig({ reducedMotion, begin, zoomTo }: CameraRigProps) {
   const { camera, pointer, size } = useThree()
   const drag = useTouchDrag()
 
   /** 0 while waiting, running to 1 across the entrance. */
   const entrance = React.useRef(0)
+  /** 0 for the composed shot, easing to 1 when zoomed on the screen. */
+  const zoom = React.useRef(0)
+  /** Where the camera is aimed, eased so the zoom turns rather than snaps. */
+  const look = React.useRef<THREE.Vector3 | null>(null)
 
   const framing = React.useMemo(
     () => framingFor(size.width / size.height),
@@ -127,10 +140,43 @@ export function CameraRig({ reducedMotion, begin }: CameraRigProps) {
     camera.lookAt(target)
   }, [camera, framing, target, reducedMotion])
 
+  /** Straight out from the glass, far enough back for it to fill the view. */
+  const zoomShot = React.useMemo(() => {
+    if (!zoomTo) return null
+    const halfHeight = Math.tan((CAMERA_FOV * Math.PI) / 180 / 2)
+    const aspect = size.width / size.height
+    const distance =
+      (Math.max(zoomTo.height, zoomTo.width / aspect) * ZOOM_MARGIN) /
+      2 /
+      halfHeight
+    return {
+      position: zoomTo.centre.clone().add(new THREE.Vector3(0, 0, distance)),
+      target: zoomTo.centre
+    }
+  }, [zoomTo, size.width, size.height])
+
+  // Reduced motion still needs the close-up to read the prompt, so it cuts to
+  // it rather than flying there.
+  React.useEffect(() => {
+    if (!reducedMotion) return
+    const shot = zoomShot ?? {
+      position: new THREE.Vector3(0, framing.cameraY, framing.distance),
+      target
+    }
+    camera.position.copy(shot.position)
+    camera.lookAt(shot.target)
+  }, [reducedMotion, zoomShot, camera, framing, target])
+
   useFrame((_, delta) => {
     // Reduced motion keeps the composed shot and skips the arc: the entrance is
     // automatic camera movement, which is precisely what the preference is for.
     if (reducedMotion) return
+
+    const alpha = 1 - Math.exp(-DAMPING * delta)
+    zoom.current += ((zoomShot ? 1 : 0) - zoom.current) * alpha
+    // Drag and drift are held off while zoomed, so the glass stays still
+    // under the thumbs typing at it.
+    const free = 1 - zoom.current
 
     if (begin && entrance.current < 1) {
       entrance.current = Math.min(
@@ -156,33 +202,40 @@ export function CameraRig({ reducedMotion, begin }: CameraRigProps) {
       touch.y += (0 - touch.y) * recentre
     }
 
-    const inputX = touch.engaged ? touch.x : pointer.x
-    const inputY = touch.engaged ? touch.y : pointer.y
+    const inputX = (touch.engaged ? touch.x : pointer.x) * free
+    const inputY = (touch.engaged ? touch.y : pointer.y) * free
 
     const t = performance.now() / 1000
     const targetX = inputX * TRAVEL.x + ENTRANCE.x * arriving
     const targetY =
       framing.cameraY +
       inputY * TRAVEL.y +
-      Math.sin(t * FLOAT.frequency) * FLOAT.amplitude +
+      Math.sin(t * FLOAT.frequency) * FLOAT.amplitude * free +
       ENTRANCE.y * arriving
     const targetZ = framing.distance + ENTRANCE.z * arriving
 
+    const goal = zoomShot
+      ? GOAL.copy(zoomShot.position)
+      : GOAL.set(targetX, targetY, targetZ)
+    const aim = zoomShot?.target ?? target
+
     // Exponential damping rather than a fixed lerp factor, so the easing does
     // not change character with the frame rate.
-    const alpha = 1 - Math.exp(-DAMPING * delta)
-    camera.position.x += (targetX - camera.position.x) * alpha
-    camera.position.y += (targetY - camera.position.y) * alpha
-    camera.position.z += (targetZ - camera.position.z) * alpha
+    camera.position.lerp(goal, alpha)
 
-    // Fixed aim: the camera swings around the machine and the screen stays put.
-    // With the aim held, the entrance's lateral offset arcs around the machine
-    // rather than sliding past it.
-    camera.lookAt(target)
+    // The aim eases too, so zooming turns the camera onto the glass instead of
+    // snapping to it. Outside the zoom it settles back on the fixed shot target,
+    // so the camera swings around the machine rather than sliding past it.
+    look.current ??= target.clone()
+    look.current.lerp(aim, alpha)
+    camera.lookAt(look.current)
   })
 
   return null
 }
+
+/** Reused every frame rather than allocated. */
+const GOAL = new THREE.Vector3()
 
 function framingFor(aspect: number) {
   const t = clamp(
