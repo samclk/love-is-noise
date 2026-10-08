@@ -135,6 +135,7 @@ export function HomeScene() {
         off={stage.name !== 'gate'}
         onPoweredOff={leave}
         zoomed={zoomed}
+        raised={touch && focused}
       />
       {/* The CRT is a texture, so keystrokes land here and are painted onto it.
           Invisible but focusable, since a phone only raises its keyboard for that. */}

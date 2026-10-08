@@ -14,7 +14,6 @@ import { LightShafts } from './LightShafts'
 import { OldComputer, type ScreenBounds } from './OldComputer'
 import { Rain } from './Rain'
 import { Staging } from './Staging'
-import { useKeyboardInset } from './useKeyboardInset'
 import { useSceneActive } from './useSceneActive'
 
 type SceneProps = {
@@ -32,6 +31,8 @@ type SceneProps = {
   onPoweredOff?: () => void
   /** Flies the camera in until the glass fills the view, so typing is legible on a phone. */
   zoomed: boolean
+  /** Holds the zoomed glass in the top half, clear of an on-screen keyboard. */
+  raised: boolean
 }
 
 /**
@@ -71,11 +72,11 @@ export default function Scene({
   rejections,
   off,
   onPoweredOff,
-  zoomed
+  zoomed,
+  raised
 }: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
-  const keyboard = useKeyboardInset()
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
@@ -121,7 +122,6 @@ export default function Scene({
     <div
       ref={container}
       className="fixed inset-0 h-dvh w-full [&_canvas]:touch-none"
-      style={keyboard ?? undefined}
       onClick={onPress}
     >
       <Canvas
@@ -204,6 +204,7 @@ export default function Scene({
           reducedMotion={reducedMotion}
           begin={composed}
           zoomTo={zoomed ? screen : null}
+          raised={raised}
         />
         <WhenDrawn enabled={composed} onDrawn={onReady} />
       </Canvas>

@@ -59,6 +59,13 @@ const FLOAT = { amplitude: 0.045, frequency: 0.31 }
 const ZOOM_MARGIN = 1.18
 
 /**
+ * The share of the screen height a phone keyboard leaves visible. The canvas is
+ * never resized for the keyboard, since that jolts the shot; the zoom frames the
+ * glass inside this top band instead.
+ */
+const ABOVE_KEYBOARD = 0.55
+
+/**
  * How quickly a touch drag drifts back to the composed shot after release.
  * Much slower than the pointer damping, so it reads as the scene settling
  * rather than being yanked back.
@@ -101,9 +108,16 @@ type CameraRigProps = {
   begin?: boolean
   /** Frames this screen head-on and fills the view with it, or null for the composed shot. */
   zoomTo?: ScreenBounds | null
+  /** Keeps the zoomed glass in the band above an on-screen keyboard. */
+  raised?: boolean
 }
 
-export function CameraRig({ reducedMotion, begin, zoomTo }: CameraRigProps) {
+export function CameraRig({
+  reducedMotion,
+  begin,
+  zoomTo,
+  raised
+}: CameraRigProps) {
   const { camera, pointer, size } = useThree()
   const drag = useTouchDrag()
 
@@ -126,7 +140,7 @@ export function CameraRig({ reducedMotion, begin, zoomTo }: CameraRigProps) {
   )
 
   React.useEffect(() => {
-    // Once the entrance has begun, a resize (the phone keyboard opening) glides
+    // Once the entrance has begun, a resize (a phone rotating) glides
     // to the new framing through the damping instead of restarting the arc.
     if (!reducedMotion && entrance.current > 0) return
     // Placed where the entrance starts from, not at the final framing, so the
@@ -145,15 +159,21 @@ export function CameraRig({ reducedMotion, begin, zoomTo }: CameraRigProps) {
     if (!zoomTo) return null
     const halfHeight = Math.tan((CAMERA_FOV * Math.PI) / 180 / 2)
     const aspect = size.width / size.height
+    const visible = raised ? ABOVE_KEYBOARD : 1
     const distance =
-      (Math.max(zoomTo.height, zoomTo.width / aspect) * ZOOM_MARGIN) /
+      (Math.max(zoomTo.height / visible, zoomTo.width / aspect) * ZOOM_MARGIN) /
       2 /
       halfHeight
+    // Lowering camera and aim together slides the glass up the frame to the
+    // middle of the visible band, without tilting the shot.
+    const drop = (1 - visible) * distance * halfHeight
     return {
-      position: zoomTo.centre.clone().add(new THREE.Vector3(0, 0, distance)),
-      target: zoomTo.centre
+      position: zoomTo.centre
+        .clone()
+        .add(new THREE.Vector3(0, -drop, distance)),
+      target: zoomTo.centre.clone().add(new THREE.Vector3(0, -drop, 0))
     }
-  }, [zoomTo, size.width, size.height])
+  }, [zoomTo, raised, size.width, size.height])
 
   // Reduced motion still needs the close-up to read the prompt, so it cuts to
   // it rather than flying there.
