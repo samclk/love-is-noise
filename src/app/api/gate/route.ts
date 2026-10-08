@@ -48,8 +48,7 @@ export async function POST(request: Request) {
   return Response.json({
     stage: 'reveal',
     title: env.title,
-    date: env.date,
-    link: env.link ? { href: env.link, label: env.linkLabel } : null
+    date: env.date
   } satisfies GateResponse)
 }
 
@@ -70,9 +69,7 @@ function readEnv() {
     riddleAnswer,
     riddle,
     title,
-    date,
-    link: process.env.REVEAL_LINK || null,
-    linkLabel: process.env.REVEAL_LINK_LABEL || 'Pre-save'
+    date
   }
 }
 

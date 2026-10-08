@@ -11,12 +11,7 @@ export type GateRequest = { coordinate: string; answer?: string }
 
 export type GateResponse =
   | { stage: 'riddle'; riddle: string }
-  | {
-      stage: 'reveal'
-      title: string
-      date: string
-      link: { href: string; label: string } | null
-    }
+  | { stage: 'reveal'; title: string; date: string }
 
 /** Longer than any answer anyone would type or paste, short enough to bound the regex. */
 export const MAX_INPUT = 64

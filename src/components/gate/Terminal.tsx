@@ -174,21 +174,11 @@ export function RevealScreen({
   shown: boolean
 }) {
   const text = `${reveal.title}\n${reveal.date}`
-  const { typed, done } = useTypewriter(text)
+  const { typed } = useTypewriter(text)
 
   return (
     <TerminalScreen shown={shown}>
       <Typed text={text} typed={typed} />
-      {done && reveal.link && (
-        <a
-          href={reveal.link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-block underline underline-offset-4 hover:no-underline focus-visible:no-underline focus-visible:outline-none"
-        >
-          &gt; {reveal.link.label}
-        </a>
-      )}
     </TerminalScreen>
   )
 }

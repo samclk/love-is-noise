@@ -270,7 +270,7 @@ the prompt is painted onto the screen texture (`useScreenTexture`).
    dot, fade). The scene fades to black and the Canvas unmounts.
 2. A terminal-style riddle types itself out (`components/gate/Terminal.tsx`).
    Any key or tap finishes it.
-3. The right answer fades to the reveal: title, date and an optional link.
+3. The right answer fades to the reveal: the title and the date.
 
 A wrong answer at either step clears the field and flickers the tube or jitters
 the line. Nothing else happens.
@@ -285,7 +285,6 @@ it is in git or the bundle:
 | `RIDDLE_ANSWER` | Matched ignoring case, accents, spacing, punctuation and a leading "the". |
 | `RIDDLE_TEXT` | The riddle. Line breaks are kept. |
 | `REVEAL_TITLE`, `REVEAL_DATE` | The reveal. |
-| `REVEAL_LINK`, `REVEAL_LINK_LABEL` | Optional. The label defaults to "Pre-save". |
 
 There is no rate limiting and no memory between visits. Matching rules are
 covered by `yarn test`, which needs Node 22.6 or later.
