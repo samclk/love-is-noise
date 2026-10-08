@@ -9,6 +9,7 @@ import {
   TERMINAL_FADE_MS
 } from '@/components/gate/Terminal'
 import { submitAnswer } from '@/components/gate/submitAnswer'
+import { terminalFont } from '@/components/terminalFont'
 import type { GateResponse } from '@/lib/gate'
 import { countSlots, fillTemplate } from '@/lib/template'
 import { POWER_OFF, PROMPT } from './config'
@@ -52,6 +53,10 @@ export function HomeScene() {
   const input = React.useRef<HTMLInputElement>(null)
   const [focused, setFocused] = React.useState(false)
   const touch = useTouchPrimary()
+  // Once someone has engaged with the prompt the hint has done its job, and it
+  // does not come back if they dismiss the keyboard.
+  const [engaged, setEngaged] = React.useState(false)
+  if (!engaged && (digits || (touch && focused))) setEngaged(true)
   // A phone frames the glass while typing and holds it through the power-off,
   // since an answer can only be submitted from the zoomed-in prompt.
   const zoomed = touch && (focused || stage.name !== 'gate')
@@ -175,9 +180,42 @@ export function HomeScene() {
         onTimeout={showScene}
       />
       <SceneProgress revealed={sceneShown} />
+      <PromptHint
+        shown={sceneShown && !engaged && stage.name === 'gate'}
+        touch={touch}
+      />
     </>
   )
 }
+
+/**
+ * Points newcomers at the CRT. Held back until the camera's entrance has
+ * mostly settled, so it arrives as the shot does rather than over the fade.
+ *
+ * Desktop already has the prompt focused on arrival, so there it says to type
+ * rather than to click.
+ */
+function PromptHint({ shown, touch }: { shown: boolean; touch: boolean }) {
+  const [due, setDue] = React.useState(false)
+  React.useEffect(() => {
+    if (!shown) return
+    const timer = setTimeout(() => setDue(true), HINT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [shown])
+
+  return (
+    <p
+      aria-hidden
+      className={`${terminalFont.className} pointer-events-none fixed inset-x-0 top-[27%] z-20 flex flex-col items-center text-2xl text-[#ffcf1f] transition-opacity duration-1000 ease-out [text-shadow:0_0_8px_rgb(255_207_31/0.55)]`}
+      style={{ opacity: shown && due ? 1 : 0 }}
+    >
+      <span>{touch ? 'tap the screen' : 'start typing'}</span>
+      <span className="motion-safe:animate-bounce">↓</span>
+    </p>
+  )
+}
+
+const HINT_DELAY_MS = 2200
 
 /** Touch is the primary input, i.e. a phone or tablet rather than a laptop with a touchscreen. */
 function useTouchPrimary() {
