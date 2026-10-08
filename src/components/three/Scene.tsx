@@ -6,12 +6,12 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { useReducedMotion } from 'framer-motion'
 import { CameraRig, CAMERA_FOV, CAMERA_POSITION } from './CameraRig'
-import { FOG, type SlideAction } from './config'
+import { FOG } from './config'
 import { Effects } from './Effects'
 import { FogLayers } from './FogLayers'
 import { Lighting } from './Lighting'
 import { LightShafts } from './LightShafts'
-import { OldComputer } from './OldComputer'
+import { OldComputer, type ScreenBounds } from './OldComputer'
 import { Rain } from './Rain'
 import { Staging } from './Staging'
 import { useSceneActive } from './useSceneActive'
@@ -19,10 +19,22 @@ import { useSceneActive } from './useSceneActive'
 type SceneProps = {
   /** Fires once the scene is composed and has actually drawn a few frames. */
   onReady?: () => void
-  /** Handed the slide action when the CRT is clicked. */
-  onActivate?: (action: SlideAction) => void
-  /** Holds the slideshow, e.g. while the store dialog is open. */
-  paused?: boolean
+  /** Any tap or click on the scene, so the page can hand focus to the prompt. */
+  onPress?: () => void
+  /** What has been typed at the CRT prompt. */
+  text: string
+  /** The character the CRT's cursor sits on. */
+  cursorAt: number
+  /** Each increment dips the tube once. */
+  rejections: number
+  /** Switches the tube off. */
+  off: boolean
+  /** Fires once the tube has gone fully dark. */
+  onPoweredOff?: () => void
+  /** Flies the camera in until the glass fills the view, so typing is legible on a phone. */
+  zoomed: boolean
+  /** Holds the zoomed glass in the top half, clear of an on-screen keyboard. */
+  raised: boolean
 }
 
 /**
@@ -55,17 +67,27 @@ function WhenDrawn({
   return null
 }
 
-export default function Scene({ onReady, onActivate, paused }: SceneProps) {
+export default function Scene({
+  onReady,
+  onPress,
+  text,
+  cursorAt,
+  rejections,
+  off,
+  onPoweredOff,
+  zoomed,
+  raised
+}: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
   const reducedMotion = useReducedMotion() ?? false
 
   const [quality, setQuality] = React.useState<'high' | 'low'>('high')
-  const [screen, setScreen] = React.useState<THREE.Vector3 | null>(null)
+  const [screen, setScreen] = React.useState<ScreenBounds | null>(null)
   const [composed, setComposed] = React.useState(false)
 
   const handleScreenMeasured = React.useCallback(
-    (centre: THREE.Vector3) => setScreen(centre),
+    (bounds: ScreenBounds) => setScreen(bounds),
     []
   )
 
@@ -85,7 +107,7 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
       straight back to the browser on exactly the devices this matters most on.
 
       Scoping it to the canvas keeps the cost small: there is no text in a 3D
-      scene to enlarge, and the store dialog sits outside it with zooming intact.
+      scene to enlarge, and the riddle and reveal replace it with zooming intact.
 
       Revisit when content lands below the canvas — page scrolling will then need
       a route back, most likely by making the canvas not the scroll container.
@@ -103,6 +125,7 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
     <div
       ref={container}
       className="fixed inset-0 h-dvh w-full [&_canvas]:touch-none"
+      onClick={onPress}
     >
       <Canvas
         // R3F's bare `shadows` resolves to PCFSoftShadowMap, deprecated in
@@ -161,8 +184,11 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
             reducedMotion={reducedMotion}
             onScreenMeasured={handleScreenMeasured}
             onReady={handleComposed}
-            onActivate={onActivate}
-            paused={paused}
+            text={text}
+            cursorAt={cursorAt}
+            rejections={rejections}
+            off={off}
+            onPoweredOff={onPoweredOff}
           />
           <Lighting />
           <LightShafts />
@@ -173,12 +199,17 @@ export default function Scene({ onReady, onActivate, paused }: SceneProps) {
             still make sense, so under reduced motion it is dropped entirely.
             The puddles stay, which carries the idea on their own.
           */}
-          {!reducedMotion && <Rain glow={screen} />}
+          {!reducedMotion && <Rain glow={screen?.centre ?? null} />}
           <Effects quality={quality} />
         </React.Suspense>
 
         {/* Same signal as the fade, so the arc plays as the scene appears. */}
-        <CameraRig reducedMotion={reducedMotion} begin={composed} />
+        <CameraRig
+          reducedMotion={reducedMotion}
+          begin={composed}
+          zoomTo={zoomed ? screen : null}
+          raised={raised}
+        />
         <WhenDrawn enabled={composed} onDrawn={onReady} />
       </Canvas>
     </div>

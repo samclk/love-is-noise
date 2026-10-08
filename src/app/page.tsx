@@ -1,8 +1,7 @@
 import { HomeScene } from '@/components/three/HomeScene'
 
-// Scene only for now. The store, tour, video and social content that previously
-// lived here is preserved in git history and gets composed back around the
-// canvas in a following pass.
+// The page is the puzzle and nothing else. The store, tour, video and social
+// content that previously lived here is preserved in git history.
 export default function Home() {
   return (
     <main className="relative h-dvh w-full overflow-hidden">

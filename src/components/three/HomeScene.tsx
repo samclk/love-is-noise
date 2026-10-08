@@ -3,8 +3,16 @@
 import * as React from 'react'
 import dynamic from 'next/dynamic'
 import { useProgress } from '@react-three/drei'
-import { SLIDES, type SlideAction } from './config'
-import { StoreDialog } from './StoreDialog'
+import {
+  RevealScreen,
+  Riddle,
+  TERMINAL_FADE_MS
+} from '@/components/gate/Terminal'
+import { submitAnswer } from '@/components/gate/submitAnswer'
+import { terminalFont } from '@/components/terminalFont'
+import type { GateResponse } from '@/lib/gate'
+import { countSlots, fillTemplate } from '@/lib/template'
+import { POWER_OFF, PROMPT } from './config'
 
 /**
  * The Canvas touches browser APIs on mount and cannot render on the server.
@@ -17,133 +25,230 @@ const Scene = dynamic(() => import('./Scene'), {
 })
 
 /**
- * Nothing should be visible until the scene is actually composed, so the page
- * opens on black and fades through to the render.
+ * The page is a three-step puzzle: a coordinate typed at the CRT switches the
+ * tube off and leads to a riddle, and the riddle's answer leads to the reveal.
+ * The server checks every answer and holds every stage's content.
  *
- * Waiting on load progress alone is not enough — see Curtain.
+ * Each fade is a stage of its own, so whatever is fading out stays mounted
+ * until it is covered and no answer can be resubmitted mid-fade.
  */
+type Reveal = Extract<GateResponse, { stage: 'reveal' }>
+type Unlocked = { coordinate: string; riddle: string }
+type Stage =
+  | { name: 'gate' }
+  | ({ name: 'poweringOff' } & Unlocked)
+  | ({ name: 'leaving' } & Unlocked)
+  | ({ name: 'riddle' } & Unlocked)
+  | ({ name: 'solved'; reveal: Reveal } & Unlocked)
+  | { name: 'reveal'; reveal: Reveal }
+
 export function HomeScene() {
-  const [revealed, setRevealed] = React.useState(false)
-  const [storesOpen, setStoresOpen] = React.useState(false)
-  const arrived = useArrived(revealed)
+  const [stage, setStage] = React.useState<Stage>({ name: 'gate' })
+  const [sceneShown, setSceneShown] = React.useState(false)
+  const showScene = React.useCallback(() => setSceneShown(true), [])
 
-  const reveal = React.useCallback(() => setRevealed(true), [])
-  const openStores = React.useCallback(() => setStoresOpen(true), [])
-  const closeStores = React.useCallback(() => setStoresOpen(false), [])
+  const [digits, setDigits] = React.useState('')
+  const entry = fillTemplate(PROMPT.template, digits)
+  const [rejections, setRejections] = React.useState(0)
+  const input = React.useRef<HTMLInputElement>(null)
+  const [focused, setFocused] = React.useState(false)
+  const touch = useTouchPrimary()
+  // Once someone has engaged with the prompt the hint has done its job, and it
+  // does not come back if they dismiss the keyboard.
+  const [engaged, setEngaged] = React.useState(false)
+  if (!engaged && (digits || (touch && focused))) setEngaged(true)
+  // A phone frames the glass while typing and holds it through the power-off,
+  // since an answer can only be submitted from the zoomed-in prompt.
+  const zoomed = touch && (focused || stage.name !== 'gate')
 
-  const activate = React.useCallback((action: SlideAction) => {
-    if (action.kind === 'stores') {
-      setStoresOpen(true)
-      return
-    }
-    window.open(action.href, '_blank', 'noopener,noreferrer')
-  }, [])
+  const focusPrompt = React.useCallback(() => {
+    if (sceneShown) input.current?.focus()
+  }, [sceneShown])
 
-  return (
-    <>
-      {/* The cycle holds until the page has arrived, and again while the dialog
-          is up: the screen behind it should not carry on changing under a panel
-          the screen itself opened. */}
-      <Scene
-        onReady={reveal}
-        onActivate={activate}
-        paused={storesOpen || !arrived}
-      />
-      <Curtain revealed={revealed} onTimeout={reveal} />
-      <SceneProgress revealed={revealed} />
-      <ScreenLinks onStores={openStores} />
-      <StoreDialog open={storesOpen} onClose={closeStores} />
-    </>
-  )
-}
-
-/** Every destination the CRT offers, in the order it cycles through them. */
-const SCREEN_ACTIONS = SLIDES.map((slide) => slide.action).filter(
-  (action): action is SlideAction => action !== null
-)
-
-/**
- * The screen's destinations as real controls.
- *
- * The CRT is clickable, but a hit target inside a canvas does not exist for a
- * keyboard or a screen reader, and these are the page's calls to action. Each
- * becomes visible on focus, so a sighted keyboard user can see where they are.
- *
- * They stack on the same corner rather than in a row: only one can hold focus,
- * so only one is ever visible, and none of them shifts the others as it opens.
- */
-function ScreenLinks({ onStores }: { onStores: () => void }) {
-  return (
-    <>
-      {SCREEN_ACTIONS.map((action) =>
-        action.kind === 'link' ? (
-          <a
-            key={action.label}
-            href={action.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={SCREEN_LINK_CLASS}
-          >
-            {action.label}
-          </a>
-        ) : (
-          // Merch has no single href — see STORES — so the keyboard path opens
-          // the same chooser the glass does rather than picking a region.
-          <button
-            key={action.label}
-            type="button"
-            onClick={onStores}
-            className={SCREEN_LINK_CLASS}
-          >
-            {action.label}
-          </button>
-        )
-      )}
-    </>
-  )
-}
-
-/**
- * Parked off-screen rather than `sr-only`, because `not-sr-only` restores
- * `position: static` and so cancels the `fixed` these need to sit over the
- * canvas — focusing one dropped it behind the scene at the top of the document.
- * A transform hides it without touching layout, so focus brings it back in place.
- */
-const SCREEN_LINK_CLASS =
-  'fixed bottom-0 left-0 z-30 m-3 -translate-x-[calc(100%+2rem)] bg-black px-4 py-2 font-styled text-lg text-white outline outline-white focus:translate-x-0'
-
-/**
- * Whether the page has finished arriving, fade included.
- *
- * The cycle would otherwise be running behind the curtain, so the opening slide
- * — the one carrying merch — could be most of the way through its hold, or gone
- * altogether, before anyone could see it. Waiting on `revealed` alone is not
- * enough: that only marks the fade starting.
- *
- * A timer rather than a transitionend: the curtain is `pointer-events-none` and
- * purely decorative, and a backgrounded tab can drop the event entirely, which
- * would strand the screen on one slide for the rest of the visit.
- */
-function useArrived(revealed: boolean) {
-  const [arrived, setArrived] = React.useState(false)
-
+  // Desktop only: a phone ignores a focus it was not tapped into, and would
+  // keep the keyboard down anyway. There the first tap on the scene does it.
   React.useEffect(() => {
-    if (!revealed) return
-    const timer = setTimeout(() => setArrived(true), FADE_MS)
-    return () => clearTimeout(timer)
-  }, [revealed])
+    if (window.matchMedia('(pointer: fine)').matches) focusPrompt()
+  }, [focusPrompt])
 
-  return arrived
+  // Filling the last slot is the submit: a phone's number pad has no Return
+  // key. The pause lets the final digit show on the glass before the tube reacts.
+  const complete = entry.next === null
+  const coordinate = entry.text
+  React.useEffect(() => {
+    if (!complete || stage.name !== 'gate') return
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      const result = await submitAnswer({ coordinate })
+      if (cancelled) return
+      if (result?.stage === 'riddle') {
+        input.current?.blur()
+        setStage({ name: 'poweringOff', coordinate, riddle: result.riddle })
+        return
+      }
+      setDigits('')
+      setRejections((count) => count + 1)
+    }, SUBMIT_PAUSE_MS)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [complete, coordinate, stage.name])
+
+  const leave = React.useCallback(
+    () =>
+      setStage((current) =>
+        current.name === 'poweringOff'
+          ? { ...current, name: 'leaving' }
+          : current
+      ),
+    []
+  )
+
+  // Every fade ends on a timer. The power-off normally ends early, when the
+  // tube reports itself dark; the timer covers a frame loop that has stopped.
+  React.useEffect(() => {
+    const next =
+      stage.name === 'poweringOff'
+        ? { ms: POWER_OFF_FALLBACK_MS, run: leave }
+        : stage.name === 'leaving'
+          ? { ms: FADE_MS, run: () => setStage({ ...stage, name: 'riddle' }) }
+          : stage.name === 'solved'
+            ? {
+                ms: TERMINAL_FADE_MS,
+                run: () => setStage({ name: 'reveal', reveal: stage.reveal })
+              }
+            : null
+    if (!next) return
+    const timer = setTimeout(next.run, next.ms)
+    return () => clearTimeout(timer)
+  }, [stage, leave])
+
+  if (stage.name === 'riddle' || stage.name === 'solved') {
+    return (
+      <Riddle
+        riddle={stage.riddle}
+        coordinate={stage.coordinate}
+        shown={stage.name === 'riddle'}
+        onSolved={(reveal) => setStage({ ...stage, name: 'solved', reveal })}
+      />
+    )
+  }
+
+  if (stage.name === 'reveal') {
+    return <RevealScreen reveal={stage.reveal} shown />
+  }
+
+  return (
+    <>
+      <Scene
+        onReady={showScene}
+        onPress={focusPrompt}
+        text={entry.text}
+        cursorAt={entry.next ?? entry.text.length}
+        rejections={rejections}
+        off={stage.name !== 'gate'}
+        onPoweredOff={leave}
+        zoomed={zoomed}
+        raised={touch && focused}
+      />
+      {/* The CRT is a texture, so keystrokes land here and are painted onto it.
+          Invisible but focusable, since a phone only raises its keyboard for that. */}
+      <form onSubmit={(event) => event.preventDefault()}>
+        <input
+          ref={input}
+          value={digits}
+          // Paste works too: a pasted coordinate keeps only its digits, in order.
+          onChange={(event) =>
+            setDigits(event.target.value.replace(/\D/g, '').slice(0, SLOTS))
+          }
+          inputMode="numeric"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          aria-label="Coordinates"
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          disabled={stage.name !== 'gate'}
+          // 16px is the size below which iOS zooms the page on focus.
+          className="pointer-events-none fixed top-1/3 left-1/2 w-px text-[16px] opacity-0"
+        />
+      </form>
+      <Curtain
+        opaque={!sceneShown || stage.name === 'leaving'}
+        onTimeout={showScene}
+      />
+      <SceneProgress revealed={sceneShown} />
+      <PromptHint
+        shown={sceneShown && !engaged && stage.name === 'gate'}
+        touch={touch}
+      />
+    </>
+  )
+}
+
+/**
+ * Points newcomers at the CRT. Held back until the camera's entrance has
+ * mostly settled, so it arrives as the shot does rather than over the fade.
+ *
+ * On a phone it sits above the monitor and points down at the glass. Desktop
+ * already has the prompt focused, so there it just says to type, at the bottom.
+ */
+function PromptHint({ shown, touch }: { shown: boolean; touch: boolean }) {
+  const [due, setDue] = React.useState(false)
+  React.useEffect(() => {
+    if (!shown) return
+    const timer = setTimeout(() => setDue(true), HINT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [shown])
+
+  return (
+    <p
+      aria-hidden
+      className={`${terminalFont.className} pointer-events-none fixed inset-x-0 z-20 flex flex-col items-center text-2xl ${touch ? 'top-[27%]' : 'bottom-10'} text-[#ffcf1f] transition-opacity duration-1000 ease-out [text-shadow:0_0_8px_rgb(255_207_31/0.55)]`}
+      style={{ opacity: shown && due ? 1 : 0 }}
+    >
+      {touch ? (
+        <>
+          <span>tap the screen</span>
+          <span className="motion-safe:animate-bounce">↓</span>
+        </>
+      ) : (
+        <span>start typing</span>
+      )}
+    </p>
+  )
+}
+
+const HINT_DELAY_MS = 2200
+
+/** Touch is the primary input, i.e. a phone or tablet rather than a laptop with a touchscreen. */
+function useTouchPrimary() {
+  const [touch, setTouch] = React.useState(false)
+  React.useEffect(() => {
+    setTouch(window.matchMedia('(pointer: coarse)').matches)
+  }, [])
+  return touch
 }
 
 function SceneFallback() {
   return <div className="fixed inset-0 h-dvh w-full bg-black" />
 }
 
+const SLOTS = countSlots(PROMPT.template)
+
+const SUBMIT_PAUSE_MS = 300
+
 const FADE_MS = 1400
 
+/** The whole power-off plus a second's grace. */
+const POWER_OFF_FALLBACK_MS =
+  POWER_OFF.squashMs + POWER_OFF.shrinkMs + POWER_OFF.fadeMs + 1000
+
 /**
- * The black the scene fades up from.
+ * The black the scene fades up from on arrival, and back down to once the tube
+ * has switched off.
  *
  * The timeout is a safety line, not a schedule. The reveal is driven by the
  * scene reporting itself composed, and if anything on that path fails — a
@@ -152,24 +257,24 @@ const FADE_MS = 1400
  * nothing at all.
  */
 function Curtain({
-  revealed,
+  opaque,
   onTimeout
 }: {
-  revealed: boolean
+  opaque: boolean
   onTimeout: () => void
 }) {
   React.useEffect(() => {
-    if (revealed) return
+    if (!opaque) return
     const timer = setTimeout(onTimeout, 8000)
     return () => clearTimeout(timer)
-  }, [revealed, onTimeout])
+  }, [opaque, onTimeout])
 
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-10 bg-black transition-opacity ease-out"
       style={{
-        opacity: revealed ? 0 : 1,
+        opacity: opaque ? 1 : 0,
         transitionDuration: `${FADE_MS}ms`
       }}
     />
