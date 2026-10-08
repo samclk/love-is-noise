@@ -49,7 +49,6 @@ export function HomeScene() {
   const [digits, setDigits] = React.useState('')
   const entry = fillTemplate(PROMPT.template, digits)
   const [rejections, setRejections] = React.useState(0)
-  const pending = React.useRef(false)
   const input = React.useRef<HTMLInputElement>(null)
   const [focused, setFocused] = React.useState(false)
   const touch = useTouchPrimary()
@@ -67,23 +66,29 @@ export function HomeScene() {
     if (window.matchMedia('(pointer: fine)').matches) focusPrompt()
   }, [focusPrompt])
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    // Only a filled template is an answer; Enter before then does nothing.
-    if (pending.current || stage.name !== 'gate' || entry.next !== null) return
-    pending.current = true
-    const coordinate = entry.text
-    const result = await submitAnswer({ coordinate })
-    pending.current = false
-
-    if (result?.stage === 'riddle') {
-      input.current?.blur()
-      setStage({ name: 'poweringOff', coordinate, riddle: result.riddle })
-      return
+  // Filling the last slot is the submit: a phone's number pad has no Return
+  // key. The pause lets the final digit show on the glass before the tube reacts.
+  const complete = entry.next === null
+  const coordinate = entry.text
+  React.useEffect(() => {
+    if (!complete || stage.name !== 'gate') return
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      const result = await submitAnswer({ coordinate })
+      if (cancelled) return
+      if (result?.stage === 'riddle') {
+        input.current?.blur()
+        setStage({ name: 'poweringOff', coordinate, riddle: result.riddle })
+        return
+      }
+      setDigits('')
+      setRejections((count) => count + 1)
+    }, SUBMIT_PAUSE_MS)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
     }
-    setDigits('')
-    setRejections((count) => count + 1)
-  }
+  }, [complete, coordinate, stage.name])
 
   const leave = React.useCallback(
     () =>
@@ -144,7 +149,7 @@ export function HomeScene() {
       />
       {/* The CRT is a texture, so keystrokes land here and are painted onto it.
           Invisible but focusable, since a phone only raises its keyboard for that. */}
-      <form onSubmit={submit}>
+      <form onSubmit={(event) => event.preventDefault()}>
         <input
           ref={input}
           value={digits}
@@ -160,7 +165,6 @@ export function HomeScene() {
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          enterKeyHint="go"
           disabled={stage.name !== 'gate'}
           // 16px is the size below which iOS zooms the page on focus.
           className="pointer-events-none fixed top-1/3 left-1/2 w-px text-[16px] opacity-0"
@@ -189,6 +193,8 @@ function SceneFallback() {
 }
 
 const SLOTS = countSlots(PROMPT.template)
+
+const SUBMIT_PAUSE_MS = 300
 
 const FADE_MS = 1400
 

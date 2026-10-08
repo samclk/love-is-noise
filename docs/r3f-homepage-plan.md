@@ -266,8 +266,8 @@ blinking-prompt option was declined.
 The CRT shows a `coordinates:` label over a template, `__.____, -_.____`.
 Typed digits fill the underscores in order; everything else is printed, so a
 phone gets the number pad. A hidden `<input>` takes the typing and the result is
-painted onto the screen texture (`useScreenTexture`). Enter does nothing until
-every slot is filled. The template's shape gives away the answer's digit counts
+painted onto the screen texture (`useScreenTexture`). Filling the last slot
+submits, since a phone's number pad has no Return key. The template's shape gives away the answer's digit counts
 and sign, so `PROMPT.template` in `config.ts` must change with `GATE_COORDINATE`.
 
 1. The right coordinate switches the tube off (squash to a line, shrink to a
