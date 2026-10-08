@@ -1,19 +1,12 @@
 export const MODEL_URL = '/models/old-computer.glb'
 
-/**
- * The CRT's only content: a label naming what to type, and the cursor below it.
- *
- * `lineChars` is how much fits on one line at full size; a longer entry, such as
- * a full-precision paste, shrinks the type to stay on the glass.
- */
+/** The CRT's only content: a fill-in coordinate, one line per half. */
 export const PROMPT = {
-  label: 'coordinates:',
   /**
    * Typed digits fill the underscores; the rest is printed. Its shape gives away
-   * the answer's digit counts and sign, so change it with GATE_COORDINATE.
+   * the answer's digit counts and hemispheres, so change it with GATE_COORDINATE.
    */
-  template: '__.____, -_.____',
-  lineChars: 24,
+  template: '__°__′__″N\n_°__′__″W',
   blinkMs: 530
 }
 

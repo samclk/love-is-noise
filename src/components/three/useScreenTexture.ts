@@ -8,7 +8,6 @@ import {
   BLOB_RECT,
   CONTENT_RECT,
   PHOSPHOR,
-  PROMPT,
   SCREEN_RECT
 } from './config'
 
@@ -123,7 +122,7 @@ export function useScreenTexture(
   return screen
 }
 
-/** Full size, for entries up to PROMPT.lineChars. VT323 is fixed-width, so one advance measures every glyph. */
+/** VT323 is fixed-width, so one advance measures every glyph. */
 const FONT_SIZE = 34
 
 const LINE_HEIGHT = 1.25
@@ -136,28 +135,25 @@ function drawPrompt(
   family: string,
   { text, cursor, cursorAt }: ScreenFrame
 ) {
-  const { x, y, width } = CONTENT_RECT
+  const { x, y } = CONTENT_RECT
 
   ctx.font = `${FONT_SIZE}px ${family}`
   ctx.textBaseline = 'top'
   ctx.fillStyle = PHOSPHOR
 
-  const advance = ctx.measureText('0').width
-  // Shrinks a long entry rather than letting it run off the glass.
-  const chars = Math.max(PROMPT.lineChars, text.length) + 1
-  const fit = Math.min(1, (width - PADDING * 2) / (advance * chars))
-  const size = FONT_SIZE * fit
   const left = x + PADDING
-  ctx.fillText(PROMPT.label, left, y + PADDING)
-
-  // The entry sits on the line below the label, so it keeps the full width.
-  ctx.font = `${size}px ${family}`
-  const top = y + PADDING + FONT_SIZE * LINE_HEIGHT
-  ctx.fillText(text, left, top)
+  const lineTop = (line: number) => y + PADDING + FONT_SIZE * LINE_HEIGHT * line
+  text.split('\n').forEach((line, index) => {
+    ctx.fillText(line, left, lineTop(index))
+  })
 
   if (cursor) {
-    const at = left + ctx.measureText(text.slice(0, cursorAt)).width
-    ctx.fillRect(at, top, advance * fit, size * 0.85)
+    // The cursor's line is however many breaks come before it.
+    const before = text.slice(0, cursorAt).split('\n')
+    const column = before[before.length - 1] ?? ''
+    const at = left + ctx.measureText(column).width
+    const advance = ctx.measureText('0').width
+    ctx.fillRect(at, lineTop(before.length - 1), advance, FONT_SIZE * 0.85)
   }
 }
 

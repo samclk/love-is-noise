@@ -30,3 +30,17 @@ test('a full entry has no next slot and reads as the coordinate', () => {
 test('counts the digits a template takes', () => {
   assert.equal(countSlots(TEMPLATE), 11)
 })
+
+const DMS = '__°__′__″N\n_°__′__″W'
+
+test('a two-line DMS template fills across the line break', () => {
+  assert.equal(countSlots(DMS), 11)
+  assert.deepEqual(fillTemplate(DMS, '520030'), {
+    text: '52°00′30″N\n_°__′__″W',
+    next: 11
+  })
+  const { text, next } = fillTemplate(DMS, '52003030508')
+  assert.equal(text, '52°00′30″N\n3°05′08″W')
+  assert.equal(next, null)
+  assert.equal(matchesCoordinate(text, '52.0083, -3.0856'), true)
+})
