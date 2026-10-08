@@ -76,3 +76,41 @@ test('the riddle ignores accents on either side', () => {
 test('a riddle answer with no letters or digits never matches', () => {
   assert.equal(matchesRiddle('!!', '!!'), false)
 })
+
+const BRECON = '52.0083, -3.0856'
+
+test('accepts degrees, minutes and seconds in the forms people type', () => {
+  for (const guess of [
+    '52°00′30″N 3°05′08″W',
+    `52°00'30"N 3°05'08"W`,
+    `52°00'30"N, 3°05'08"W`,
+    '52 00 30 N 3 05 08 W',
+    '52 0 30 n 3 5 8 w',
+    '52 0 30, -3 5 8',
+    '52 0 30 -3 5 8',
+    '52° 0.5′ N 3° 5.1333′ W'
+  ]) {
+    assert.equal(matchesCoordinate(guess, BRECON), true, guess)
+  }
+})
+
+test('still accepts the decimal forms of the same place', () => {
+  for (const guess of [
+    '52.0083, -3.0856',
+    '52.008333, -3.085556',
+    '52.0083 N 3.0856 W'
+  ]) {
+    assert.equal(matchesCoordinate(guess, BRECON), true, guess)
+  }
+})
+
+test('rejects a wrong second, the wrong hemisphere and out-of-range minutes', () => {
+  for (const guess of [
+    '52°00′31″N 3°05′08″W',
+    '52°00′30″N 3°05′08″E',
+    '52°60′30″N 3°05′08″W',
+    '52 00 30 N'
+  ]) {
+    assert.equal(matchesCoordinate(guess, BRECON), false, guess)
+  }
+})

@@ -23,25 +23,59 @@ export const MAX_INPUT = 64
 
 type Degrees = { value: number; decimals: number }
 
-/**
- * A number, an optional degree sign, then an optional hemisphere letter. Any
- * separator between the two is ignored, so pasted and hand-typed values parse.
- */
-const COORDINATE_PART = /([+-]?\d+(?:\.\d+)?)\s*°?\s*([NSEW])?/gi
+const NUMBER = /[+-]?\d+(?:\.\d+)?/g
 
+/**
+ * Reads a latitude and longitude in decimal degrees or degrees, minutes and
+ * seconds. Symbols (° ′ ″ ' ") are only separators, so typed and pasted forms
+ * both parse; S and W, or a leading minus, make a half negative.
+ */
 export function parseCoordinate(input: string): Degrees[] | null {
-  const parts = [...input.matchAll(COORDINATE_PART)]
-  return parts.length === 2 ? parts.map(toDegrees) : null
+  const halves = splitHalves(input)
+  if (!halves) return null
+  const parsed = halves.map(toDegrees)
+  return parsed.every(Boolean) ? (parsed as Degrees[]) : null
 }
 
-function toDegrees([, number = '', hemisphere = '']: RegExpMatchArray) {
-  const magnitude = Math.abs(Number(number))
-  const negative = number.startsWith('-') || /[SW]/i.test(hemisphere)
+/** Splits on hemisphere letters, then a comma, then by counting numbers. */
+function splitHalves(input: string) {
+  const byHemisphere = input.match(/[^NSEW]+[NSEW]/gi)
+  if (byHemisphere?.length === 2) return byHemisphere
+
+  const byComma = input.split(',')
+  if (byComma.length === 2) return byComma
+
+  const numbers = input.match(NUMBER) ?? []
+  if (![2, 4, 6].includes(numbers.length)) return null
+  const half = numbers.length / 2
+  return [numbers.slice(0, half), numbers.slice(half)].map((part) =>
+    part.join(' ')
+  )
+}
+
+function toDegrees(half: string): Degrees | null {
+  const numbers = half.match(NUMBER)
+  if (!numbers || numbers.length > 3) return null
+
+  const [degrees = '', ...rest] = numbers
+  const subdivisions = rest.map(Number)
+  if (subdivisions.some((part) => part < 0 || part >= 60)) return null
+
+  const [minutes = 0, seconds = 0] = subdivisions
+  const magnitude = Math.abs(Number(degrees)) + minutes / 60 + seconds / 3600
+  const negative = degrees.startsWith('-') || /[SW]/i.test(half)
+
   return {
     value: negative ? -magnitude : magnitude,
-    decimals: number.split('.')[1]?.length ?? 0
+    // A stored answer in minutes or seconds is as precise as those units allow.
+    decimals: rest.length
+      ? DMS_DECIMALS[rest.length]
+      : (degrees.split('.')[1]?.length ?? 0)
   }
 }
+
+/** One minute is ~0.017°, one second ~0.0003°. */
+const DMS_DECIMALS: Record<number, number> = { 1: 2, 2: 4 }
 
 /**
  * The guess is rounded to however precise the stored answer is, so storing

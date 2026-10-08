@@ -281,7 +281,7 @@ it is in git or the bundle:
 
 | Var | Purpose |
 | --- | --- |
-| `GATE_COORDINATE` | Decimal degrees, e.g. `51.5074,-0.1278`. Guesses are rounded to its precision. |
+| `GATE_COORDINATE` | Decimal degrees, e.g. `52.0083, -3.0856`. Guesses may be decimal or degrees/minutes/seconds, and are rounded to its precision. |
 | `RIDDLE_ANSWER` | Matched ignoring case, accents, spacing, punctuation and a leading "the". |
 | `RIDDLE_TEXT` | The riddle. Line breaks are kept. |
 | `REVEAL_TITLE`, `REVEAL_DATE` | The reveal. |
