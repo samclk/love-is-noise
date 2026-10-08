@@ -274,7 +274,9 @@ and hemispheres, so `PROMPT.template` in `config.ts` must change with
 1. The right coordinate switches the tube off (squash to a line, shrink to a
    dot, fade). The scene fades to black and the Canvas unmounts.
 2. A terminal-style riddle types itself out (`components/gate/Terminal.tsx`).
-   Any key or tap finishes it.
+   Any key or tap finishes it. The answer fills a `_____ / _____` template
+   (`ANSWER_TEMPLATE`, which must change with `RIDDLE_ANSWER`) and submits once
+   full.
 3. The right answer fades to the reveal: the title and the date.
 
 A wrong answer at either step clears the field and flickers the tube or jitters

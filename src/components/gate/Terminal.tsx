@@ -3,7 +3,8 @@
 import * as React from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { terminalFont } from '@/components/terminalFont'
-import { MAX_INPUT, type GateResponse } from '@/lib/gate'
+import type { GateResponse } from '@/lib/gate'
+import { countSlots, fillTemplate } from '@/lib/template'
 import { submitAnswer } from './submitAnswer'
 
 type Reveal = Extract<GateResponse, { stage: 'reveal' }>
@@ -108,54 +109,92 @@ export function Riddle({
   onSolved: (reveal: Reveal) => void
 }) {
   const { typed, done, reducedMotion } = useTypewriter(riddle)
-  const [answer, setAnswer] = React.useState('')
+  const [letters, setLetters] = React.useState('')
+  const [focused, setFocused] = React.useState(false)
   const input = React.useRef<HTMLInputElement>(null)
-  const pending = React.useRef(false)
+  const line = React.useRef<HTMLParagraphElement>(null)
+  const entry = fillTemplate(ANSWER_TEMPLATE, letters)
+  // Held in refs so a parent re-render cannot re-arm the submit below, and a
+  // solved answer is never sent twice.
+  const solve = React.useRef(onSolved)
+  solve.current = onSolved
+  const solved = React.useRef(false)
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    if (pending.current || !answer.trim()) return
-    pending.current = true
-    const result = await submitAnswer({ coordinate, answer })
-
-    // Left pending once solved, so Enter during the fade out cannot resubmit.
-    if (result?.stage === 'reveal') {
-      onSolved(result)
-      return
+  // Filling the last slot is the submit, as on the CRT. The pause lets the
+  // final letter show before the screen reacts.
+  const complete = entry.next === null
+  const answer = entry.text
+  React.useEffect(() => {
+    if (!complete || solved.current) return
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      const result = await submitAnswer({ coordinate, answer })
+      if (cancelled) return
+      if (result?.stage === 'reveal') {
+        solved.current = true
+        solve.current(result)
+        return
+      }
+      setLetters('')
+      if (!reducedMotion) line.current?.animate(JITTER, { duration: 180 })
+    }, SUBMIT_PAUSE_MS)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
     }
-    pending.current = false
-    setAnswer('')
-    // Animated in place rather than by remounting the input, which would drop
-    // focus and close the phone keyboard on every wrong answer.
-    if (!reducedMotion) input.current?.animate(JITTER, { duration: 180 })
-  }
+  }, [complete, answer, coordinate, reducedMotion])
+
+  const cursorAt = entry.next ?? answer.length
 
   return (
     // iOS ignores autoFocus without a tap, so any tap on the screen focuses.
     <TerminalScreen shown={shown} onPress={() => input.current?.focus()}>
       <Typed text={riddle} typed={typed} />
       {done && (
-        <form onSubmit={submit} className="mt-8 flex gap-3">
-          <span aria-hidden>&gt;</span>
+        <p ref={line} className="relative mt-8 whitespace-pre">
+          <span aria-hidden>
+            &gt; {answer.slice(0, cursorAt)}
+            {/* A block cursor on the next slot, shown only while typing is live. */}
+            <span className={focused ? 'bg-[#8fe1eb] text-black' : ''}>
+              {answer[cursorAt] ?? ' '}
+            </span>
+            {answer.slice(cursorAt + 1)}
+          </span>
+          {/* Laid over the line, invisible: it takes the typing, the line shows it. */}
           <input
             ref={input}
             autoFocus
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
+            value={letters}
+            onChange={(event) =>
+              setLetters(
+                event.target.value
+                  .replace(/[^a-z]/gi, '')
+                  .toLowerCase()
+                  .slice(0, ANSWER_SLOTS)
+              )
+            }
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             aria-label="Answer"
             autoComplete="off"
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
-            enterKeyHint="go"
-            maxLength={MAX_INPUT}
-            className="min-w-0 flex-1 bg-transparent caret-[#8fe1eb] outline-none [caret-shape:block]"
+            className="absolute inset-0 w-full opacity-0"
           />
-        </form>
+        </p>
       )}
     </TerminalScreen>
   )
 }
+
+/**
+ * Typed letters fill the underscores. Its shape gives away the answer's word
+ * lengths, so change it with RIDDLE_ANSWER.
+ */
+const ANSWER_TEMPLATE = '_____ / _____'
+const ANSWER_SLOTS = countSlots(ANSWER_TEMPLATE)
+const SUBMIT_PAUSE_MS = 300
 
 /** One line of the tube losing sync for a moment. */
 const JITTER: Keyframe[] = [
