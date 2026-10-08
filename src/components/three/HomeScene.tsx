@@ -146,7 +146,7 @@ export function HomeScene() {
           onChange={(event) => setText(event.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          aria-label="Code"
+          aria-label="Coordinates"
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"

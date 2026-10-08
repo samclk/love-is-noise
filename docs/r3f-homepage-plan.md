@@ -263,7 +263,7 @@ blinking-prompt option was declined.
 
 ## Password gate
 
-The CRT shows only a blinking cursor. A hidden `<input>` takes the typing and
+The CRT shows a `coordinates:` label and a blinking cursor. A hidden `<input>` takes the typing and
 the prompt is painted onto the screen texture (`useScreenTexture`).
 
 1. The right coordinate switches the tube off (squash to a line, shrink to a

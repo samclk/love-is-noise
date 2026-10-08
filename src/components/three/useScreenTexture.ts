@@ -124,6 +124,8 @@ export function useScreenTexture(
 /** Full size, for entries up to PROMPT.lineChars. VT323 is fixed-width, so one advance measures every glyph. */
 const FONT_SIZE = 34
 
+const LINE_HEIGHT = 1.25
+
 /** Inset from the content box, so the prompt does not sit on the tube's curve. */
 const PADDING = 26
 
@@ -143,10 +145,12 @@ function drawPrompt(
   const chars = Math.max(PROMPT.lineChars, text.length) + 1
   const fit = Math.min(1, (width - PADDING * 2) / (advance * chars))
   const size = FONT_SIZE * fit
-  ctx.font = `${size}px ${family}`
-
   const left = x + PADDING
-  const top = y + PADDING
+  ctx.fillText(PROMPT.label, left, y + PADDING)
+
+  // The entry sits on the line below the label, so it keeps the full width.
+  ctx.font = `${size}px ${family}`
+  const top = y + PADDING + FONT_SIZE * LINE_HEIGHT
   ctx.fillText(text, left, top)
 
   if (cursor) {

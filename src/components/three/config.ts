@@ -1,12 +1,12 @@
 export const MODEL_URL = '/models/old-computer.glb'
 
 /**
- * The CRT's only content: a bare cursor that takes the first answer.
+ * The CRT's only content: a label naming what to type, and the cursor below it.
  *
  * `lineChars` is how much fits on one line at full size; a longer entry, such as
  * a full-precision paste, shrinks the type to stay on the glass.
  */
-export const PROMPT = { lineChars: 24, blinkMs: 530 }
+export const PROMPT = { label: 'coordinates:', lineChars: 24, blinkMs: 530 }
 
 /**
  * The tube switching off once the code is right: the picture squashes to a
