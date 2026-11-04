@@ -30,6 +30,12 @@ export const CAMERA = {
   target: [0, 1.25, 0] as const
 }
 
+export const DOOR = {
+  /** How far the slab swings away from the camera. */
+  openDegrees: 100,
+  openSeconds: 2.2
+}
+
 /** A column of rain over the door and nowhere else. */
 export const RAIN = {
   count: 750,

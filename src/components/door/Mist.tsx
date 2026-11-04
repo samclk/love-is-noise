@@ -18,8 +18,7 @@ type Layer = {
 /**
  * Low mist lying in the valleys, as a stack of drifting noise planes.
  *
- * The same approach as the CRT scene's FogLayers, kept close to the ground and
- * paler. The planes skip the slice of depth the door stands in, since a plane
+ * Kept close to the ground and pale. The planes skip the slice of depth the door stands in, since a plane
  * through solid geometry cuts a hard line across it.
  */
 export function Mist({ reducedMotion }: { reducedMotion: boolean }) {

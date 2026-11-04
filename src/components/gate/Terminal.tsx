@@ -5,13 +5,14 @@ import { useReducedMotion } from 'framer-motion'
 import { terminalFont } from '@/components/terminalFont'
 import type { GateResponse } from '@/lib/gate'
 import { countSlots, fillTemplate } from '@/lib/template'
+import { playTrack, unlockAudio } from './secretTrack'
 import { submitAnswer } from './submitAnswer'
 
 type Reveal = Extract<GateResponse, { stage: 'reveal' }>
 
 /**
- * The screens after the CRT, drawn as if the page were now the tube itself:
- * phosphor-coloured text, a soft glow and scanlines over plain DOM text.
+ * The screens through the door, drawn like an old terminal: phosphor-coloured
+ * text, a soft glow and scanlines over plain DOM text.
  */
 function TerminalScreen({
   shown,
@@ -98,13 +99,10 @@ function Typed({ text, typed }: { text: string; typed: string }) {
 
 export function Riddle({
   riddle,
-  coordinate,
   shown,
   onSolved
 }: {
   riddle: string
-  /** Resent with the answer, which the server checks again. */
-  coordinate: string
   shown: boolean
   onSolved: (reveal: Reveal) => void
 }) {
@@ -120,15 +118,15 @@ export function Riddle({
   solve.current = onSolved
   const solved = React.useRef(false)
 
-  // Filling the last slot is the submit, as on the CRT. The pause lets the
-  // final letter show before the screen reacts.
+  // Filling the last slot is the submit. The pause lets the final letter show
+  // before the screen reacts.
   const complete = entry.next === null
   const answer = entry.text
   React.useEffect(() => {
     if (!complete || solved.current) return
     let cancelled = false
     const timer = setTimeout(async () => {
-      const result = await submitAnswer({ coordinate, answer })
+      const result = await submitAnswer({ answer })
       if (cancelled) return
       if (result?.stage === 'reveal') {
         solved.current = true
@@ -142,7 +140,7 @@ export function Riddle({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [complete, answer, coordinate, reducedMotion])
+  }, [complete, answer, reducedMotion])
 
   const cursorAt = entry.next ?? answer.length
 
@@ -165,14 +163,16 @@ export function Riddle({
             ref={input}
             autoFocus
             value={letters}
-            onChange={(event) =>
+            onChange={(event) => {
+              // A keystroke is a user gesture, the only moment audio may start.
+              unlockAudio()
               setLetters(
                 event.target.value
                   .replace(/[^a-z]/gi, '')
                   .toLowerCase()
                   .slice(0, ANSWER_SLOTS)
               )
-            }
+            }}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             aria-label="Answer"
@@ -212,12 +212,33 @@ export function RevealScreen({
   reveal: Reveal
   shown: boolean
 }) {
-  const text = `${reveal.title}\n${reveal.date}`
-  const { typed } = useTypewriter(text)
+  const { typed } = useTypewriter(REVEAL_TEXT)
+  const { listen } = reveal
+
+  React.useEffect(() => {
+    if (!listen) return
+    const controller = new AbortController()
+    let stop: (() => void) | undefined
+    playTrack(listen, controller.signal)
+      .then((stopTrack) => {
+        stop = stopTrack
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) console.error('listen:', error)
+      })
+    return () => {
+      controller.abort()
+      stop?.()
+    }
+  }, [listen])
 
   return (
-    <TerminalScreen shown={shown}>
-      <Typed text={text} typed={typed} />
+    // If the browser still held the audio back, a tap lets it play.
+    <TerminalScreen shown={shown} onPress={unlockAudio}>
+      <Typed text={REVEAL_TEXT} typed={typed} />
     </TerminalScreen>
   )
 }
+
+/** Types out as the track starts. */
+const REVEAL_TEXT = 'listen close'

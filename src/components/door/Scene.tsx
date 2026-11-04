@@ -25,7 +25,16 @@ function WhenDrawn({ onDrawn }: { onDrawn?: () => void }) {
   return null
 }
 
-export default function Scene({ onReady }: { onReady?: () => void }) {
+type SceneProps = {
+  /** Fires once the scene has actually drawn a few frames. */
+  onReady?: () => void
+  /** Swings the door open. */
+  open: boolean
+  /** A click or tap on the shut door. */
+  onDoorPress: () => void
+}
+
+export default function Scene({ onReady, open, onDoorPress }: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
   const reducedMotion = useReducedMotion() ?? false
@@ -90,7 +99,12 @@ export default function Scene({ onReady }: { onReady?: () => void }) {
         <React.Suspense fallback={null}>
           <Sky reducedMotion={reducedMotion} />
           <Terrain />
-          <Door onMeasured={setDoor} />
+          <Door
+            open={open}
+            onMeasured={setDoor}
+            onPress={onDoorPress}
+            reducedMotion={reducedMotion}
+          />
           {door && <DoorRain door={door} />}
           <ContactShadows
             position={[0, 0.01, 0]}

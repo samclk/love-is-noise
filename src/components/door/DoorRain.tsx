@@ -10,11 +10,10 @@ import type { DoorBounds } from './Door'
 /**
  * Rain falling on the door and nowhere else.
  *
- * Built like the CRT scene's Rain: every drop a camera-facing quad in one
- * geometry, all motion in the vertex shader from a single time uniform. Two
- * differences: the drops live in a narrow column over the door, thinning out at
- * its edges, and each one knows its own floor, so drops above the door's top
- * land on it instead of falling through. A second mesh over the same data draws
+ * Every drop is a camera-facing quad in one geometry, with all motion in the
+ * vertex shader from a single time uniform. The drops live in a narrow column
+ * over the door, thinning out at its edges, and each one knows its own floor,
+ * so drops above the door's top land on it instead of falling through. A second mesh over the same data draws
  * a splash at the moment each drop lands.
  */
 export function DoorRain({ door }: { door: DoorBounds }) {

@@ -1,38 +1,27 @@
 import {
   MAX_INPUT,
-  matchesCoordinate,
   matchesRiddle,
   normaliseRiddleAnswer,
-  parseCoordinate,
   type GateResponse
 } from '@/lib/gate'
+import { issueToken, readMasterKey, sessionKey } from '@/lib/listen'
 
 /**
- * Checks one answer and returns the next stage's content only when it is right.
+ * Opening the door asks for the riddle; answering it right unlocks the track.
  *
- * Everything lives in env vars so the answers, the riddle and the reveal are
- * never in the client bundle or in git. A wrong answer is a bare 401: the
- * client shows the same flicker whatever was typed.
+ * The riddle and its answer live in env vars so neither is in the client
+ * bundle or in git. A wrong answer is a bare 401: the
+ * client shows the same jitter whatever was typed.
  */
 export async function POST(request: Request) {
   const env = readEnv()
   if (!env) {
-    console.error(
-      'gate: GATE_COORDINATE (two numbers), RIDDLE_ANSWER, RIDDLE_TEXT, REVEAL_TITLE and REVEAL_DATE must all be set'
-    )
+    console.error('gate: RIDDLE_ANSWER and RIDDLE_TEXT must both be set')
     return new Response(null, { status: 500 })
   }
 
   const body = await request.json().catch(() => null)
-  const coordinate = readString(body, 'coordinate')
   const answer = readString(body, 'answer')
-  if (typeof coordinate !== 'string') {
-    return new Response(null, { status: 400 })
-  }
-
-  if (!matchesCoordinate(coordinate, env.coordinate)) {
-    return new Response(null, { status: 401 })
-  }
 
   if (answer === undefined) {
     return Response.json({
@@ -47,30 +36,29 @@ export async function POST(request: Request) {
 
   return Response.json({
     stage: 'reveal',
-    title: env.title,
-    date: env.date
+    listen: issueListen()
   } satisfies GateResponse)
 }
 
+/** Without a key the reveal still shows; it just stays silent. */
+function issueListen() {
+  const master = readMasterKey(process.env.AUDIO_KEY)
+  if (!master) {
+    console.error('gate: AUDIO_KEY is not set, so the reveal will be silent')
+    return undefined
+  }
+  const token = issueToken(master, Date.now())
+  return { token, key: sessionKey(master, token).toString('base64') }
+}
+
 function readEnv() {
-  const coordinate = process.env.GATE_COORDINATE
   const riddleAnswer = process.env.RIDDLE_ANSWER
   const riddle = process.env.RIDDLE_TEXT
-  const title = process.env.REVEAL_TITLE
-  const date = process.env.REVEAL_DATE
-  if (!coordinate || !riddleAnswer || !riddle || !title || !date) return null
-  // Either of these malformed would reject every answer without saying why.
-  if (!parseCoordinate(coordinate) || !normaliseRiddleAnswer(riddleAnswer)) {
-    return null
-  }
+  if (!riddleAnswer || !riddle) return null
+  // A malformed answer would reject every guess without saying why.
+  if (!normaliseRiddleAnswer(riddleAnswer)) return null
 
-  return {
-    coordinate,
-    riddleAnswer,
-    riddle,
-    title,
-    date
-  }
+  return { riddleAnswer, riddle }
 }
 
 /** `undefined` when the field is absent, `null` when it is present but unusable. */

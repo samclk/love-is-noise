@@ -1,7 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { countSlots, fillTemplate } from './template.ts'
-import { matchesCoordinate } from './gate.ts'
 
 const TEMPLATE = '__.____, -_.____'
 
@@ -20,11 +19,10 @@ test('digits fill slots in order and skip the printed characters', () => {
   })
 })
 
-test('a full entry has no next slot and reads as the coordinate', () => {
+test('a full entry has no next slot', () => {
   const { text, next } = fillTemplate(TEMPLATE, '52008330856')
   assert.equal(text, '52.0083, -3.0856')
   assert.equal(next, null)
-  assert.equal(matchesCoordinate(text, '52.0083, -3.0856'), true)
 })
 
 test('counts the digits a template takes', () => {
@@ -42,5 +40,4 @@ test('a two-line DMS template fills across the line break', () => {
   const { text, next } = fillTemplate(DMS, '52003030508')
   assert.equal(text, '52°00′30″N\n3°05′08″W')
   assert.equal(next, null)
-  assert.equal(matchesCoordinate(text, '52.0083, -3.0856'), true)
 })

@@ -42,3 +42,7 @@ yarn-error.log*
 
 # large source assets (optimised versions are committed)
 public/models/*.source.glb
+
+# unencrypted audio never goes in this public repo; only private/*.enc does
+*.wav
+*.mp3
