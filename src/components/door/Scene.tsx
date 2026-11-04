@@ -9,6 +9,7 @@ import { useSceneActive } from '../three/useSceneActive'
 import { CameraDrift } from './CameraDrift'
 import { FOG_DENSITY, PALETTE } from './config'
 import { Door, type DoorBounds } from './Door'
+import { DoorHint } from './DoorHint'
 import { DoorRain } from './DoorRain'
 import { Effects } from './Effects'
 import { Mist } from './Mist'
@@ -32,9 +33,16 @@ type SceneProps = {
   open: boolean
   /** A click or tap on the shut door. */
   onDoorPress: () => void
+  /** Shows "step inside" over the door. */
+  hint: boolean
 }
 
-export default function Scene({ onReady, open, onDoorPress }: SceneProps) {
+export default function Scene({
+  onReady,
+  open,
+  onDoorPress,
+  hint
+}: SceneProps) {
   const container = React.useRef<HTMLDivElement>(null)
   const active = useSceneActive(container)
   const reducedMotion = useReducedMotion() ?? false
@@ -65,7 +73,7 @@ export default function Scene({ onReady, open, onDoorPress }: SceneProps) {
         }}
       >
         <fogExp2 attach="fog" args={[PALETTE.haze, FOG_DENSITY]} />
-        <CameraDrift reducedMotion={reducedMotion} />
+        <CameraDrift reducedMotion={reducedMotion} approach={open} />
 
         {/* Overcast: almost all the light is the sky itself, with a weak sun
             behind the door to rim it. */}
@@ -106,6 +114,7 @@ export default function Scene({ onReady, open, onDoorPress }: SceneProps) {
             reducedMotion={reducedMotion}
           />
           {door && <DoorRain door={door} />}
+          {door && <DoorHint top={door.max.y} shown={hint} />}
           <ContactShadows
             position={[0, 0.01, 0]}
             scale={5}

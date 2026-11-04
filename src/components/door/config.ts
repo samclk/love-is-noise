@@ -27,7 +27,11 @@ export const CAMERA = {
   /** Above the door's base, so the shot looks across the crest into the valleys. */
   height: 2.6,
   /** The point the shot centres on: roughly the middle of the door. */
-  target: [0, 1.25, 0] as const
+  target: [0, 1.25, 0] as const,
+  /** Where the push-in ends once the door opens: just short of the doorway, at eye height. */
+  through: [0, 1.15, 0.7] as const,
+  /** Reaches the doorway just before the fade to black completes. */
+  approachSeconds: 2.6
 }
 
 export const DOOR = {

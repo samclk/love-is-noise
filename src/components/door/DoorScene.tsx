@@ -41,6 +41,15 @@ export function DoorScene() {
     return () => clearTimeout(timer)
   }, [show])
 
+  // Held back until the fade-in has mostly settled, so the hint arrives as the
+  // shot does rather than over the fade.
+  const [hintDue, setHintDue] = React.useState(false)
+  React.useEffect(() => {
+    if (!shown) return
+    const timer = setTimeout(() => setHintDue(true), HINT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [shown])
+
   const openDoor = React.useCallback(
     () =>
       setStage((current) =>
@@ -104,6 +113,7 @@ export function DoorScene() {
         onReady={show}
         open={stage.name !== 'door'}
         onDoorPress={openDoor}
+        hint={hintDue && stage.name === 'door'}
       />
       {/* The door is only clickable in the canvas, so keyboard and screen
           reader users get a real button. It shows itself when focused. */}
@@ -132,6 +142,7 @@ function wait(ms: number) {
 }
 
 const ARRIVE_MS = 2400
-/** From the click to the fade starting, so the door is seen to swing first. */
-const FADE_DELAY_MS = 1100
+const HINT_DELAY_MS = 2200
+/** From the click to the fade starting, so the door swings and the push-in is seen first. */
+const FADE_DELAY_MS = 1500
 const FADE_MS = 1600
