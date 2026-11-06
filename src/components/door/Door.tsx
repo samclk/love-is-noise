@@ -89,6 +89,7 @@ function assemble(gltf: THREE.Object3D) {
 
   const frame: THREE.Mesh[] = []
   const slab: THREE.Mesh[] = []
+  const panel = new THREE.Box3()
   const materials: THREE.Material[] = []
   const handles = new THREE.Box3()
 
@@ -103,7 +104,9 @@ function assemble(gltf: THREE.Object3D) {
       const parts = splitFrame(geometry)
       geometry.dispose()
       frame.push(toMesh(parts.frame, material))
-      slab.push(toMesh(parts.slab, material))
+      const slabPanel = toMesh(parts.slab, material)
+      panel.expandByObject(slabPanel)
+      slab.push(slabPanel)
       return
     }
 
@@ -134,7 +137,8 @@ function assemble(gltf: THREE.Object3D) {
   }
 
   const root = new THREE.Group()
-  root.add(...frame, hinge)
+  const blackness = buildVoid(panel)
+  root.add(...frame, hinge, blackness)
 
   return {
     root,
@@ -145,9 +149,31 @@ function assemble(gltf: THREE.Object3D) {
     dispose() {
       for (const mesh of [...frame, ...slab]) mesh.geometry.dispose()
       for (const material of materials) material.dispose()
+      blackness.geometry.dispose()
     }
   }
 }
+
+/**
+ * Pitch black filling the doorway, just behind the shut slab, so the door opens
+ * onto nothing rather than the hillside behind it. Unlit and unfogged, and the
+ * grade leaves true black alone, so it stays black on screen.
+ */
+function buildVoid(panel: THREE.Box3) {
+  const size = panel.getSize(new THREE.Vector3())
+  const centre = panel.getCenter(new THREE.Vector3())
+  const blackness = new THREE.Mesh(
+    new THREE.PlaneGeometry(size.x, size.y),
+    VOID_MATERIAL
+  )
+  blackness.position.set(centre.x, centre.y, panel.min.z - 0.002)
+  return blackness
+}
+
+const VOID_MATERIAL = new THREE.MeshBasicMaterial({
+  color: 'black',
+  fog: false
+})
 
 /**
  * Separates the frame from the slab in the export's shared mesh.

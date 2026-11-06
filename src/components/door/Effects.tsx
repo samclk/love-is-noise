@@ -78,12 +78,16 @@ const FRAGMENT = /* glsl */ `
     // Graded in display space, where "shadows" and "highlights" mean what the eye
     // thinks they mean. The composer encodes to sRGB after this pass.
     vec3 colour = pow(max(inputColor.rgb, 0.0), vec3(1.0 / 2.2));
+    // Nothing in the landscape is this dark; only the doorway's void is, and
+    // it must stay pitch black rather than lifting to teal with the rest.
+    float lit = smoothstep(0.0, 0.04, max(colour.r, max(colour.g, colour.b)));
 
     float luma = dot(colour, vec3(0.2126, 0.7152, 0.0722));
     colour = mix(vec3(luma), colour, uSaturation);
     colour *= mix(uShadowTint, uHighlightTint, smoothstep(0.05, 0.85, luma));
     colour = (colour - 0.5) * uContrast + 0.5;
     colour = uLift + colour * (1.0 - uLift);
+    colour *= lit;
 
     outputColor = vec4(pow(clamp(colour, 0.0, 1.0), vec3(2.2)), inputColor.a);
   }
