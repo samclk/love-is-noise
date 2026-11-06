@@ -271,7 +271,7 @@ blinking-prompt option was declined.
    black and the Canvas unmounts. If the riddle cannot be fetched, the door
    swings shut again.
 2. A terminal-style riddle types itself out (`components/gate/Terminal.tsx`).
-   Any key or tap finishes it. The answer fills a `_____ / _____` template
+   Any key or tap finishes it. The answer fills a `___ / __ / _ / __ / ______` template
    (`ANSWER_TEMPLATE`, which must change with `RIDDLE_ANSWER`) and submits once
    full.
 3. The right answer fades to the reveal, which reads "listen close".

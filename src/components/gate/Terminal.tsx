@@ -192,7 +192,7 @@ export function Riddle({
  * Typed letters fill the underscores. Its shape gives away the answer's word
  * lengths, so change it with RIDDLE_ANSWER.
  */
-const ANSWER_TEMPLATE = '_____ / _____'
+const ANSWER_TEMPLATE = '___ / __ / _ / __ / ______'
 const ANSWER_SLOTS = countSlots(ANSWER_TEMPLATE)
 const SUBMIT_PAUSE_MS = 300
 
