@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test --experimental-strip-types --no-warnings 'src/**/*.test.mjs'",
-    "optimise:model": "node scripts/optimise-model.mjs"
+    "optimise:model": "node scripts/optimise-model.mjs",
+    "encrypt:audio": "node --experimental-strip-types --no-warnings scripts/encrypt-audio.mjs"
   },
   "browserslist": [
     "> 1%",

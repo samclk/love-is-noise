@@ -1,11 +1,11 @@
-import { HomeScene } from '@/components/three/HomeScene'
+import { DoorScene } from '@/components/door/DoorScene'
 
-// The page is the puzzle and nothing else. The store, tour, video and social
-// content that previously lived here is preserved in git history.
+// A door in the rain. Opening it leads to the riddle, and the riddle to the
+// reveal. The CRT gate that preceded it is in git history.
 export default function Home() {
   return (
     <main className="relative h-dvh w-full overflow-hidden">
-      <HomeScene />
+      <DoorScene />
     </main>
   )
 }

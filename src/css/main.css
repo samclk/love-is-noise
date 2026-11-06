@@ -3,6 +3,17 @@
 @theme {
   --font-sans: neue-haas-grotesk-display, sans-serif;
   --font-styled: 'p22-canterbury-pro', sans-serif;
+
+  --animate-flash: flash 1.6s ease-in-out infinite;
+  @keyframes flash {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.15;
+    }
+  }
 }
 
 body {

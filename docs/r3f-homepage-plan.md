@@ -261,37 +261,38 @@ keyboard user ever has to wait for the right slide to come round.
 no on-screen signal that the CRT is interactive. Accepted deliberately; the
 blinking-prompt option was declined.
 
-## Password gate
+## Gate
 
-The CRT shows a two-line template, `__°__′__″N` over `_°__′__″W`.
-Typed digits fill the underscores in order; everything else is printed, so a
-phone gets the number pad. A hidden `<input>` takes the typing and the result is
-painted onto the screen texture (`useScreenTexture`). Filling the last slot
-submits, since a phone's number pad has no Return key. The template's shape gives away the answer's digit counts
-and hemispheres, so `PROMPT.template` in `config.ts` must change with
-`GATE_COORDINATE`.
+> The CRT scene this plan describes has been replaced by the door scene
+> (`components/door`). The CRT is in git history.
 
-1. The right coordinate switches the tube off (squash to a line, shrink to a
-   dot, fade). The scene fades to black and the Canvas unmounts.
+1. Clicking the door (or the "Open the door" button, for keyboards and screen
+   readers) swings it open while the riddle is fetched. The scene fades to
+   black and the Canvas unmounts. If the riddle cannot be fetched, the door
+   swings shut again.
 2. A terminal-style riddle types itself out (`components/gate/Terminal.tsx`).
-   Any key or tap finishes it. The answer fills a `_____ / _____` template
+   Any key or tap finishes it. The answer fills a `___ / __ / _ / __ / ______` template
    (`ANSWER_TEMPLATE`, which must change with `RIDDLE_ANSWER`) and submits once
    full.
-3. The right answer fades to the reveal: the title and the date.
+3. The right answer fades to the reveal, which reads "listen close".
+   The track plays with it: the reveal carries a two-minute token, `/api/listen`
+   swaps the stored encryption for one under that token's key, and the page
+   decrypts it in memory and plays it through Web Audio, with no `<audio>` tag
+   or file URL. Re-encrypt the track with `npm run encrypt:audio` (see the
+   script) whenever the audio or `AUDIO_KEY` changes. Never commit the WAV or
+   an unencrypted MP3: this repo is public.
 
-A wrong answer at either step clears the field and flickers the tube or jitters
-the line. Nothing else happens.
+A wrong answer clears the field and jitters the line. Nothing else happens.
 
-`POST /api/gate` checks every answer and returns the next stage's content. The
-riddle step resends the coordinate. Everything is read from env vars so none of
-it is in git or the bundle:
+`POST /api/gate` with no answer returns the riddle; with an answer, it returns
+the reveal (and the track's token) only when the answer is right. Everything is read from env vars so
+none of it is in git or the bundle:
 
 | Var | Purpose |
 | --- | --- |
-| `GATE_COORDINATE` | Decimal degrees, e.g. `52.0083, -3.0856`. Guesses may be decimal or degrees/minutes/seconds, and are rounded to its precision. |
 | `RIDDLE_ANSWER` | Matched ignoring case, accents, spacing, punctuation and a leading "the". |
 | `RIDDLE_TEXT` | The riddle. Line breaks are kept. |
-| `REVEAL_TITLE`, `REVEAL_DATE` | The reveal. |
+| `AUDIO_KEY` | 32 random bytes, base64 (`openssl rand -base64 32`). Decrypts `private/black-sheep.mp3.enc` and signs listen tokens. Without it the reveal is silent. |
 
 There is no rate limiting and no memory between visits. Matching rules are
 covered by `yarn test`, which needs Node 22.6 or later.
